@@ -72,6 +72,16 @@ public class Element {
 		return this;
 	}
 
+	public void updateTranslation(LanguageCode languageCode, String title, String content, String examples) {
+		ElementTranslation translation = translations.stream()
+				.filter(candidate -> candidate.getLanguageCode() == languageCode)
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("No translation exists for " + languageCode));
+		translation.setTitle(title);
+		translation.setContent(content);
+		translation.setExamples(examples);
+	}
+
 	public Element addImage(String fileName, String storagePath, String contentType, String altText, int displayOrder) {
 		if (images.stream().anyMatch(image -> image.getDisplayOrder() == displayOrder)) {
 			throw new IllegalArgumentException("Image display order " + displayOrder + " already exists");

@@ -57,6 +57,18 @@ The default local profile adds two example definitions (`api` and
 `database-index`) with English, German, and Russian content when they are
 missing. Restarting the backend does not duplicate them.
 
+The element REST API is available at `/api/elements`:
+
+- `GET /api/elements` lists definitions and localized titles.
+- `POST /api/elements` creates a definition.
+- `GET /api/elements/{id}` returns complete content and image metadata.
+- `PUT /api/elements/{id}` updates the slug and all translations.
+- `DELETE /api/elements/{id}` deletes the definition.
+
+Create and update requests must contain exactly one `EN`, `DE`, and `RU`
+translation. API failures use `application/problem+json` and include a stable
+`code`; validation failures also include field-level `errors`.
+
 ## Definition of done for the MVP
 
 - Definitions can be listed, created, viewed, edited, and deleted.
