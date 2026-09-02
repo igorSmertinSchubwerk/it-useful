@@ -1,0 +1,42 @@
+# IT Useful
+
+IT Useful is a multilingual knowledge base for IT definitions. It will provide a searchable start-page table and detail cards containing titles, Markdown text, examples, and images in English, German, and Russian.
+
+## Planned stack
+
+- Java 21 and Spring Boot REST API
+- React, TypeScript, and Vite
+- Tailwind CSS
+- PostgreSQL with Flyway migrations
+- Docker Compose for local services
+- Local image storage for the first version
+
+## Repository structure
+
+```text
+it-useful/
+├── backend/       Spring Boot application
+├── frontend/      React application
+├── docs/          Project documentation and implementation worksheet
+├── uploads/       Local runtime uploads; contents are not committed
+└── README.md
+```
+
+## Project status
+
+The repository foundation is being prepared. Installation and startup commands will be added as the backend and frontend are created.
+
+Development is performed in Ubuntu on WSL. The Windows Codex desktop app and editor may access the repository through WSL integration, but project commands should run inside WSL.
+
+## Planning and contribution workflow
+
+- The implementation checklist is in [`docs/WORKSHEET.csv`](docs/WORKSHEET.csv).
+- The approval, branch, pull-request, and reporting process is in [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md).
+
+## Definition of done for the MVP
+
+- Definitions can be listed, created, viewed, edited, and deleted.
+- Every definition has English, German, and Russian content.
+- Detail pages support safe Markdown, examples, and ordered images.
+- Backend, frontend, integration, and end-to-end quality checks pass.
+- A clean WSL checkout can be started using only documented commands.

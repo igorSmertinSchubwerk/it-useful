@@ -1,0 +1,37 @@
+# Editors and operating systems
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Java / Maven
+backend/target/
+*.class
+*.jar
+*.war
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+*.tsbuildinfo
+npm-debug.log*
+
+# Runtime data
+uploads/*
+!uploads/.gitkeep
+data/
+logs/
+*.log
+
+# Test and tool output
+test-results/
+playwright-report/
+.cache/
