@@ -53,6 +53,10 @@ cd backend
 
 The health endpoint is available at `http://localhost:8080/actuator/health`.
 
+The default local profile adds two example definitions (`api` and
+`database-index`) with English, German, and Russian content when they are
+missing. Restarting the backend does not duplicate them.
+
 ## Definition of done for the MVP
 
 - Definitions can be listed, created, viewed, edited, and deleted.
