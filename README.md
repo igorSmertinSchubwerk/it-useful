@@ -24,7 +24,7 @@ it-useful/
 
 ## Project status
 
-The repository foundation is being prepared. Installation and startup commands will be added as the backend and frontend are created.
+The repository and WSL toolchain are configured. The Spring Boot and PostgreSQL foundation is the current implementation phase.
 
 Development is performed in Ubuntu on WSL. The Windows Codex desktop app and editor may access the repository through WSL integration, but project commands should run inside WSL.
 
@@ -33,6 +33,25 @@ Development is performed in Ubuntu on WSL. The Windows Codex desktop app and edi
 - The implementation checklist is in [`docs/WORKSHEET.csv`](docs/WORKSHEET.csv).
 - The approval, branch, pull-request, and reporting process is in [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md).
 - WSL prerequisites and toolchain verification are in [`docs/DEVELOPMENT_SETUP.md`](docs/DEVELOPMENT_SETUP.md).
+- IntelliJ IDEA setup is in [`docs/INTELLIJ_SETUP.md`](docs/INTELLIJ_SETUP.md).
+- The initial PostgreSQL schema is described in [`docs/data-model.md`](docs/data-model.md).
+
+## Backend development
+
+Start PostgreSQL and run the backend test suite:
+
+```bash
+./scripts/test-backend.sh
+```
+
+Run the backend locally from another terminal:
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+The health endpoint is available at `http://localhost:8080/actuator/health`.
 
 ## Definition of done for the MVP
 
