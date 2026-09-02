@@ -32,6 +32,7 @@ Development is performed in Ubuntu on WSL. The Windows Codex desktop app and edi
 
 - The implementation checklist is in [`docs/WORKSHEET.csv`](docs/WORKSHEET.csv).
 - The approval, branch, pull-request, and reporting process is in [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md).
+- WSL prerequisites and toolchain verification are in [`docs/DEVELOPMENT_SETUP.md`](docs/DEVELOPMENT_SETUP.md).
 
 ## Definition of done for the MVP
 
