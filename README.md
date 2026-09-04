@@ -107,6 +107,22 @@ Interactive API documentation is available while the backend is running:
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - OpenAPI JSON: `http://localhost:8080/v3/api-docs`
 
+## Frontend development
+
+The React/TypeScript frontend foundation is available locally:
+
+```bash
+source "$HOME/.nvm/nvm.sh"
+nvm use
+cd frontend
+npm ci
+npm run dev
+```
+
+Open `http://localhost:5173`. The current page demonstrates the Tailwind theme
+and three content languages; definition CRUD and backend integration come later.
+See [frontend instructions](frontend/README.md) for build and preview commands.
+
 ## Definition of done for the MVP
 
 - Definitions can be listed, created, viewed, edited, and deleted.
