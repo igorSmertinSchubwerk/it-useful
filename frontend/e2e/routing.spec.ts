@@ -1,6 +1,10 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 
+test.beforeEach(async ({ page }) => {
+  await page.route('**/api/elements', (route) => route.fulfill({ json: [] }))
+})
+
 const routes = [
   ['/', 'A home for your IT knowledge'],
   ['/elements/new', 'New definition'],

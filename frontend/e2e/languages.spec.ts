@@ -2,6 +2,10 @@ import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { messages } from '../src/i18n/messages'
 
+test.beforeEach(async ({ page }) => {
+  await page.route('**/api/elements', (route) => route.fulfill({ json: [] }))
+})
+
 for (const language of ['en', 'de', 'ru'] as const) {
   test(`interface language ${language}: persistence, routes, focus, and accessibility`, async ({
     page,
@@ -13,10 +17,7 @@ for (const language of ['en', 'de', 'ru'] as const) {
     })
     await page.setViewportSize({ width: 375, height: 812 })
     await page.goto('/')
-    const samples = await page
-      .getByRole('region', { name: 'Content languages' })
-      .textContent()
-    const selector = page.getByRole('combobox')
+    const selector = page.locator('#ui-language')
     await selector.focus()
     // Exercise the native select with the keyboard rather than a mouse-only control.
     await page.keyboard.press('Home')
@@ -28,11 +29,9 @@ for (const language of ['en', 'de', 'ru'] as const) {
     await expect(page.locator('html')).toHaveAttribute('lang', language)
     const t = messages[language]
     await expect(page).toHaveTitle(`${t.homeTitle} | IT Useful`)
-    expect(
-      await page
-        .getByRole('region', { name: t.contentLanguages })
-        .textContent(),
-    ).toBe(samples)
+    await expect(
+      page.getByRole('combobox', { name: t.contentLanguage, exact: true }),
+    ).toHaveValue('EN')
     await page.reload()
     await expect(
       page.getByRole('combobox', { name: t.uiLanguage, exact: true }),

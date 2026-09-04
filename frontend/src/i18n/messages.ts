@@ -1,6 +1,8 @@
+import { listMessages } from './listMessages'
 export type UiLanguage = 'en' | 'de' | 'ru'
 
 const en = {
+  ...listMessages.en,
   skip: 'Skip to content',
   nav: 'Main navigation',
   definitions: 'Definitions',
@@ -9,8 +11,7 @@ const en = {
   edit: 'Edit definition',
   uiLanguage: 'Interface language',
   languageHint: 'Changes interface labels only, not definition content.',
-  footer:
-    'English, German, and Russian IT knowledge. Navigation preview — data is not connected yet.',
+  footer: 'IT knowledge in English, German, and Russian.',
   homeTitle: 'A home for your IT knowledge',
   homeIntro:
     'Definitions, explanations, images, and examples in English, German, and Russian.',
@@ -54,6 +55,7 @@ export type Messages = Record<MessageKey, string>
 export const messages: Record<UiLanguage, Messages> = {
   en,
   de: {
+    ...listMessages.de,
     skip: 'Zum Inhalt springen',
     nav: 'Hauptnavigation',
     definitions: 'Begriffe',
@@ -63,8 +65,7 @@ export const messages: Record<UiLanguage, Messages> = {
     uiLanguage: 'Sprache der Oberfläche',
     languageHint:
       'Ändert nur die Beschriftungen der Oberfläche, nicht die Begriffsinhalte.',
-    footer:
-      'IT-Wissen auf Englisch, Deutsch und Russisch. Navigationsvorschau — Daten sind noch nicht angebunden.',
+    footer: 'IT-Wissen auf Englisch, Deutsch und Russisch.',
     homeTitle: 'Ein Ort für dein IT-Wissen',
     homeIntro:
       'Definitionen, Erklärungen, Bilder und Beispiele auf Englisch, Deutsch und Russisch.',
@@ -107,6 +108,7 @@ export const messages: Record<UiLanguage, Messages> = {
     errorResponse: 'Die API hat eine unerwartete Antwort zurückgegeben.',
   },
   ru: {
+    ...listMessages.ru,
     skip: 'Перейти к содержимому',
     nav: 'Основная навигация',
     definitions: 'Термины',
@@ -115,8 +117,7 @@ export const messages: Record<UiLanguage, Messages> = {
     edit: 'Редактировать термин',
     uiLanguage: 'Язык интерфейса',
     languageHint: 'Меняет только подписи интерфейса, а не содержимое терминов.',
-    footer:
-      'Знания об ИТ на английском, немецком и русском языках. Предпросмотр навигации — данные ещё не подключены.',
+    footer: 'Знания об ИТ на английском, немецком и русском языках.',
     homeTitle: 'Место для твоих знаний об ИТ',
     homeIntro:
       'Определения, объяснения, изображения и примеры на английском, немецком и русском языках.',
