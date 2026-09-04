@@ -1,6 +1,7 @@
 # Source structure
 
-- `api/`: transport helpers and common HTTP error handling (step 38).
+- `api/`: typed transport, response contracts, element/image endpoint methods,
+  and common HTTP error handling. No React or UI state in this layer.
 - `components/`: shared, domain-independent UI and application layout.
 - `features/elements/`: definition-specific components and query/mutation hooks as CRUD is added.
 - `hooks/`: cross-feature React hooks, including route accessibility.
