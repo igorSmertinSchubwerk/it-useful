@@ -15,7 +15,7 @@ export function DetailImage({ image }: { image: ElementImage }) {
           <p>{t.imageFailed}</p>
           <button
             type="button"
-            className="text-brand underline"
+            className="max-w-full break-words text-brand underline"
             onClick={() => {
               setAttempt(attempt + 1)
               setFailed(false)
