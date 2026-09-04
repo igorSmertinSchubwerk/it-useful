@@ -270,6 +270,11 @@ from that fallback. Deployment configuration is outside this group.
 
 ## Testing
 
+The separate full-stack suite uses the actual Spring API and disposable PostgreSQL.
+Run `./scripts/test-full-stack.sh` from the repository root; see
+[testing instructions](../docs/TESTING.md) for prerequisites, isolation and cleanup.
+The `npm run test:e2e` command below remains the fast mocked browser suite.
+
 See the [accessibility and responsive review](../docs/UX_REVIEW.md) for the
 three-language viewport matrix, keyboard checks, findings, and remaining manual
 release checks. Run its focused regression with
