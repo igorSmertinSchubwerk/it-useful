@@ -5,6 +5,8 @@
 - `components/`: shared, domain-independent UI and application layout.
 - `features/elements/`: definition-specific components and query/mutation hooks as CRUD is added.
 - `hooks/`: cross-feature React hooks, including route accessibility.
+- `i18n/`: interface messages, persisted UI-language context, and localized API
+  error presentation. Never put definition records or content selection here.
 - `pages/`: route-level screens. Current element screens are explicit placeholders.
 - `routes/`: route definitions. BrowserRouter lives at the entry point so tests can use MemoryRouter.
 - `schemas/`: shared validation schemas when forms are implemented.
@@ -19,7 +21,8 @@ Empty directories are intentional reserved locations, not implemented APIs.
 
 The shared layout owns navigation and landmarks. On client-side path changes,
 the route accessibility hook updates the document title and focuses the page
-heading. Pages must render one descriptive `h1`. Initial page loads retain the
+heading. Language changes update the title without moving focus. Pages must
+render one descriptive, translated `h1`. Initial page loads retain the
 browser's normal focus order so the skip link is the first keyboard target.
 
 The layout follows the [React Router accessibility guidance](https://reactrouter.com/how-to/accessibility).
