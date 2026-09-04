@@ -3,12 +3,15 @@ package com.ituseful.backend;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import com.ituseful.backend.support.PostgresTestConfiguration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@Import(PostgresTestConfiguration.class)
 @ActiveProfiles("test")
 class ItUsefulBackendApplicationTests {
 
@@ -21,6 +24,10 @@ class ItUsefulBackendApplicationTests {
 
 	@Test
 	void contextLoads() {
+		assertThat(jdbcTemplate.queryForObject("select current_database()", String.class))
+				.isEqualTo("it_useful_test");
+		assertThat(jdbcTemplate.queryForObject(
+				"select count(*) from flyway_schema_history where success = true", Integer.class)).isEqualTo(1);
 	}
 
 	@Test
