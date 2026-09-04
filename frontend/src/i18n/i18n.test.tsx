@@ -47,22 +47,22 @@ test.each([null, 'fr', 'DE', '<script>', ''])(
   },
 )
 
-test('switches the interface without changing language samples or unrelated storage', async () => {
+test('switches the interface without changing content selection or unrelated storage', async () => {
   localStorage.setItem('content-language', 'RU')
   const { unmount } = render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={['/?language=RU']}>
       <App />
     </MemoryRouter>,
   )
-  const samples = screen.getByRole('region', {
-    name: 'Content languages',
-  }).textContent
+  expect(
+    screen.getByRole('combobox', { name: 'Definition language' }),
+  ).toHaveValue('RU')
   const selector = screen.getByRole('combobox', { name: 'Interface language' })
   await userEvent.setup().selectOptions(selector, 'de')
   expect(document.title).toBe('Ein Ort für dein IT-Wissen | IT Useful')
   expect(
-    screen.getByRole('region', { name: 'Inhaltssprachen' }).textContent,
-  ).toBe(samples)
+    screen.getByRole('combobox', { name: 'Sprache der Begriffe' }),
+  ).toHaveValue('RU')
   expect(localStorage.getItem(UI_LANGUAGE_KEY)).toBe('de')
   expect(localStorage.getItem('content-language')).toBe('RU')
   unmount()
@@ -88,7 +88,12 @@ test('keeps language switching usable when storage access is denied', async () =
       <App />
     </MemoryRouter>,
   )
-  await userEvent.setup().selectOptions(screen.getByRole('combobox'), 'ru')
+  await userEvent
+    .setup()
+    .selectOptions(
+      screen.getByRole('combobox', { name: 'Interface language' }),
+      'ru',
+    )
   expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
     messages.ru.homeTitle,
   )

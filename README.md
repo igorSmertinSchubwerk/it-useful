@@ -119,8 +119,9 @@ npm ci
 npm run dev
 ```
 
-Open `http://localhost:5173`. The current page demonstrates the Tailwind theme
-and three content languages; definition CRUD and backend integration come later.
+Open `http://localhost:5173`. With Spring and PostgreSQL running, the start page
+shows saved definitions with independent content-language selection, search,
+sorting, and confirmed deletion. Detail/create/edit pages are still previews.
 See [frontend instructions](frontend/README.md) for build and preview commands.
 Run `npm run check` for frontend quality checks. After installing Chromium with
 `npx playwright install chromium`, run `npm run test:e2e` for the browser smoke
