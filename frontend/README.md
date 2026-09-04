@@ -27,8 +27,7 @@ The server binds to loopback only and fails clearly if its port is occupied.
 The start page now loads definitions from the backend and supports confirmed
 deletion. Start Spring and PostgreSQL using the root project instructions to
 see your saved definitions. Without the backend, a localized error and Retry
-button are shown. The detail page also loads saved content; create and edit
-pages remain explicit placeholders.
+button are shown. Detail, create, and edit pages are connected to the same API.
 
 ## Definition table
 
@@ -36,7 +35,7 @@ Choose the definition language independently of the interface language. The
 table shows that translation's title, slug, and last-updated date. Missing
 translations are clearly labelled; they are not replaced with another language.
 Dates use the interface locale and browser time zone. Title links open detail
-routes; edit/create links lead to the existing preview pages.
+routes; edit/create links open the corresponding forms.
 
 Search matches the selected-language title or slug, case-insensitively, with
 leading/trailing whitespace ignored. Sort by localized title in either direction
@@ -75,7 +74,7 @@ undoing the confirmed deletion locally.
 Title links preserve the list's content language, search, and sorting in the
 URL. The detail content selector works independently of interface language,
 supports refresh and browser history, and the Back link restores list filters.
-The edit preview and its return link also preserve these parameters.
+The edit form and its Cancel link also preserve these parameters.
 
 The card loads all translations with `elementKeys.detail(id)` and a 30-second
 stale time. Missing translations never fall back silently. Missing titles,
@@ -98,6 +97,51 @@ and served through the configured API base. Alt text falls back to the file name
 when absent; neither metadata field is automatically translated. Images are
 responsive and lazy-loaded. Failed images retain their caption and offer a
 localized retry without reloading the whole definition.
+
+## Creating and editing definitions
+
+The shared `ElementForm` uses React Hook Form and `schemas/elementSchema.ts`.
+It always sends exactly EN, DE, RU translations in that order. Slugs accept
+1–160 ASCII letters/numbers separated by single hyphens. The backend lowercases
+slugs on save. Each language requires a title (maximum 255 UTF-16 code units)
+and explanation (maximum 50,000). Examples are optional, at most 50,000 units.
+Java-compatible blank checks and length checks mirror the backend DTO rules,
+including supplementary characters such as emoji. Markdown whitespace is
+preserved; empty/null examples are represented by empty editor text.
+
+Language tabs support arrow keys, Home/End, and preserve entered values. Tabs
+with errors are labelled; validation selects and focuses the first affected
+field, including server-reported fields in a hidden tab. Error codes are
+translated rather than showing raw server messages. Unknown field paths remain
+general errors. Interface-language changes do not reset the draft.
+
+Save prevents duplicate submissions, disables editing while pending, and never
+retries automatically. Failure retains the draft. A network/server or malformed
+success response can leave the save outcome uncertain: check the list before
+retrying, especially when creating a definition. On success the detail cache is
+updated, the list invalidated, and navigation replaces the editor entry with the
+saved detail in the active translation language.
+
+Edit uses a fresh, separate query snapshot per visit; focus/reconnect refetches
+are disabled so they cannot replace the draft. The backend currently has no
+optimistic version check: concurrent editors use last-write-wins. Existing images
+are not part of the update payload and remain unchanged. Image management is
+the next group, not part of this form.
+
+`MarkdownPreview` renders the active translation's explanation/examples with
+the same `SafeMarkdown` component as detail. Rendering is deferred while typing.
+Raw HTML and unsafe URLs cannot execute, and inline Markdown image requests
+remain disabled under the existing gallery policy.
+
+The browser entry point now uses `createBrowserRouter`/`RouterProvider`, keeping
+the existing route layout. React Router's [navigation blocker](https://reactrouter.com/how-to/navigation-blocking)
+protects dirty forms on Cancel, header links, and browser Back/Forward. A native
+modal offers Keep editing or Discard and leave; discarding is disabled during
+save. Reload/close uses the browser's own `beforeunload` warning, subject to
+browser restrictions (not a guaranteed recovery mechanism, especially on mobile).
+Drafts are not persisted and are lost if navigation is confirmed or the browser
+is terminated. A successful save bypasses the warning. Clean forms navigate
+normally. Editor tests must use a data router such as `createMemoryRouter`.
 
 ## API client
 
@@ -156,9 +200,9 @@ not a live backend integration test.
 Routes: `/`, `/elements/new`, `/elements/:id`, `/elements/:id/edit`, and a
 not-found page for other paths. Open a definition from the list to get its real
 ID; `/elements/example-id` is not a seeded record and will show an API error.
-Only create/edit pages remain placeholders. The list and detail are connected.
+The list, detail, create, and edit routes are connected.
 Use the interface-language selector in the header to switch between English,
-German, and Russian. Navigation, placeholders, page titles, and accessibility
+German, and Russian. Navigation, forms, page titles, and accessibility
 labels follow the selected interface language.
 
 ## Interface and content languages
@@ -187,8 +231,8 @@ selector. The list's content selector only changes the URL/display, not records.
 changing the original error. Unknown errors use a translated fallback. Validation
 field paths are preserved with a generic translated field prompt; detailed form
 constraints will receive their own messages when the editor is implemented.
-The list, detail, and deletion dialog use this helper. Placeholder pages do not trigger
-API errors. Render these messages as text and handle cancellation separately.
+The list, detail, editor, and deletion dialog use this helper. Render these
+messages as text and handle cancellation separately.
 
 The shell includes active navigation, a keyboard skip link, page titles, and
 heading focus after client-side navigation. See [source structure](src/README.md)
@@ -232,6 +276,11 @@ Detail tests cover translations, preserved navigation, loading/retry/404,
 cached content after refresh failure, incomplete content, image order/retry,
 safe Markdown, code overflow, and Russian mobile accessibility. Unit tests
 also check Markdown HTML/script and unsafe-URL rejection.
+Editor tests cover schema boundaries and backend field mapping, required fields,
+hidden-tab errors, create/update requests, cached detail/list refresh, duplicate
+submission prevention, failed-save drafts, unsaved navigation/reload warnings,
+safe preview, and Russian mobile accessibility. All browser API writes are
+intercepted test traffic, not a full-stack persistence test.
 Automated accessibility checks do not replace manual
 keyboard and assistive-technology testing.
 HTML reports and failure traces are generated locally and ignored by Git.

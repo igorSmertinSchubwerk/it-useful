@@ -31,8 +31,8 @@ test('list opens selected translation and preserves search through detail, edit,
   await expect(
     page.getByText('No examples have been added in this language yet.'),
   ).toBeVisible()
-  await page.getByRole('link', { name: 'Open edit preview' }).click()
-  await page.getByRole('link', { name: 'Open detail preview' }).click()
+  await page.getByRole('link', { name: 'Edit definition', exact: true }).click()
+  await page.getByRole('link', { name: 'Cancel', exact: true }).click()
   await expect(page.locator('#content-language')).toHaveValue('DE')
   await page.getByRole('link', { name: 'Back to definitions' }).click()
   await expect(page.locator('#search')).toHaveValue('http')
@@ -127,7 +127,7 @@ test('loading, server error, retry, and missing definition recover safely', asyn
     'does not exist or has been deleted',
   )
   await expect(
-    page.getByRole('link', { name: 'Open edit preview' }),
+    page.getByRole('link', { name: 'Edit definition', exact: true }),
   ).toHaveCount(0)
   status = 200
   await page.getByRole('button', { name: 'Retry', exact: true }).click()

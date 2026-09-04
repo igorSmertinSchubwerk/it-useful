@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { expect, test } from 'vitest'
 import App from '../App'
 
@@ -10,9 +10,11 @@ test.each([
   ['/does-not-exist', 'Page not found'],
 ])('renders %s with a shared shell', (path, heading) => {
   render(
-    <MemoryRouter initialEntries={[path]}>
-      <App />
-    </MemoryRouter>,
+    <RouterProvider
+      router={createMemoryRouter([{ path: '*', element: <App /> }], {
+        initialEntries: [path],
+      })}
+    />,
   )
   expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(heading)
   expect(

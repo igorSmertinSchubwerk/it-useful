@@ -63,7 +63,7 @@ export function ElementDetailPage() {
             to={`${elementPath(id, true)}${suffix}`}
             className="text-brand underline"
           >
-            {t.editPreview}
+            {t.edit}
           </Link>
         )}
         <button

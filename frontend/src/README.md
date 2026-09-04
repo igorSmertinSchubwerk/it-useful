@@ -4,21 +4,20 @@
   and common HTTP error handling. No React or UI state in this layer.
 - `components/`: shared, domain-independent UI and application layout.
 - `features/elements/`: list/detail queries and cache keys, filtering/sorting,
-  safe Markdown, image display, and confirmed deletion.
+  safe Markdown/preview, image display, shared form, unsaved-change modal, and confirmed deletion.
 - `hooks/`: cross-feature React hooks, including route accessibility.
 - `i18n/`: interface messages, persisted UI-language context, and localized API
   error presentation. Never put definition records or content selection here.
-- `pages/`: route-level screens. List and detail are API-connected; editors
-  remain explicit placeholders.
-- `routes/`: route definitions. BrowserRouter lives at the entry point so tests can use MemoryRouter.
-- `schemas/`: shared validation schemas when forms are implemented.
+- `pages/`: API-connected list, detail, and create/edit screens.
+- `routes/`: route definitions. The entry point uses a data router so editors can block unsaved navigation. Editor tests use `createMemoryRouter`.
+- `schemas/`: reusable form validation mirroring backend DTO constraints.
 - `types/`: shared types; keep feature-only types beside their feature.
 - `utils/`: pure helpers, such as safe URL builders.
 - `test/`: test setup and MSW server; colocate unit tests with their code.
 
 `App` creates one stable TanStack Query client per mounted application. Future
 server data belongs in query/mutation hooks, not a separate global state store.
-Local UI state stays in components; form state will use React Hook Form.
+Local UI state stays in components; form state uses React Hook Form.
 Empty directories are intentional reserved locations, not implemented APIs.
 
 The shared layout owns navigation and landmarks. On client-side path changes,

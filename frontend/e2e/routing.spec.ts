@@ -53,7 +53,7 @@ test('navigation, active links, history, and route focus', async ({ page }) => {
   )
 
   await page.goto('/elements/example-id')
-  await page.getByRole('link', { name: 'Open edit preview' }).click()
+  await page.getByRole('link', { name: 'Edit definition', exact: true }).click()
   await expect(page).toHaveURL(/\/elements\/example-id\/edit$/)
   await expect(page.getByRole('heading', { level: 1 })).toBeFocused()
   await page.goBack()
@@ -64,7 +64,7 @@ test('navigation, active links, history, and route focus', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
     'Edit definition',
   )
-  await page.getByRole('link', { name: 'Open detail preview' }).click()
+  await page.getByRole('link', { name: 'Cancel', exact: true }).click()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
     'Definition details',
   )

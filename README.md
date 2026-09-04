@@ -123,7 +123,7 @@ Open `http://localhost:5173`. With Spring and PostgreSQL running, the start page
 shows saved definitions with independent content-language selection, search,
 sorting, and confirmed deletion. Detail cards show safe Markdown, examples,
 and ordered images with missing-content and error recovery. Create/edit forms
-are still previews.
+support all three translations, validation, safe Markdown preview, and unsaved-change warnings.
 See [frontend instructions](frontend/README.md) for build and preview commands.
 Run `npm run check` for frontend quality checks. After installing Chromium with
 `npx playwright install chromium`, run `npm run test:e2e` for the browser smoke
