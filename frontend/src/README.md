@@ -4,7 +4,8 @@
   and common HTTP error handling. No React or UI state in this layer.
 - `components/`: shared, domain-independent UI and application layout.
 - `features/elements/`: list/detail queries and cache keys, filtering/sorting,
-  safe Markdown/preview, image display, shared form, unsaved-change modal, and confirmed deletion.
+  safe Markdown/preview, image display/management and validation, shared form,
+  unsaved-change modal, and confirmed deletion.
 - `hooks/`: cross-feature React hooks, including route accessibility.
 - `i18n/`: interface messages, persisted UI-language context, and localized API
   error presentation. Never put definition records or content selection here.

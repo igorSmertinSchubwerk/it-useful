@@ -1,6 +1,33 @@
 import { z } from 'zod'
 import { ApiError, httpError } from './errors'
 
+function decodeResponse<T>(
+  status: number,
+  text: string,
+  schema: z.ZodType<T>,
+): T {
+  let body: unknown
+  try {
+    body = text ? JSON.parse(text) : undefined
+  } catch {
+    if (status < 200 || status >= 300) throw httpError(status, undefined)
+    throw new ApiError(
+      'The API returned invalid JSON.',
+      status,
+      'invalid_response',
+    )
+  }
+  if (status < 200 || status >= 300) throw httpError(status, body)
+  const parsed = schema.safeParse(body)
+  if (!parsed.success)
+    throw new ApiError(
+      'The API response does not match the expected format.',
+      status,
+      'invalid_response',
+    )
+  return parsed.data
+}
+
 export function normalizeBaseUrl(value: string): string {
   const base = value.trim().replace(/\/+$/, '')
   const relative = base.startsWith('/') && !base.startsWith('//')
@@ -67,27 +94,70 @@ export function createApiClient(
         'network_error',
       )
     }
-    let body: unknown
-    try {
-      body = text ? JSON.parse(text) : undefined
-    } catch {
-      if (!response.ok) throw httpError(response.status, undefined)
-      throw new ApiError(
-        'The API returned invalid JSON.',
-        response.status,
-        'invalid_response',
-      )
-    }
-    if (!response.ok) throw httpError(response.status, body)
-    const parsed = schema.safeParse(body)
-    if (!parsed.success)
-      throw new ApiError(
-        'The API response does not match the expected format.',
-        response.status,
-        'invalid_response',
-      )
-    return parsed.data
+    return decodeResponse(response.status, text, schema)
   }
 
-  return { request, url }
+  // Fetch does not expose upload progress. XHR shares URL/error/schema handling.
+  function upload<T>(
+    path: string,
+    schema: z.ZodType<T>,
+    body: FormData,
+    onProgress: (percent: number | null) => void,
+    signal?: AbortSignal,
+  ): Promise<T> {
+    const endpoint = url(path)
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      const cleanup = () => signal?.removeEventListener('abort', abort)
+      const fail = (error: unknown) => {
+        cleanup()
+        reject(error)
+      }
+      const abort = () => {
+        xhr.abort()
+        fail(new DOMException('Upload aborted', 'AbortError'))
+      }
+      if (signal?.aborted) {
+        abort()
+        return
+      }
+      xhr.upload.onprogress = (event) =>
+        onProgress(
+          event.lengthComputable && event.total > 0
+            ? Math.min(100, Math.round((event.loaded / event.total) * 100))
+            : null,
+        )
+      xhr.onload = () => {
+        cleanup()
+        try {
+          resolve(decodeResponse(xhr.status, xhr.responseText, schema))
+        } catch (error) {
+          reject(error)
+        }
+      }
+      xhr.onerror = xhr.ontimeout = () =>
+        fail(
+          new ApiError(
+            'Unable to confirm the upload result.',
+            null,
+            'network_error',
+          ),
+        )
+      xhr.onabort = () => fail(new DOMException('Upload aborted', 'AbortError'))
+      signal?.addEventListener('abort', abort, { once: true })
+      try {
+        xhr.open('POST', endpoint)
+        xhr.timeout = 120_000
+        xhr.setRequestHeader(
+          'Accept',
+          'application/json, application/problem+json',
+        )
+        xhr.send(body)
+      } catch {
+        fail(new ApiError('Unable to start upload.', null, 'network_error'))
+      }
+    })
+  }
+
+  return { request, url, upload }
 }
