@@ -122,6 +122,9 @@ npm run dev
 Open `http://localhost:5173`. The current page demonstrates the Tailwind theme
 and three content languages; definition CRUD and backend integration come later.
 See [frontend instructions](frontend/README.md) for build and preview commands.
+Run `npm run check` for frontend quality checks. After installing Chromium with
+`npx playwright install chromium`, run `npm run test:e2e` for the browser smoke
+and automated accessibility check. These checks do not need the backend.
 
 ## Definition of done for the MVP
 
