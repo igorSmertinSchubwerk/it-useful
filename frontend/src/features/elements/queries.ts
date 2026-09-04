@@ -15,3 +15,12 @@ export function useElements() {
     staleTime: 30_000,
   })
 }
+
+export function useElement(id: string) {
+  return useQuery({
+    queryKey: elementKeys.detail(id),
+    queryFn: ({ signal }) => elementsApi.get(id, signal),
+    retry: false,
+    staleTime: 30_000,
+  })
+}

@@ -1,8 +1,12 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
+import { elementFixture } from '../src/test/elementFixture'
 import { messages } from '../src/i18n/messages'
 
 test.beforeEach(async ({ page }) => {
+  await page.route('**/api/elements/example-id', (route) =>
+    route.fulfill({ json: elementFixture }),
+  )
   await page.route('**/api/elements', (route) => route.fulfill({ json: [] }))
 })
 
