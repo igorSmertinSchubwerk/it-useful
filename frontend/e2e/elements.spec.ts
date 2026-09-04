@@ -29,6 +29,9 @@ test('table, language independence, search, sorting, history, and links', async 
   await page.route('**/api/elements', (route) =>
     route.fulfill({ json: records }),
   )
+  await page.route('**/api/elements/beta-id', (route) =>
+    route.fulfill({ status: 404, json: { code: 'element_not_found' } }),
+  )
   await page.goto('/')
   const rows = page.locator('tbody tr')
   await expect(rows).toHaveCount(3)
@@ -53,7 +56,7 @@ test('table, language independence, search, sorting, history, and links', async 
   )
   await expect(rows.first()).toContainText('Apfel')
   await page.getByRole('link', { name: 'Apfel', exact: true }).click()
-  await expect(page).toHaveURL(/\/elements\/beta-id$/)
+  await expect(page).toHaveURL(/\/elements\/beta-id\?language=DE$/)
   await page.goBack()
   await expect(page.getByLabel('Язык терминов', { exact: true })).toHaveValue(
     'DE',

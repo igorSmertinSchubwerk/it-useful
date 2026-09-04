@@ -1,8 +1,10 @@
 import { listMessages } from './listMessages'
+import { detailMessages } from './detailMessages'
 export type UiLanguage = 'en' | 'de' | 'ru'
 
 const en = {
   ...listMessages.en,
+  ...detailMessages.en,
   skip: 'Skip to content',
   nav: 'Main navigation',
   definitions: 'Definitions',
@@ -56,6 +58,7 @@ export const messages: Record<UiLanguage, Messages> = {
   en,
   de: {
     ...listMessages.de,
+    ...detailMessages.de,
     skip: 'Zum Inhalt springen',
     nav: 'Hauptnavigation',
     definitions: 'Begriffe',
@@ -109,6 +112,7 @@ export const messages: Record<UiLanguage, Messages> = {
   },
   ru: {
     ...listMessages.ru,
+    ...detailMessages.ru,
     skip: 'Перейти к содержимому',
     nav: 'Основная навигация',
     definitions: 'Термины',

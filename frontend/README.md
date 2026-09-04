@@ -27,7 +27,8 @@ The server binds to loopback only and fails clearly if its port is occupied.
 The start page now loads definitions from the backend and supports confirmed
 deletion. Start Spring and PostgreSQL using the root project instructions to
 see your saved definitions. Without the backend, a localized error and Retry
-button are shown. Detail, create, and edit pages remain explicit placeholders.
+button are shown. The detail page also loads saved content; create and edit
+pages remain explicit placeholders.
 
 ## Definition table
 
@@ -69,12 +70,41 @@ removed from cache, its detail cache is cleared, and the list is refreshed.
 Focus returns to the page heading. A failed refresh shows a warning without
 undoing the confirmed deletion locally.
 
+## Definition detail card
+
+Title links preserve the list's content language, search, and sorting in the
+URL. The detail content selector works independently of interface language,
+supports refresh and browser history, and the Back link restores list filters.
+The edit preview and its return link also preserve these parameters.
+
+The card loads all translations with `elementKeys.detail(id)` and a 30-second
+stale time. Missing translations never fall back silently. Missing titles,
+blank explanations, absent examples, and an empty gallery have localized
+messages. Loading, failed requests, Retry, and Refresh are supported. A failed
+refresh preserves cached content with a warning, except HTTP 404, which hides
+cached content and the edit action because the definition no longer exists.
+
+Explanation and examples use the same `SafeMarkdown` component and the installed
+`react-markdown` CommonMark renderer. Raw HTML is disabled, no HTML plugins are
+enabled, and the library's safe URL transform remains active. Inline Markdown
+images display their alt text only: image requests are restricted to the separate
+API-backed gallery. This avoids automatic third-party image requests from saved
+Markdown. Links remain ordinary same-tab links. Markdown headings render below
+the card title; code blocks scroll within the card and are keyboard-focusable.
+GitHub-specific tables and syntax highlighting are not enabled.
+
+Images are shared across translations, ordered by `displayOrder` and then ID,
+and served through the configured API base. Alt text falls back to the file name
+when absent; neither metadata field is automatically translated. Images are
+responsive and lazy-loaded. Failed images retain their caption and offer a
+localized retry without reloading the whole definition.
+
 ## API client
 
 `src/api/elements.ts` provides `createElementsApi()` for list, detail, create,
 update, delete, image upload, image metadata update, image deletion, and image
-URLs. It performs no request until a method is called. The list query and delete
-mutation in `src/features/elements/` now use it with TanStack Query.
+URLs. It performs no request until a method is called. List/detail queries and
+the delete mutation in `src/features/elements/` use it with TanStack Query.
 
 The default `VITE_API_BASE_URL` is `/api`. Vite's local `/api` proxy forwards
 requests to Spring at `http://127.0.0.1:8080`, without rewriting the path.
@@ -121,12 +151,12 @@ UI tests use jsdom. The transport suite checks methods, payloads, null values,
 network failures, cancellation, and base URLs. These are mocked contract tests,
 not a live backend integration test.
 
-## Navigation preview
+## Navigation
 
 Routes: `/`, `/elements/new`, `/elements/:id`, `/elements/:id/edit`, and a
-not-found page for other paths. For example, open `/elements/example-id` to
-test the detail/edit navigation. This is not a saved example definition.
-Only detail/create/edit pages remain placeholders. The start page is connected.
+not-found page for other paths. Open a definition from the list to get its real
+ID; `/elements/example-id` is not a seeded record and will show an API error.
+Only create/edit pages remain placeholders. The list and detail are connected.
 Use the interface-language selector in the header to switch between English,
 German, and Russian. Navigation, placeholders, page titles, and accessibility
 labels follow the selected interface language.
@@ -157,7 +187,7 @@ selector. The list's content selector only changes the URL/display, not records.
 changing the original error. Unknown errors use a translated fallback. Validation
 field paths are preserved with a generic translated field prompt; detailed form
 constraints will receive their own messages when the editor is implemented.
-The list and deletion dialog use this helper. Placeholder pages do not trigger
+The list, detail, and deletion dialog use this helper. Placeholder pages do not trigger
 API errors. Render these messages as text and handle cancellation separately.
 
 The shell includes active navigation, a keyboard skip link, page titles, and
@@ -185,8 +215,8 @@ Browser downloads require internet access.
 Unit tests use jsdom, Testing Library, and user-event. MSW mocks only
 test requests and rejects unhandled HTTP requests; it does not run in the app.
 Unit tests verify page content, route matching, URL encoding, and interaction/HTTP tools.
-The shared test server defaults only the local list GET to an empty catalogue;
-other unexpected requests still fail. Unit tests explicitly use the localhost
+The shared test server defaults the local list GET to an empty catalogue and
+detail GETs to a test fixture; other unexpected requests still fail. Unit tests explicitly use the localhost
 origin so relative API URLs match the mocks.
 
 Playwright launches its own server on loopback port 4174 and stops it afterwards.
@@ -198,6 +228,10 @@ List tests intercept API traffic with test-only records and exercise filtering,
 sorting, language independence, loading/empty/error states, safe deletion,
 duplicate-submit prevention, focus restoration, and cache refresh. No real
 records are deleted by these tests, and they do not replace live backend testing.
+Detail tests cover translations, preserved navigation, loading/retry/404,
+cached content after refresh failure, incomplete content, image order/retry,
+safe Markdown, code overflow, and Russian mobile accessibility. Unit tests
+also check Markdown HTML/script and unsafe-URL rejection.
 Automated accessibility checks do not replace manual
 keyboard and assistive-technology testing.
 HTML reports and failure traces are generated locally and ignored by Git.

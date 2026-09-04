@@ -3,12 +3,12 @@
 - `api/`: typed transport, response contracts, element/image endpoint methods,
   and common HTTP error handling. No React or UI state in this layer.
 - `components/`: shared, domain-independent UI and application layout.
-- `features/elements/`: list query/cache keys, pure filtering/sorting helpers,
-  and the confirmed-deletion dialog/mutation.
+- `features/elements/`: list/detail queries and cache keys, filtering/sorting,
+  safe Markdown, image display, and confirmed deletion.
 - `hooks/`: cross-feature React hooks, including route accessibility.
 - `i18n/`: interface messages, persisted UI-language context, and localized API
   error presentation. Never put definition records or content selection here.
-- `pages/`: route-level screens. The list is API-connected; detail/editor screens
+- `pages/`: route-level screens. List and detail are API-connected; editors
   remain explicit placeholders.
 - `routes/`: route definitions. BrowserRouter lives at the entry point so tests can use MemoryRouter.
 - `schemas/`: shared validation schemas when forms are implemented.

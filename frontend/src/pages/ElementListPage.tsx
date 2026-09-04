@@ -191,7 +191,7 @@ export default function ElementListPage() {
                   >
                     <td className="max-w-xs break-words px-4 py-4">
                       <Link
-                        to={elementPath(item.id)}
+                        to={`${elementPath(item.id)}${params.size ? `?${params.toString()}` : ''}`}
                         className="font-semibold text-brand underline"
                         lang={
                           item.titles[contentLanguage]?.trim()
