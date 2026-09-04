@@ -69,6 +69,24 @@ Create and update requests must contain exactly one `EN`, `DE`, and `RU`
 translation. API failures use `application/problem+json` and include a stable
 `code`; validation failures also include field-level `errors`.
 
+Images are managed separately from the translated element content:
+
+- `POST /api/elements/{elementId}/images` uploads an image as multipart form data.
+- `GET /api/images/{imageId}` returns the stored image.
+- `PATCH /api/images/{imageId}` updates its alternative text and display order.
+- `DELETE /api/images/{imageId}` removes both the stored file and its metadata.
+
+Uploads accept JPEG, PNG, and WebP files. The backend validates the actual file
+signature as well as the declared content type, generates the storage filename,
+and rejects files larger than 10 MiB by default. Configure the location and
+limits with `UPLOAD_DIR`, `MAX_FILE_SIZE`, `MAX_REQUEST_SIZE`, and
+`MAX_FILE_SIZE_BYTES`; see [`.env.example`](.env.example) for the defaults.
+
+Interactive API documentation is available while the backend is running:
+
+- Swagger UI: `http://localhost:8080/swagger-ui.html`
+- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+
 ## Definition of done for the MVP
 
 - Definitions can be listed, created, viewed, edited, and deleted.

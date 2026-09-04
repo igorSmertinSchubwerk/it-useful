@@ -10,7 +10,9 @@ element
 └── element_image       (zero or more, ordered)
 ```
 
-Deleting an element cascades to its translations and image metadata. Deleting image metadata from PostgreSQL does not by itself delete a stored file; that coordination belongs to the future image-storage service.
+Deleting an element cascades to its translations and image metadata. The
+application service also deletes associated files from local storage. Image
+deletion through the REST API likewise removes both the file and its metadata.
 
 ## `element`
 
@@ -35,13 +37,14 @@ The `(element_id, language_code)` constraint prevents duplicate translations.
 
 Each row belongs to one element and contains:
 
-- the original/safe file name and storage path;
+- the original/safe file name and server-generated storage path;
 - the validated content type;
 - optional alternative text;
 - a nonnegative display order;
 - a creation timestamp.
 
 The `(element_id, display_order)` constraint produces a stable image order.
+Storage paths are internal and are never returned by the REST API.
 
 ## Evolution rules
 

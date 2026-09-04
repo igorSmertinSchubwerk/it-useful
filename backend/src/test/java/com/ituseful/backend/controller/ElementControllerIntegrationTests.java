@@ -136,6 +136,20 @@ class ElementControllerIntegrationTests {
 				.andExpect(jsonPath("$.images[0].storagePath").doesNotExist());
 	}
 
+	@Test
+	void exposesTheCompleteOpenApiContractAndSwaggerUi() throws Exception {
+		mockMvc.perform(get("/v3/api-docs"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.info.title").value("IT Useful API"))
+				.andExpect(jsonPath("$.paths['/api/elements']").exists())
+				.andExpect(jsonPath("$.paths['/api/elements/{id}']").exists())
+				.andExpect(jsonPath("$.paths['/api/elements/{elementId}/images']").exists())
+				.andExpect(jsonPath("$.paths['/api/images/{imageId}']").exists());
+
+		mockMvc.perform(get("/swagger-ui.html"))
+				.andExpect(status().is3xxRedirection());
+	}
+
 	private static String validRequest(String slug, String titlePrefix) {
 		return """
 				{

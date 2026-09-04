@@ -83,11 +83,23 @@ public class Element {
 	}
 
 	public Element addImage(String fileName, String storagePath, String contentType, String altText, int displayOrder) {
+		addImageAndReturn(fileName, storagePath, contentType, altText, displayOrder);
+		return this;
+	}
+
+	public ElementImage addImageAndReturn(
+			String fileName,
+			String storagePath,
+			String contentType,
+			String altText,
+			int displayOrder
+	) {
 		if (images.stream().anyMatch(image -> image.getDisplayOrder() == displayOrder)) {
 			throw new IllegalArgumentException("Image display order " + displayOrder + " already exists");
 		}
-		images.add(new ElementImage(this, fileName, storagePath, contentType, altText, displayOrder));
-		return this;
+		ElementImage image = new ElementImage(this, fileName, storagePath, contentType, altText, displayOrder);
+		images.add(image);
+		return image;
 	}
 
 	public void removeTranslation(ElementTranslation translation) {

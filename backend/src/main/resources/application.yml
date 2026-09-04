@@ -33,3 +33,12 @@ management:
   endpoint:
     health:
       show-details: never
+
+app:
+  storage:
+    directory: ${UPLOAD_DIR:../uploads}
+    max-file-size-bytes: ${MAX_FILE_SIZE_BYTES:10485760}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
