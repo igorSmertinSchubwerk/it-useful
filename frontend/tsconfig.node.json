@@ -25,6 +25,9 @@
     "vite.config.ts",
     "vitest.config.ts",
     "playwright.config.ts",
+    "playwright.fullstack.config.ts",
+    "vite.fullstack.config.ts",
+    "e2e-fullstack/**/*.ts",
     "e2e/**/*.ts"
   ]
 }

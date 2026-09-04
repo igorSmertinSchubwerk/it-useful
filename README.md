@@ -131,6 +131,11 @@ Run `npm run check` for frontend quality checks. After installing Chromium with
 `npx playwright install chromium`, run `npm run test:e2e` for the browser smoke
 and automated accessibility check. These checks do not need the backend.
 
+For the real browser-to-Spring-to-PostgreSQL workflow, run
+`./scripts/test-full-stack.sh` from the repository root with Docker available
+and the project Node version selected. It starts and cleans up an isolated test
+database, backend, and upload directory. See [testing instructions](docs/TESTING.md).
+
 ## Definition of done for the MVP
 
 - Definitions can be listed, created, viewed, edited, and deleted.
