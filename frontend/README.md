@@ -27,7 +27,60 @@ The server binds to loopback only and fails clearly if its port is occupied.
 The current page is a foundation preview, not connected to the backend.
 React Router, TanStack Query, React Hook Form, Zod, the Hook Form resolver,
 and React Markdown are installed for subsequent implementation groups.
-Routing and the shared layout are implemented. API access and forms are not.
+Routing, the shared layout, and a standalone typed API client are implemented.
+The pages do not call the client yet; forms and data-connected screens come later.
+
+## API client
+
+`src/api/elements.ts` provides `createElementsApi()` for list, detail, create,
+update, delete, image upload, image metadata update, image deletion, and image
+URLs. It performs no request until a method is called. Future feature hooks
+will use it with TanStack Query.
+
+The default `VITE_API_BASE_URL` is `/api`. Vite's local `/api` proxy forwards
+requests to Spring at `http://127.0.0.1:8080`, without rewriting the path.
+Start the backend using the existing project setup when testing live requests.
+The browser tests and unit tests still do not require a running backend.
+
+To override the public API base, create `frontend/.env.local` using
+`.env.example` as a reference and restart Vite (or rebuild production output).
+Include the API prefix, for example `/api` or `https://api.example.com/api`.
+Trailing slashes are normalized. Credentials, queries, fragments, and
+non-HTTP(S) URLs are rejected. `VITE_` settings are visible in the browser:
+never put passwords, tokens, or other secrets there.
+
+An absolute cross-origin API URL requires backend CORS configuration, which
+this group does not add. The Vite proxy is for local development/preview;
+a production host must route `/api` separately from the frontend SPA fallback.
+See [Vite environment variables](https://vite.dev/guide/env-and-mode.html) and
+[proxy options](https://vite.dev/config/server-options#server-proxy).
+
+Responses are checked with Zod against the backend DTO shapes. Language codes
+are `EN`, `DE`, and `RU`; dates and IDs stay strings. Missing title translations
+remain missing (no invented fallback). Optional examples and image alt text
+can be null. Request types do not replace backend validation or future form
+validation; creates/updates must contain all three translations.
+
+`ApiError` exposes `status`, `code`, and `fieldErrors` (an array of field/message
+pairs, retaining backend paths such as `translations[0].title`). HTTP status
+comes from the response, not the error body. Network failures use a null status
+and `network_error`; malformed success bodies use `invalid_response`. Non-JSON
+HTTP errors get a safe fallback rather than exposing raw proxy HTML. Abort
+signals are supported and cancellation is rethrown unchanged. The transport
+does not retry writes automatically. Future UI code should translate error
+codes and render messages as text, never HTML.
+
+Uploads send `file`, optional `altText`, and optional `displayOrder` in FormData.
+The browser supplies the multipart boundary. Image metadata updates require
+an explicit `altText` (string or null), because the backend replaces it even
+when only display order changes. Use `imageUrl(id)` for image display; it shares
+the same API base as JSON requests.
+
+API tests use MSW with Node's native Fetch/File/FormData implementations;
+UI tests use jsdom. The transport suite checks methods, payloads, null values,
+204 responses, uploads, validation/404/conflict errors, malformed bodies,
+network failures, cancellation, and base URLs. These are mocked contract tests,
+not a live backend integration test.
 
 ## Navigation preview
 
