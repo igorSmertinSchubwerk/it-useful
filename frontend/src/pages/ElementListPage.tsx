@@ -70,7 +70,7 @@ export default function ElementListPage() {
             </option>
           </select>
         </div>
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 basis-48 flex-1">
           <label htmlFor="search" className="block text-sm font-semibold">
             {t.search}
           </label>

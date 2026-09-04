@@ -9,6 +9,12 @@
   --color-muted: #475569;
   --color-brand: #1d4ed8;
   --color-line: #cbd5e1;
+  --color-control: #64748b;
+}
+
+/* Input/button boundaries need stronger contrast than decorative card borders. */
+:is(input, select, textarea, button).border-line {
+  border-color: var(--color-control);
 }
 
 @layer base {
@@ -18,10 +24,29 @@
     background: var(--color-canvas);
     color: var(--color-ink);
     font-family: var(--font-sans);
+    overflow-wrap: anywhere;
   }
 
   :focus-visible {
     outline: 3px solid var(--color-brand);
     outline-offset: 3px;
+  }
+
+  /* Long localized labels must not set the minimum width of flex children. */
+  input,
+  select,
+  textarea {
+    max-width: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }

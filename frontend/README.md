@@ -270,6 +270,11 @@ from that fallback. Deployment configuration is outside this group.
 
 ## Testing
 
+See the [accessibility and responsive review](../docs/UX_REVIEW.md) for the
+three-language viewport matrix, keyboard checks, findings, and remaining manual
+release checks. Run its focused regression with
+`npx playwright test e2e/ux-quality.spec.ts`.
+
 Install the Playwright Chromium browser once inside WSL:
 
 ```bash
