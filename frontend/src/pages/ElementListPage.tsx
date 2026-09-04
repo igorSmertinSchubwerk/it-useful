@@ -1,3 +1,6 @@
+import { useI18n } from '../i18n/context'
+
+// Static language samples, not definition records or interface messages.
 const languages = [
   {
     code: 'en',
@@ -19,20 +22,20 @@ const languages = [
 ]
 
 function ElementListPage() {
+  const { t } = useI18n()
   return (
     <div>
       <p className="text-sm font-semibold tracking-wide text-brand">
         IT Useful
       </p>
       <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-5xl">
-        A home for your IT knowledge
+        {t.homeTitle}
       </h1>
       <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted">
-        Definitions, explanations, images, and examples in English, German, and
-        Russian.
+        {t.homeIntro}
       </p>
       <section
-        aria-label="Content languages"
+        aria-label={t.contentLanguages}
         className="mt-10 grid gap-4 md:grid-cols-3"
       >
         {languages.map(({ code, name, description }) => (
@@ -47,8 +50,7 @@ function ElementListPage() {
         ))}
       </section>
       <p className="mt-8 max-w-2xl text-sm leading-relaxed text-muted">
-        Frontend foundation. The definition list, editing forms, and backend
-        connection will be added in the next development groups.
+        {t.foundation}
       </p>
     </div>
   )

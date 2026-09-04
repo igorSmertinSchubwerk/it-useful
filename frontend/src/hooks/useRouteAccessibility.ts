@@ -1,8 +1,10 @@
 import { useLayoutEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useI18n } from '../i18n/context'
 
 export function useRouteAccessibility() {
   const { pathname } = useLocation()
+  const { language } = useI18n()
   const previousPath = useRef(pathname)
   useLayoutEffect(() => {
     const heading = document.querySelector<HTMLElement>('main h1')
@@ -12,5 +14,5 @@ export function useRouteAccessibility() {
       heading?.focus()
     }
     previousPath.current = pathname
-  }, [pathname])
+  }, [pathname, language])
 }

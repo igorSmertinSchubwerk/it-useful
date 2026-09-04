@@ -88,7 +88,39 @@ Routes: `/`, `/elements/new`, `/elements/:id`, `/elements/:id/edit`, and a
 not-found page for other paths. For example, open `/elements/example-id` to
 test the detail/edit navigation. This is not a saved example definition.
 All element pages are placeholders and do not fetch or save data yet.
-UI translation controls are planned in step 39; current navigation is English.
+Use the interface-language selector in the header to switch between English,
+German, and Russian. Navigation, placeholders, page titles, and accessibility
+labels follow the selected interface language.
+
+## Interface and content languages
+
+`src/i18n/messages.ts` is the typed interface-message catalogue. Every locale
+must contain the same message keys. `useI18n()` exposes the current language,
+its messages, and the language setter. No translation dependency is needed.
+
+The preference is stored under `it-useful.ui-language` in localStorage for the
+current browser origin. English is the default; invalid or inaccessible storage
+also falls back to English. If saving is blocked, switching still works until
+reload. Other open tabs pick up the saved setting on reload. Changing between
+localhost and 127.0.0.1 uses a different storage origin.
+
+The document's `lang` and title update with the interface. Switching language
+keeps focus on the selector; navigating to another route focuses its heading.
+The language names remain in their native spelling.
+
+Interface messages are not definition translations. The existing three language
+cards remain unchanged samples with their own `lang` attributes. Actual definition
+translations remain backend data in PostgreSQL, with `EN`/`DE`/`RU` API codes;
+the interface uses `en`/`de`/`ru`. No definition data or content-language preference
+is written by the interface selector. Content selection will be implemented with
+the data-connected list/detail pages, independently of this preference.
+
+`localizeApiError(error, language)` maps API codes to interface messages without
+changing the original error. Unknown errors use a translated fallback. Validation
+field paths are preserved with a generic translated field prompt; detailed form
+constraints will receive their own messages when the editor is implemented.
+The helper is ready for future API-connected screens; placeholders do not trigger
+API errors. Render these messages as text and handle cancellation separately.
 
 The shell includes active navigation, a keyboard skip link, page titles, and
 heading focus after client-side navigation. See [source structure](src/README.md)
