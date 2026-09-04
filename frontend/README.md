@@ -125,8 +125,8 @@ saved detail in the active translation language.
 Edit uses a fresh, separate query snapshot per visit; focus/reconnect refetches
 are disabled so they cannot replace the draft. The backend currently has no
 optimistic version check: concurrent editors use last-write-wins. Existing images
-are not part of the update payload and remain unchanged. Image management is
-the next group, not part of this form.
+are not part of the text update payload. The separate image manager below the
+form handles uploads, metadata, ordering, and deletion.
 
 `MarkdownPreview` renders the active translation's explanation/examples with
 the same `SafeMarkdown` component as detail. Rendering is deferred while typing.
@@ -142,6 +142,28 @@ browser restrictions (not a guaranteed recovery mechanism, especially on mobile)
 Drafts are not persisted and are lost if navigation is confirmed or the browser
 is terminated. A successful save bypasses the warning. Clean forms navigate
 normally. Editor tests must use a data router such as `createMemoryRouter`.
+
+## Managing images
+
+Save a new definition first, then open Edit to manage its shared images.
+Image operations save immediately, independently of the translated text form:
+cancelling text edits does not undo successful image changes.
+
+Choose a JPEG, PNG, or WebP file up to 10 MiB and review its local preview.
+Empty, unsupported, oversized, and undecodable files are rejected before upload;
+the backend remains authoritative for file signatures and configured limits.
+Alt text accepts at most 500 UTF-16 code units. Display positions are unique
+integers from 0 through 2147483647; smaller numbers appear first. Gaps are allowed.
+To swap occupied positions, first move one image to an unused position.
+Save each image's metadata explicitly; deletion requires confirmation.
+
+Upload progress reports bytes sent, then waits for the server's success response.
+Pending operations disable competing image/text saves. Selected files and changed
+metadata participate in the unsaved-navigation warning. Finish or discard image
+drafts before saving text. Discard only clears local drafts; Refresh images reads
+the server gallery without replacing unsaved text. After an uncertain network or
+server failure, discard image drafts and refresh before deciding whether to retry:
+the server may have completed the operation. Writes are never automatically retried.
 
 ## API client
 
@@ -188,6 +210,10 @@ The browser supplies the multipart boundary. Image metadata updates require
 an explicit `altText` (string or null), because the backend replaces it even
 when only display order changes. Use `imageUrl(id)` for image display; it shares
 the same API base as JSON requests.
+
+Passing an upload-progress callback selects XMLHttpRequest with a 120-second
+timeout, AbortSignal support, and the same response validation/error mapping as
+the fetch transport. Without a callback, uploads use the existing fetch path.
 
 API tests use MSW with Node's native Fetch/File/FormData implementations;
 UI tests use jsdom. The transport suite checks methods, payloads, null values,
@@ -281,6 +307,10 @@ hidden-tab errors, create/update requests, cached detail/list refresh, duplicate
 submission prevention, failed-save drafts, unsaved navigation/reload warnings,
 safe preview, and Russian mobile accessibility. All browser API writes are
 intercepted test traffic, not a full-stack persistence test.
+Image tests cover multipart uploads,
+previews and validation, metadata ordering, confirmed deletion, duplicate requests,
+pending-state guards, failure recovery, localized draft protection, and narrow-screen
+accessibility. These use intercepted API responses, not live stored images.
 Automated accessibility checks do not replace manual
 keyboard and assistive-technology testing.
 HTML reports and failure traces are generated locally and ignored by Git.

@@ -1,12 +1,14 @@
 import { listMessages } from './listMessages'
 import { detailMessages } from './detailMessages'
 import { editorMessages } from './editorMessages'
+import { imageMessages } from './imageMessages'
 export type UiLanguage = 'en' | 'de' | 'ru'
 
 const en = {
   ...listMessages.en,
   ...detailMessages.en,
   ...editorMessages.en,
+  ...imageMessages.en,
   skip: 'Skip to content',
   nav: 'Main navigation',
   definitions: 'Definitions',
@@ -62,6 +64,7 @@ export const messages: Record<UiLanguage, Messages> = {
     ...listMessages.de,
     ...detailMessages.de,
     ...editorMessages.de,
+    ...imageMessages.de,
     skip: 'Zum Inhalt springen',
     nav: 'Hauptnavigation',
     definitions: 'Begriffe',
@@ -117,6 +120,7 @@ export const messages: Record<UiLanguage, Messages> = {
     ...listMessages.ru,
     ...detailMessages.ru,
     ...editorMessages.ru,
+    ...imageMessages.ru,
     skip: 'Перейти к содержимому',
     nav: 'Основная навигация',
     definitions: 'Термины',

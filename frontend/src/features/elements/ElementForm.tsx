@@ -29,6 +29,7 @@ import { elementsApi, elementKeys } from './queries'
 import { parseContentLanguage } from './list'
 import { MarkdownPreview } from './MarkdownPreview'
 import { UnsavedChanges } from './UnsavedChanges'
+import { ImageManager } from './ImageManager'
 
 const names = ['English', 'Deutsch', 'Русский']
 const fieldNames = ['title', 'content', 'examples'] as const
@@ -55,6 +56,7 @@ export function ElementForm({ element }: { element?: ElementDetail }) {
   )
   const [defaults] = useState(() => initialValues(element))
   const [saveError, setSaveError] = useState<unknown>(null)
+  const [imageState, setImageState] = useState({ dirty: false, busy: false })
   const lock = useRef(false)
   const saved = useRef(false)
   const tabs = useRef<Array<HTMLButtonElement | null>>([])
@@ -83,10 +85,16 @@ export function ElementForm({ element }: { element?: ElementDetail }) {
     retry: false,
   })
   const blocker = useBlocker(
-    useCallback(() => !saved.current && (isDirty || lock.current), [isDirty]),
+    useCallback(
+      () =>
+        !saved.current &&
+        (isDirty || lock.current || imageState.dirty || imageState.busy),
+      [isDirty, imageState],
+    ),
   )
   useEffect(() => {
-    if (!isDirty && !isSubmitting) return
+    if (!isDirty && !isSubmitting && !imageState.dirty && !imageState.busy)
+      return
     const warn = (event: BeforeUnloadEvent) => {
       if (saved.current) return
       event.preventDefault()
@@ -94,7 +102,7 @@ export function ElementForm({ element }: { element?: ElementDetail }) {
     }
     window.addEventListener('beforeunload', warn)
     return () => window.removeEventListener('beforeunload', warn)
-  }, [isDirty, isSubmitting])
+  }, [isDirty, isSubmitting, imageState])
 
   function focusField(field: EditableField) {
     const match = /^translations\.([012])\./.exec(field)
@@ -165,7 +173,7 @@ export function ElementForm({ element }: { element?: ElementDetail }) {
         className="min-w-0 space-y-6"
         onSubmit={(event) => {
           event.preventDefault()
-          if (lock.current) return
+          if (lock.current || imageState.dirty || imageState.busy) return
           lock.current = true
           void handleSubmit(
             submit,
@@ -189,7 +197,7 @@ export function ElementForm({ element }: { element?: ElementDetail }) {
           </p>
         )}
         <fieldset
-          disabled={isSubmitting}
+          disabled={isSubmitting || imageState.busy}
           className="min-w-0 space-y-6 disabled:opacity-70"
         >
           <legend className="sr-only">{element ? t.edit : t.create}</legend>
@@ -304,7 +312,8 @@ export function ElementForm({ element }: { element?: ElementDetail }) {
           ))}
           <button
             type="submit"
-            className="rounded bg-brand px-4 py-2 font-semibold text-white"
+            disabled={imageState.dirty || imageState.busy}
+            className="rounded bg-brand px-4 py-2 font-semibold text-white disabled:opacity-50"
           >
             {isSubmitting ? t.saving : t.save}
           </button>
@@ -318,14 +327,25 @@ export function ElementForm({ element }: { element?: ElementDetail }) {
         >
           {t.cancel}
         </Link>
-        <p className="text-sm text-muted">{t.imageEditorLater}</p>
+        {imageState.dirty && <p role="status">{t.imageDrafts}</p>}
+        {!element && <p className="text-sm text-muted">{t.imageSaveFirst}</p>}
         <MarkdownPreview
           content={translations[active]?.content ?? ''}
           examples={translations[active]?.examples ?? ''}
           language={languages[active]}
         />
       </form>
-      <UnsavedChanges blocker={blocker} saving={isSubmitting} />
+      {element && (
+        <ImageManager
+          element={element}
+          disabled={isSubmitting}
+          onStateChange={setImageState}
+        />
+      )}
+      <UnsavedChanges
+        blocker={blocker}
+        saving={isSubmitting || imageState.busy}
+      />
     </>
   )
 }

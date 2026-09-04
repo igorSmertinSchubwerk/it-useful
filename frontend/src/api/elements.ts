@@ -37,12 +37,21 @@ export function createElementsApi(client = createApiClient()) {
       id: string,
       input: ImageUploadRequest,
       signal?: AbortSignal,
+      onProgress?: (percent: number | null) => void,
     ) => {
       const body = new FormData()
       body.append('file', input.file)
       if (input.altText !== undefined) body.append('altText', input.altText)
       if (input.displayOrder !== undefined)
         body.append('displayOrder', String(input.displayOrder))
+      if (onProgress)
+        return client.upload(
+          `${element(id)}/images`,
+          imageSchema,
+          body,
+          onProgress,
+          signal,
+        )
       return client.request(`${element(id)}/images`, imageSchema, {
         method: 'POST',
         body,

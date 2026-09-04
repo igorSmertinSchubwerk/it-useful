@@ -124,6 +124,8 @@ shows saved definitions with independent content-language selection, search,
 sorting, and confirmed deletion. Detail cards show safe Markdown, examples,
 and ordered images with missing-content and error recovery. Create/edit forms
 support all three translations, validation, safe Markdown preview, and unsaved-change warnings.
+The edit page also supports image previews/uploads with progress, alt-text editing,
+numeric ordering, and confirmed deletion. Image changes save separately and immediately.
 See [frontend instructions](frontend/README.md) for build and preview commands.
 Run `npm run check` for frontend quality checks. After installing Chromium with
 `npx playwright install chromium`, run `npm run test:e2e` for the browser smoke
