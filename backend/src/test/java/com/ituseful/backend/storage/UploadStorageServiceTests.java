@@ -63,4 +63,29 @@ class UploadStorageServiceTests {
 	private UploadStorageService service(long maxSize) {
 		return new UploadStorageService(new StorageProperties(storageDirectory.toString(), maxSize));
 	}
+
+	@Test
+	void acceptsJpegAndWebpSignaturesAndUnknownMimeType() {
+		UploadStorageService service = service(1024);
+		assertThat(service.store(new MockMultipartFile("file", "photo.jpg", "image/jpeg",
+				new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF})).contentType()).isEqualTo("image/jpeg");
+		assertThat(service.store(new MockMultipartFile("file", "photo.webp", "image/webp",
+				new byte[] {'R', 'I', 'F', 'F', 0, 0, 0, 0, 'W', 'E', 'B', 'P'})).contentType()).isEqualTo("image/webp");
+		assertThat(service.store(new MockMultipartFile("file", "photo", "application/octet-stream", PNG))
+				.contentType()).isEqualTo("image/png");
+	}
+
+	@Test
+	void rejectsEmptyUnsupportedAndTruncatedSignaturesWithoutWritingFiles() throws Exception {
+		UploadStorageService service = service(1024);
+		for (byte[] bytes : new byte[][] {new byte[0], new byte[] {1, 2, 3}, new byte[] {(byte) 0x89, 'P'}}) {
+			assertThatThrownBy(() -> service.store(new MockMultipartFile("file", "bad.png", "image/png", bytes)))
+					.isInstanceOf(InvalidImageException.class);
+		}
+		assertThatThrownBy(() -> service.store(new MockMultipartFile("file", "bad.svg", "image/svg+xml", PNG)))
+				.isInstanceOf(InvalidImageException.class);
+		try (var files = Files.list(storageDirectory)) {
+			assertThat(files.count()).isZero();
+		}
+	}
 }

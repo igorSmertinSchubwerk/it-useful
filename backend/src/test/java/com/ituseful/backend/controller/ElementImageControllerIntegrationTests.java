@@ -8,6 +8,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import com.ituseful.backend.support.PostgresTestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
@@ -32,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@Import(PostgresTestConfiguration.class)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
@@ -73,6 +76,7 @@ class ElementImageControllerIntegrationTests {
 	}
 
 	@Test
+	@org.springframework.transaction.annotation.Transactional(propagation = org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
 	void uploadsReadsUpdatesAndDeletesAnImage() throws Exception {
 		UUID elementId = elementRepository.saveAndFlush(completeElement("image-api")).getId();
 		MockMultipartFile file = new MockMultipartFile("file", "../diagram.png", "image/png", PNG);
@@ -113,6 +117,21 @@ class ElementImageControllerIntegrationTests {
 				.andExpect(status().isNoContent());
 		assertThat(imageRepository.existsById(image.getId())).isFalse();
 		assertThat(storedPath).doesNotExist();
+		mockMvc.perform(delete("/api/elements/{elementId}", elementId)).andExpect(status().isNoContent());
+	}
+
+	@Test
+	void deletingAnElementAlsoDeletesItsUploadedFile() throws Exception {
+		UUID elementId = elementRepository.saveAndFlush(completeElement("delete-image-parent")).getId();
+		mockMvc.perform(multipart("/api/elements/{elementId}/images", elementId)
+				.file(new MockMultipartFile("file", "diagram.png", "image/png", PNG)))
+				.andExpect(status().isCreated());
+		var image = imageRepository.findAllByElementIdOrderByDisplayOrder(elementId).getFirst();
+		Path storedPath = STORAGE_DIRECTORY.resolve(image.getStoragePath());
+		mockMvc.perform(delete("/api/elements/{elementId}", elementId)).andExpect(status().isNoContent());
+		elementRepository.flush();
+		assertThat(storedPath).doesNotExist();
+		assertThat(imageRepository.existsById(image.getId())).isFalse();
 	}
 
 	@Test

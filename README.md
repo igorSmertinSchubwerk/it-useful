@@ -38,11 +38,31 @@ Development is performed in Ubuntu on WSL. The Windows Codex desktop app and edi
 
 ## Backend development
 
-Start PostgreSQL and run the backend test suite:
+Run the complete backend test suite (Docker must be running):
 
 ```bash
 ./scripts/test-backend.sh
 ```
+
+Tests start disposable PostgreSQL 18.6 containers on random ports; they do not
+start or use the development Compose database. Flyway builds each test database
+from scratch. Containers are removed after the test JVM exits.
+
+For quick unit tests without Docker:
+
+```bash
+cd backend
+./mvnw test
+```
+
+Use `./mvnw verify` from `backend` for unit and integration tests together.
+Surefire runs unit tests; Failsafe runs `*IntegrationTests` and
+`ItUsefulBackendApplicationTests`. Reports are in `backend/target/surefire-reports`
+and `backend/target/failsafe-reports`. In IntelliJ, reload Maven after pulling
+changes. Individual integration test classes can also run directly from the IDE
+with Docker available in WSL. The first run needs network access to download
+dependencies and container images; unavailable Docker fails integration tests
+rather than silently skipping them.
 
 Run the backend locally from another terminal:
 
