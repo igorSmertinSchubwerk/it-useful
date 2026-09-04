@@ -1,9 +1,14 @@
 import { render, screen, within } from '@testing-library/react'
 import { expect, test } from 'vitest'
 import App from './App'
+import { MemoryRouter } from 'react-router-dom'
 
 test('shows the foundation and all three content languages', () => {
-  render(<App />)
+  render(
+    <MemoryRouter>
+      <App />
+    </MemoryRouter>,
+  )
   expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
     'A home for your IT knowledge',
   )

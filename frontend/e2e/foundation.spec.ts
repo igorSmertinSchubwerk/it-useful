@@ -10,7 +10,7 @@ test('renders the foundation without console errors or detected accessibility vi
     if (message.type() === 'error') errors.push(message.text())
   })
   await page.goto('/')
-  await expect(page).toHaveTitle('IT Useful')
+  await expect(page).toHaveTitle('A home for your IT knowledge | IT Useful')
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   for (const name of ['English', 'Deutsch', 'Русский']) {
     await expect(page.getByRole('heading', { name, exact: true })).toBeVisible()

@@ -27,7 +27,23 @@ The server binds to loopback only and fails clearly if its port is occupied.
 The current page is a foundation preview, not connected to the backend.
 React Router, TanStack Query, React Hook Form, Zod, the Hook Form resolver,
 and React Markdown are installed for subsequent implementation groups.
-Routing, API access, and forms are not implemented yet.
+Routing and the shared layout are implemented. API access and forms are not.
+
+## Navigation preview
+
+Routes: `/`, `/elements/new`, `/elements/:id`, `/elements/:id/edit`, and a
+not-found page for other paths. For example, open `/elements/example-id` to
+test the detail/edit navigation. This is not a saved example definition.
+All element pages are placeholders and do not fetch or save data yet.
+UI translation controls are planned in step 39; current navigation is English.
+
+The shell includes active navigation, a keyboard skip link, page titles, and
+heading focus after client-side navigation. See [source structure](src/README.md)
+for folder ownership and state-management conventions.
+
+Vite supports direct links and refresh locally. A future production host must
+serve `index.html` for frontend routes while excluding API and asset requests
+from that fallback. Deployment configuration is outside this group.
 
 ## Testing
 
@@ -45,13 +61,14 @@ Browser downloads require internet access.
 
 Unit tests use jsdom, Testing Library, and user-event. MSW mocks only
 test requests and rejects unhandled HTTP requests; it does not run in the app.
-The three sample tests verify page content and the interaction/HTTP test tools.
+Unit tests verify page content, route matching, URL encoding, and interaction/HTTP tools.
 
 Playwright launches its own server on loopback port 4174 and stops it afterwards.
 It refuses to reuse an existing server to avoid testing an unrelated app.
 Stop another process using that port before running the test.
-The smoke test checks the three languages, browser errors, and axe-core
-accessibility violations. Automated accessibility checks do not replace manual
+Browser tests check the three languages, direct links, refresh, history,
+keyboard navigation, browser errors, and axe-core accessibility violations.
+Automated accessibility checks do not replace manual
 keyboard and assistive-technology testing.
 HTML reports and failure traces are generated locally and ignored by Git.
 
