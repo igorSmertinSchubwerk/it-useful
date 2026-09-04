@@ -66,7 +66,7 @@ test('table, language independence, search, sorting, history, and links', async 
   await page
     .getByRole('link', { name: 'Редактировать термин: Apfel', exact: true })
     .click()
-  await expect(page).toHaveURL(/\/elements\/beta-id\/edit$/)
+  await expect(page).toHaveURL(/\/elements\/beta-id\/edit\?language=DE$/)
 })
 
 test('loading, failed request, retry, empty, and no search matches', async ({

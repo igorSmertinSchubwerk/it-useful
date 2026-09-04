@@ -28,7 +28,7 @@ const en = {
   deleted: 'Definition deleted.',
   stale: 'The list could not be refreshed. Previously loaded data is shown.',
   editorNotice:
-    'The list, detail pages, and deletion are available. Editing forms are coming next.',
+    'Browse, create, edit, and delete definitions in three languages.',
 }
 export const listMessages = {
   en,
@@ -63,7 +63,7 @@ export const listMessages = {
     stale:
       'Die Liste konnte nicht aktualisiert werden. Zuvor geladene Daten werden angezeigt.',
     editorNotice:
-      'Liste, Detailseiten und Löschen sind verfügbar. Bearbeitungsformulare folgen als Nächstes.',
+      'Begriffe in drei Sprachen ansehen, erstellen, bearbeiten und löschen.',
   } satisfies Record<keyof typeof en, string>,
   ru: {
     contentLanguage: 'Язык терминов',
@@ -95,6 +95,6 @@ export const listMessages = {
     deleted: 'Термин удалён.',
     stale: 'Не удалось обновить список. Показаны ранее загруженные данные.',
     editorNotice:
-      'Список, страницы подробностей и удаление доступны. Формы редактирования появятся следующим шагом.',
+      'Просматривайте, создавайте, редактируйте и удаляйте определения на трёх языках.',
   } satisfies Record<keyof typeof en, string>,
 }

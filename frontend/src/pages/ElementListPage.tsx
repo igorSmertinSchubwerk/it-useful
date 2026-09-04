@@ -122,7 +122,10 @@ export default function ElementListPage() {
         >
           {t.refresh}
         </button>
-        <Link to="/elements/new" className="text-brand underline">
+        <Link
+          to={`/elements/new${params.size ? `?${params.toString()}` : ''}`}
+          className="text-brand underline"
+        >
           {t.create}
         </Link>
       </div>
@@ -218,7 +221,7 @@ export default function ElementListPage() {
                     <td className="px-4 py-4">
                       <div className="flex flex-wrap gap-3">
                         <Link
-                          to={elementPath(item.id, true)}
+                          to={`${elementPath(item.id, true)}${params.size ? `?${params.toString()}` : ''}`}
                           aria-label={`${t.edit}: ${item.titles[contentLanguage] || item.slug}`}
                           className="text-brand underline"
                         >
