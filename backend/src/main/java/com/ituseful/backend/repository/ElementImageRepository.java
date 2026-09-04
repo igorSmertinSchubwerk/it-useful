@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface ElementImageRepository extends JpaRepository<ElementImage, UUID> {
 
 	List<ElementImage> findAllByElementIdOrderByDisplayOrder(UUID elementId);
+
+	boolean existsByElementIdAndDisplayOrder(UUID elementId, int displayOrder);
 }

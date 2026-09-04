@@ -51,7 +51,7 @@ public class ElementMapper {
 		);
 	}
 
-	private ElementImageResponse toImageResponse(ElementImage image) {
+	public ElementImageResponse toImageResponse(ElementImage image) {
 		return new ElementImageResponse(
 				image.getId(),
 				image.getFileName(),

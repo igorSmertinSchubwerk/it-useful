@@ -11,10 +11,13 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.net.URI;
 import java.time.Instant;
@@ -47,7 +50,13 @@ public class ApiExceptionHandler {
 		return ResponseEntity.badRequest().body(problem);
 	}
 
-	@ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
+	@ExceptionHandler({
+			HttpMessageNotReadableException.class,
+			MethodArgumentTypeMismatchException.class,
+			MissingServletRequestPartException.class,
+			MissingServletRequestParameterException.class,
+			MultipartException.class
+	})
 	ResponseEntity<ProblemDetail> handleMalformedRequest(Exception exception, HttpServletRequest request) {
 		return response(HttpStatus.BAD_REQUEST, "Malformed request", "malformed_request", request);
 	}
@@ -57,9 +66,27 @@ public class ApiExceptionHandler {
 		return response(HttpStatus.NOT_FOUND, exception.getMessage(), "element_not_found", request);
 	}
 
+	@ExceptionHandler(ImageNotFoundException.class)
+	ResponseEntity<ProblemDetail> handleImageNotFound(ImageNotFoundException exception, HttpServletRequest request) {
+		return response(HttpStatus.NOT_FOUND, exception.getMessage(), "image_not_found", request);
+	}
+
+	@ExceptionHandler(InvalidImageException.class)
+	ResponseEntity<ProblemDetail> handleInvalidImage(InvalidImageException exception, HttpServletRequest request) {
+		return response(HttpStatus.BAD_REQUEST, exception.getMessage(), "invalid_image", request);
+	}
+
 	@ExceptionHandler(DuplicateSlugException.class)
 	ResponseEntity<ProblemDetail> handleDuplicateSlug(DuplicateSlugException exception, HttpServletRequest request) {
 		return response(HttpStatus.CONFLICT, exception.getMessage(), "duplicate_slug", request);
+	}
+
+	@ExceptionHandler(DuplicateImageOrderException.class)
+	ResponseEntity<ProblemDetail> handleDuplicateImageOrder(
+			DuplicateImageOrderException exception,
+			HttpServletRequest request
+	) {
+		return response(HttpStatus.CONFLICT, exception.getMessage(), "duplicate_image_order", request);
 	}
 
 	@ExceptionHandler(DataIntegrityViolationException.class)
@@ -70,6 +97,12 @@ public class ApiExceptionHandler {
 	@ExceptionHandler(MaxUploadSizeExceededException.class)
 	ResponseEntity<ProblemDetail> handleLargeUpload(MaxUploadSizeExceededException exception, HttpServletRequest request) {
 		return response(HttpStatus.CONTENT_TOO_LARGE, "The uploaded file is too large", "upload_too_large", request);
+	}
+
+	@ExceptionHandler(StorageException.class)
+	ResponseEntity<ProblemDetail> handleStorageFailure(StorageException exception, HttpServletRequest request) {
+		LOGGER.error("Image storage failure", exception);
+		return response(HttpStatus.INTERNAL_SERVER_ERROR, "Image storage operation failed", "storage_error", request);
 	}
 
 	@ExceptionHandler(Exception.class)

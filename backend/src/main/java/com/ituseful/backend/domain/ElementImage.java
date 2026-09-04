@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -47,10 +48,15 @@ public class ElementImage {
 	@Column(name = "display_order", nullable = false)
 	private int displayOrder;
 
-	@Column(name = "created_at", nullable = false, updatable = false, insertable = false)
+	@Column(name = "created_at", nullable = false, updatable = false)
 	private Instant createdAt;
 
 	protected ElementImage() {
+	}
+
+	@PrePersist
+	void createTimestamp() {
+		createdAt = Instant.now();
 	}
 
 	ElementImage(

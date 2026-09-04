@@ -9,6 +9,7 @@ import com.ituseful.backend.exception.DuplicateSlugException;
 import com.ituseful.backend.exception.ElementNotFoundException;
 import com.ituseful.backend.mapper.ElementMapper;
 import com.ituseful.backend.repository.ElementRepository;
+import com.ituseful.backend.storage.UploadStorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +22,16 @@ public class ElementService {
 
 	private final ElementRepository elementRepository;
 	private final ElementMapper elementMapper;
+	private final UploadStorageService storageService;
 
-	public ElementService(ElementRepository elementRepository, ElementMapper elementMapper) {
+	public ElementService(
+			ElementRepository elementRepository,
+			ElementMapper elementMapper,
+			UploadStorageService storageService
+	) {
 		this.elementRepository = elementRepository;
 		this.elementMapper = elementMapper;
+		this.storageService = storageService;
 	}
 
 	@Transactional(readOnly = true)
@@ -68,7 +75,8 @@ public class ElementService {
 
 	@Transactional
 	public void delete(UUID id) {
-		Element element = elementRepository.findById(id).orElseThrow(() -> new ElementNotFoundException(id));
+		Element element = findDetail(id);
+		element.getImages().forEach(image -> storageService.delete(image.getStoragePath()));
 		elementRepository.delete(element);
 	}
 

@@ -9,6 +9,7 @@ import com.ituseful.backend.exception.DuplicateSlugException;
 import com.ituseful.backend.exception.ElementNotFoundException;
 import com.ituseful.backend.mapper.ElementMapper;
 import com.ituseful.backend.repository.ElementRepository;
+import com.ituseful.backend.storage.UploadStorageService;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -26,7 +27,8 @@ class ElementServiceTests {
 
 	private final ElementRepository repository = mock(ElementRepository.class);
 	private final ElementMapper mapper = mock(ElementMapper.class);
-	private final ElementService service = new ElementService(repository, mapper);
+	private final UploadStorageService storageService = mock(UploadStorageService.class);
+	private final ElementService service = new ElementService(repository, mapper, storageService);
 
 	@Test
 	void createsAnElementWithANormalizedSlug() {
@@ -74,6 +76,19 @@ class ElementServiceTests {
 
 		assertThatThrownBy(() -> service.get(id)).isInstanceOf(ElementNotFoundException.class);
 		assertThatThrownBy(() -> service.delete(id)).isInstanceOf(ElementNotFoundException.class);
+	}
+
+	@Test
+	void deletesStoredImageFilesWithTheElement() {
+		UUID id = UUID.randomUUID();
+		Element element = completeElement("with-image")
+				.addImage("diagram.png", "stored-diagram.png", "image/png", "Diagram", 0);
+		when(repository.findDetailById(id)).thenReturn(Optional.of(element));
+
+		service.delete(id);
+
+		verify(storageService).delete("stored-diagram.png");
+		verify(repository).delete(element);
 	}
 
 	private static ElementWriteRequest request(String slug) {
