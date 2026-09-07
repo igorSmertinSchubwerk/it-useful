@@ -16,8 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -151,6 +153,57 @@ class ElementControllerIntegrationTests {
 
 		mockMvc.perform(get("/swagger-ui.html"))
 				.andExpect(status().is3xxRedirection());
+	}
+
+	@Test
+	void appliesSecurityHeadersAndDoesNotEnableCrossOriginReads() throws Exception {
+		mockMvc.perform(get("/api/elements"))
+				.andExpect(status().isOk())
+				.andExpect(header().string("X-Content-Type-Options", "nosniff"))
+				.andExpect(header().string("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'; base-uri 'none'"))
+				.andExpect(header().string("X-Frame-Options", "DENY"))
+				.andExpect(header().string("Referrer-Policy", "no-referrer"));
+
+		mockMvc.perform(options("/api/elements")
+					.header("Origin", "https://attacker.example")
+					.header("Access-Control-Request-Method", "GET"))
+				.andExpect(header().doesNotExist("Access-Control-Allow-Origin"));
+	}
+
+	@Test
+	void blocksCrossOriginBrowserWritesBeforeTheyReachTheController() throws Exception {
+		mockMvc.perform(post("/api/elements")
+					.header("Origin", "https://attacker.example")
+					.header("Sec-Fetch-Site", "cross-site")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(validRequest("blocked", "Blocked")))
+				.andExpect(status().isForbidden())
+				.andExpect(header().doesNotExist("Access-Control-Allow-Origin"))
+				.andExpect(jsonPath("$.code").value("cross_origin_forbidden"));
+		assertThat(elementRepository.findBySlugIgnoreCase("blocked")).isEmpty();
+	}
+
+	@Test
+	void rejectsUnknownAndExcessivelyLargeJsonWithoutInternalDetails() throws Exception {
+		String unknownProperty = validRequest("unknown-field", "Unknown")
+				.replaceFirst("\\{", "{\\\"unexpected\\\":true,");
+		mockMvc.perform(post("/api/elements")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(unknownProperty))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.code").value("malformed_request"))
+				.andExpect(jsonPath("$.exception").doesNotExist())
+				.andExpect(jsonPath("$.trace").doesNotExist());
+
+		String oversized = validRequest("oversized-json", "Oversized")
+				.replace("English content", "x".repeat(60_001));
+		mockMvc.perform(post("/api/elements")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(oversized))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.code").value("malformed_request"))
+				.andExpect(jsonPath("$.exception").doesNotExist())
+				.andExpect(jsonPath("$.trace").doesNotExist());
 	}
 
 	private static String validRequest(String slug, String titlePrefix) {

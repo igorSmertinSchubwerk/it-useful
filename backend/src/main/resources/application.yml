@@ -21,9 +21,37 @@ spring:
     multipart:
       max-file-size: ${MAX_FILE_SIZE:10MB}
       max-request-size: ${MAX_REQUEST_SIZE:12MB}
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+    factory:
+      constraints:
+        read:
+          max-document-length: 400000
+          max-name-length: 100
+          max-nesting-depth: 20
+          max-number-length: 20
+          max-string-length: 60000
+          max-token-count: 200
 
 server:
+  address: ${SERVER_ADDRESS:127.0.0.1}
   port: ${BACKEND_PORT:8080}
+  forward-headers-strategy: none
+  max-http-request-header-size: 8KB
+  tomcat:
+    max-http-form-post-size: 12MB
+    max-parameter-count: 16
+    max-part-count: 4
+    max-part-header-size: 512B
+    max-swallow-size: 12MB
+  error:
+    include-binding-errors: never
+    include-exception: false
+    include-message: never
+    include-stacktrace: never
+    whitelabel:
+      enabled: false
 
 management:
   endpoints:

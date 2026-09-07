@@ -72,6 +72,10 @@ cd backend
 ```
 
 The health endpoint is available at `http://localhost:8080/actuator/health`.
+By default Spring and PostgreSQL bind only to loopback. This project has no
+authentication and is intended for one trusted user on a local machine; do not
+publish, forward, tunnel, or reverse-proxy its ports. See
+[the security policy](docs/security.md) before changing its exposure.
 
 The default local profile adds two example definitions (`api` and
 `database-index`) with English, German, and Russian content when they are
