@@ -92,3 +92,25 @@ containing data.
 
 Run `./scripts/test-backend.sh` from the root for Maven unit and disposable-database
 integration tests. The full-stack runner is complementary and does not replace it.
+
+## Release acceptance
+
+Run the destructive release workflow only through its isolated runner:
+
+```bash
+./scripts/project.sh test-acceptance
+```
+
+The runner archives committed `HEAD` into a new temporary directory, copies
+`.env.example` to `.env`, and builds a uniquely named Compose project on random
+loopback ports. Playwright then verifies required-form errors; EN, DE, and RU
+content and examples; image rejection and upload; search; missing records;
+duplicate slugs; a stopped-backend error; dependency recovery; persistence after
+PostgreSQL and application-container restarts; editing; and cascading deletion.
+
+The acceptance project never uses the normal development volumes. Its containers,
+images, volumes, and temporary checkout are removed after success or failure; on
+failure, service logs are printed first. Because the application-under-test comes
+from committed `HEAD`, commit local product changes before relying on this command
+as a release decision. Frontend dependencies and Chromium must already be
+installed as described above.
