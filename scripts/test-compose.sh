@@ -54,3 +54,11 @@ curl --fail --silent --show-error "$base_url/elements/direct-route" | grep -q '<
 echo "Running against disposable Compose stack $base_url."
 cd frontend
 E2E_BASE_URL="$base_url" npx playwright test --config playwright.fullstack.config.ts "$@"
+
+cd "$project_root"
+compose_logs="$(docker compose --project-name "$project_name" logs --no-color)"
+if grep -Eq '(^|[[:space:]])(ERROR|FATAL|PANIC)([[:space:]]|:)' <<<"$compose_logs"; then
+  echo "Compose service logs contain an unexpected severe entry." >&2
+  exit 1
+fi
+echo "Compose logs contain no ERROR, FATAL, or PANIC entries."

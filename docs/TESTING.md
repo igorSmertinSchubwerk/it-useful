@@ -83,8 +83,10 @@ and Nginx health checks; verifies direct SPA navigation; and runs the same real
 Playwright workflow through the Nginx `/api` proxy. Random loopback ports avoid
 the development stack. The runner removes only its uniquely named Compose
 project and disposable volumes afterward. On failure, it prints that project's
-logs before cleanup. As with the full-stack runner, do not invoke its Playwright
-configuration directly against an application containing data.
+logs before cleanup. After a successful browser run, it also rejects `ERROR`,
+`FATAL`, or `PANIC` entries from any service log. As with the full-stack runner,
+do not invoke its Playwright configuration directly against an application
+containing data.
 
 ## Backend checks
 
