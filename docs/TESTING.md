@@ -114,3 +114,18 @@ failure, service logs are printed first. Because the application-under-test come
 from committed `HEAD`, commit local product changes before relying on this command
 as a release decision. Frontend dependencies and Chromium must already be
 installed as described above.
+
+## Release content audit
+
+Before creating a release, inspect the tracked repository content:
+
+```bash
+./scripts/project.sh audit-release
+```
+
+The audit rejects tracked local environment files, generated build/test output,
+runtime data, common credential file types, files over 5 MiB, unexpected executable
+modes, high-confidence token/private-key signatures, merge-conflict markers, and
+Git whitespace errors. The example environment files and `uploads/.gitkeep` are
+intentional exceptions. This focused built-in scan does not replace organization
+secret scanning or dependency/security analysis.
