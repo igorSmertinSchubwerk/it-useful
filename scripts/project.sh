@@ -21,6 +21,7 @@ Verification commands:
   test-frontend     Run frontend checks and mocked browser tests
   test-full-stack   Run the real browser workflow against local processes
   test-compose      Run the real browser workflow against built images
+  test-acceptance   Run release acceptance from a clean archived checkout
 
 Data command:
   reset-data delete-local-data
@@ -102,6 +103,10 @@ case "${command_name}" in
   test-compose)
     select_node
     "${project_root}/scripts/test-compose.sh" "$@"
+    ;;
+  test-acceptance)
+    select_node
+    "${project_root}/scripts/test-acceptance.sh" "$@"
     ;;
   reset-data)
     if [[ "${1:-}" != "delete-local-data" ]]; then
