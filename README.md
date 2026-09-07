@@ -1,121 +1,98 @@
 # IT Useful
 
-IT Useful is a multilingual knowledge base for IT definitions. It will provide a searchable start-page table and detail cards containing titles, Markdown text, examples, and images in English, German, and Russian.
+IT Useful is a local multilingual knowledge base for IT definitions. It provides
+a searchable table and detail cards with Markdown explanations, examples, and
+images in English, German, and Russian. Definitions and images can be created,
+changed, and deleted from the browser.
 
-## Planned stack
+The application uses Java 21 with Spring Boot, React with TypeScript and
+Tailwind CSS, PostgreSQL with Flyway, and Docker Compose.
 
-- Java 21 and Spring Boot REST API
-- React, TypeScript, and Vite
-- Tailwind CSS
-- PostgreSQL with Flyway migrations
-- Docker Compose for local services
-- Local image storage for the first version
+## Prerequisites
 
-## Repository structure
-
-```text
-it-useful/
-├── backend/       Spring Boot application
-├── frontend/      React application
-├── docs/          Project documentation and implementation worksheet
-├── uploads/       Local runtime uploads; contents are not committed
-└── README.md
-```
-
-## Project status
-
-The repository and WSL toolchain are configured. The Spring Boot and PostgreSQL foundation is the current implementation phase.
-
-Development is performed in Ubuntu on WSL. The Windows Codex desktop app and editor may access the repository through WSL integration, but project commands should run inside WSL.
-
-## Planning and contribution workflow
-
-- The implementation checklist is in [`docs/WORKSHEET.csv`](docs/WORKSHEET.csv).
-- The approval, branch, pull-request, and reporting process is in [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md).
-- WSL prerequisites and toolchain verification are in [`docs/DEVELOPMENT_SETUP.md`](docs/DEVELOPMENT_SETUP.md).
-- IntelliJ IDEA setup is in [`docs/INTELLIJ_SETUP.md`](docs/INTELLIJ_SETUP.md).
-- The initial PostgreSQL schema is described in [`docs/data-model.md`](docs/data-model.md).
-
-## Backend development
-
-Run the complete backend test suite (Docker must be running):
+Run project commands in Ubuntu on WSL, from the Linux filesystem:
 
 ```bash
-./scripts/test-backend.sh
+cd ~/workspace/icebreaker/it-useful
 ```
 
-Tests start disposable PostgreSQL 18.6 containers on random ports; they do not
-start or use the development Compose database. Flyway builds each test database
-from scratch. Containers are removed after the test JVM exits.
+Install or provide these tools:
 
-For quick unit tests without Docker:
+- Git;
+- Docker Desktop with Ubuntu WSL integration and Docker Compose;
+- Java 21 JDK;
+- Node.js 24 and npm through nvm.
+
+The detailed installation instructions are in
+[`docs/DEVELOPMENT_SETUP.md`](docs/DEVELOPMENT_SETUP.md). Verify everything with:
 
 ```bash
-cd backend
-./mvnw test
+./scripts/verify-toolchain.sh
 ```
 
-Use `./mvnw verify` from `backend` for unit and integration tests together.
-Surefire runs unit tests; Failsafe runs `*IntegrationTests` and
-`ItUsefulBackendApplicationTests`. Reports are in `backend/target/surefire-reports`
-and `backend/target/failsafe-reports`. In IntelliJ, reload Maven after pulling
-changes. Individual integration test classes can also run directly from the IDE
-with Docker available in WSL. The first run needs network access to download
-dependencies and container images; unavailable Docker fails integration tests
-rather than silently skipping them.
+## Start the complete application
 
-Run the backend locally from another terminal:
+The recommended local start uses Docker for all three services:
 
 ```bash
-cd backend
-./mvnw spring-boot:run
+./scripts/project.sh start
 ```
 
-The health endpoint is available at `http://localhost:8080/actuator/health`.
-By default Spring and PostgreSQL bind only to loopback. This project has no
-authentication and is intended for one trusted user on a local machine; do not
-publish, forward, tunnel, or reverse-proxy its ports. See
-[the security policy](docs/security.md) before changing its exposure.
+The first run creates `.env` from `.env.example`, builds the images, starts the
+services, and waits for their health checks. Open <http://127.0.0.1:3000>.
+PostgreSQL is exposed only on WSL loopback for database tools. The backend is
+available only through the frontend's `/api` proxy.
 
-The default local profile adds two example definitions (`api` and
-`database-index`) with English, German, and Russian content when they are
-missing. Restarting the backend does not duplicate them.
-
-The element REST API is available at `/api/elements`:
-
-- `GET /api/elements` lists definitions and localized titles.
-- `POST /api/elements` creates a definition.
-- `GET /api/elements/{id}` returns complete content and image metadata.
-- `PUT /api/elements/{id}` updates the slug and all translations.
-- `DELETE /api/elements/{id}` deletes the definition.
-
-Create and update requests must contain exactly one `EN`, `DE`, and `RU`
-translation. API failures use `application/problem+json` and include a stable
-`code`; validation failures also include field-level `errors`.
-
-Images are managed separately from the translated element content:
-
-- `POST /api/elements/{elementId}/images` uploads an image as multipart form data.
-- `GET /api/images/{imageId}` returns the stored image.
-- `PATCH /api/images/{imageId}` updates its alternative text and display order.
-- `DELETE /api/images/{imageId}` removes both the stored file and its metadata.
-
-Uploads accept JPEG, PNG, and WebP files. The backend validates the actual file
-signature as well as the declared content type, generates the storage filename,
-and rejects files larger than 10 MiB by default. Configure the location and
-limits with `UPLOAD_DIR`, `MAX_FILE_SIZE`, `MAX_REQUEST_SIZE`, and
-`MAX_FILE_SIZE_BYTES`; see [`.env.example`](.env.example) for the defaults.
-
-Interactive API documentation is available while the backend is running:
-
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
-- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
-
-## Frontend development
-
-The React/TypeScript frontend foundation is available locally:
+Stop the application without deleting data:
 
 ```bash
+./scripts/project.sh stop
+```
+
+## Root helper commands
+
+Run `./scripts/project.sh help` to see the current command list.
+
+| Command | Purpose |
+| --- | --- |
+| `./scripts/project.sh start` | Build and start the complete application |
+| `./scripts/project.sh stop` | Stop services and preserve data |
+| `./scripts/project.sh status` | Show service and health status |
+| `./scripts/project.sh logs [service]` | Follow all logs or one service |
+| `./scripts/project.sh build` | Build the backend and frontend images |
+| `./scripts/project.sh test` | Run backend and frontend checks |
+| `./scripts/project.sh test-full-stack` | Test the real local application workflow |
+| `./scripts/project.sh test-compose` | Test the production-style images |
+
+The helper returns a nonzero status when a command or test fails. It can be run
+from any directory because it resolves the repository root itself.
+
+## Development mode
+
+Development mode runs PostgreSQL in Docker and starts Spring and Vite directly
+inside WSL. Start only PostgreSQL first:
+
+```bash
+cd ~/workspace/icebreaker/it-useful
+docker compose up --detach --wait postgres
+```
+
+Then start the backend in one terminal. Disabling Spring's automatic Compose
+integration prevents it from also starting the containerized backend and frontend:
+
+```bash
+cd ~/workspace/icebreaker/it-useful/backend
+SPRING_DOCKER_COMPOSE_ENABLED=false ./mvnw spring-boot:run
+```
+
+The local Spring profile applies Flyway migrations and adds two example
+definitions without duplicating them. The backend health endpoint is
+<http://127.0.0.1:8080/actuator/health>.
+
+Start the frontend in a second terminal:
+
+```bash
+cd ~/workspace/icebreaker/it-useful
 source "$HOME/.nvm/nvm.sh"
 nvm use
 cd frontend
@@ -123,55 +100,126 @@ npm ci
 npm run dev
 ```
 
-Open `http://localhost:5173`. With Spring and PostgreSQL running, the start page
-shows saved definitions with independent content-language selection, search,
-sorting, and confirmed deletion. Detail cards show safe Markdown, examples,
-and ordered images with missing-content and error recovery. Create/edit forms
-support all three translations, validation, safe Markdown preview, and unsaved-change warnings.
-The edit page also supports image previews/uploads with progress, alt-text editing,
-numeric ordering, and confirmed deletion. Image changes save separately and immediately.
-See [frontend instructions](frontend/README.md) for build and preview commands.
-Run `npm run check` for frontend quality checks. After installing Chromium with
-`npx playwright install chromium`, run `npm run test:e2e` for the browser smoke
-and automated accessibility check. These checks do not need the backend.
+Open <http://127.0.0.1:5173>. Vite sends `/api` requests to the local backend.
+Use Ctrl+C in each terminal to stop the development servers. Stop PostgreSQL
+with `docker compose stop postgres` when it is no longer needed.
 
-For the real browser-to-Spring-to-PostgreSQL workflow, run
-`./scripts/test-full-stack.sh` from the repository root with Docker available
-and the project Node version selected. It starts and cleans up an isolated test
-database, backend, and upload directory. See [testing instructions](docs/TESTING.md).
+## Configuration
 
-## Run the complete application with Docker
+`.env.example` contains safe local defaults. Copy it to the ignored `.env` file
+before changing values manually. Docker Compose reads `.env`; direct Spring
+development reads exported environment variables or the defaults below.
 
-Copy the example environment once, then build and start the complete local stack:
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `DB_NAME` | `it_useful` | PostgreSQL database name |
+| `DB_USER` | `it_useful` | PostgreSQL user |
+| `DB_PASSWORD` | `it_useful_local` | Local PostgreSQL password |
+| `DB_PORT` | `5432` | Loopback PostgreSQL port |
+| `FRONTEND_PORT` | `3000` | Container frontend port on the host |
+| `BACKEND_PORT` | `8080` | Direct Spring development port |
+| `SERVER_ADDRESS` | `127.0.0.1` | Direct Spring bind address |
+| `UPLOAD_DIR` | `../uploads` | Direct Spring upload directory |
+| `MAX_FILE_SIZE` | `10MB` | Spring multipart file limit |
+| `MAX_REQUEST_SIZE` | `12MB` | Spring multipart request limit |
+| `MAX_FILE_SIZE_BYTES` | `10485760` | Application upload limit in bytes |
+
+If `DB_PORT`, `FRONTEND_PORT`, or `BACKEND_PORT` is already occupied, choose an
+unused loopback port in `.env`. Do not commit `.env` or use production secrets in
+this local-only project.
+
+## Database and migrations
+
+Flyway owns the database schema. Spring applies pending migrations at startup,
+then Hibernate validates the result. Existing migration files under
+`backend/src/main/resources/db/migration` are immutable after merge. Add schema
+changes as a new versioned migration such as `V2__describe_change.sql`.
+
+Compose stores PostgreSQL data in the `postgres_data` named volume. Normal
+`start` and `stop` commands keep it. The local profile also uses the Compose
+database, while integration tests create separate disposable PostgreSQL
+containers on random ports.
+
+The schema and relationships are documented in
+[`docs/data-model.md`](docs/data-model.md).
+
+## Uploads and persistent data
+
+The Compose application stores uploaded files in the `upload_data` named volume.
+Direct Spring development stores them under the configured `UPLOAD_DIR`, which
+defaults to the repository's ignored `uploads/` directory. JPEG, PNG, and WebP
+are accepted up to 10 MiB by default. Both declared MIME type and file signature
+are checked.
+
+Deleting an image removes its metadata and file. Deleting a definition removes
+all its translations and images. Back up both the PostgreSQL data and upload
+storage together if the local content matters.
+
+## Tests
+
+Docker must be running for backend integration and full-stack tests. Install the
+Playwright browser once with `cd frontend && npx playwright install chromium`.
+
+| Command | Coverage |
+| --- | --- |
+| `./scripts/project.sh test` | Backend unit/integration tests plus frontend quality and mocked browser tests |
+| `./scripts/project.sh test-backend` | Maven unit and disposable PostgreSQL integration tests |
+| `./scripts/project.sh test-frontend` | Formatting, lint, types, Vitest, build, and mocked Playwright tests |
+| `./scripts/project.sh test-full-stack` | Real browser workflow through Spring and a disposable database |
+| `./scripts/project.sh test-compose` | Clean image build and real workflow through the Compose stack |
+
+Detailed isolation, cleanup, reports, and optional Playwright arguments are
+documented in [`docs/TESTING.md`](docs/TESTING.md).
+
+## API and application routes
+
+The REST API is rooted at `/api`. The complete request, response, error, language,
+and image contracts are in [`docs/api.md`](docs/api.md). In development mode:
+
+- Swagger UI: <http://127.0.0.1:8080/swagger-ui.html>
+- OpenAPI JSON: <http://127.0.0.1:8080/v3/api-docs>
+
+Swagger and OpenAPI are disabled in the container profile. Browser routes are
+`/`, `/elements/new`, `/elements/{id}`, and `/elements/{id}/edit`.
+
+## Safe data reset
+
+`./scripts/project.sh stop` and `docker compose down` preserve the named volumes.
+There is no automatic clean or reset during normal development.
+
+To permanently delete the Compose database and every uploaded image, use the
+explicit confirmation phrase:
 
 ```bash
-cp --no-clobber .env.example .env
-docker compose up --build --detach --wait
+./scripts/project.sh reset-data delete-local-data
 ```
 
-Open `http://127.0.0.1:3000`. The frontend is the only application service
-published to the host; it forwards `/api` to Spring on the private Compose
-network. PostgreSQL remains available on loopback for local database tools.
-The database and uploaded images persist in the `postgres_data` and
-`upload_data` named volumes. The container profile starts with an empty catalogue.
+This operation cannot be undone. It affects Compose volumes, not files in a
+custom direct-development `UPLOAD_DIR`.
 
-Check status and logs, or stop the application, with:
+## Troubleshooting
 
-```bash
-docker compose ps
-docker compose logs --follow
-docker compose down
-```
+- **Docker is unavailable:** start Docker Desktop and enable integration for the
+  Ubuntu WSL distribution. Confirm with `docker info`.
+- **Wrong Java or Node version:** run `./scripts/verify-toolchain.sh`, then select
+  Java 21 and run `nvm install && nvm use` from the repository root.
+- **A port is already allocated:** change the corresponding port in `.env`, then
+  run `./scripts/project.sh start` again.
+- **A service is unhealthy:** run `./scripts/project.sh status`, followed by
+  `./scripts/project.sh logs backend` or the affected service name.
+- **Maven is not synchronized in IntelliJ:** reload the Maven project from
+  `backend/pom.xml` and ensure the project SDK is Java 21.
+- **Playwright cannot launch Chromium:** run
+  `cd frontend && npx playwright install --with-deps chromium` in WSL.
+- **The browser has stale frontend assets:** rebuild with
+  `./scripts/project.sh start` and perform a hard refresh.
 
-`docker compose down` preserves both named volumes. Use `docker compose down
---volumes` only when you intentionally want to delete the local container data.
-To verify a disposable image build and the complete containerized browser flow,
-run `./scripts/test-compose.sh`; its isolated test volumes are removed afterward.
+## Security and contribution workflow
 
-## Definition of done for the MVP
+IT Useful has no authentication and is intended for one trusted user on a local
+machine. Do not publish, tunnel, or reverse-proxy it. Read
+[`docs/security.md`](docs/security.md) before changing its exposure.
 
-- Definitions can be listed, created, viewed, edited, and deleted.
-- Every definition has English, German, and Russian content.
-- Detail pages support safe Markdown, examples, and ordered images.
-- Backend, frontend, integration, and end-to-end quality checks pass.
-- A clean WSL checkout can be started using only documented commands.
+The implementation worksheet is in [`docs/WORKSHEET.csv`](docs/WORKSHEET.csv),
+and the branch, pull-request, and review process is in
+[`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md).
