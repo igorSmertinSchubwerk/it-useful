@@ -64,6 +64,7 @@ Run `./scripts/project.sh help` to see the current command list.
 | `./scripts/project.sh test-full-stack` | Test the real local application workflow |
 | `./scripts/project.sh test-compose` | Test the production-style images |
 | `./scripts/project.sh test-acceptance` | Run clean-install, restart, persistence, and recovery acceptance |
+| `./scripts/project.sh audit-release` | Check tracked files for credentials and generated output |
 
 The helper returns a nonzero status when a command or test fails. It can be run
 from any directory because it resolves the repository root itself.
@@ -169,6 +170,7 @@ Playwright browser once with `cd frontend && npx playwright install chromium`.
 | `./scripts/project.sh test-full-stack` | Real browser workflow through Spring and a disposable database |
 | `./scripts/project.sh test-compose` | Clean image build and real workflow through the Compose stack |
 | `./scripts/project.sh test-acceptance` | Clean checkout, restart persistence, and failure recovery acceptance |
+| `./scripts/project.sh audit-release` | Tracked-file, credential-signature, size, and file-mode audit |
 
 Detailed isolation, cleanup, reports, and optional Playwright arguments are
 documented in [`docs/TESTING.md`](docs/TESTING.md).

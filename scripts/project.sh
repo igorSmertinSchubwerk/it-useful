@@ -22,6 +22,7 @@ Verification commands:
   test-full-stack   Run the real browser workflow against local processes
   test-compose      Run the real browser workflow against built images
   test-acceptance   Run release acceptance from a clean archived checkout
+  audit-release     Check tracked files for release-blocking content
 
 Data command:
   reset-data delete-local-data
@@ -107,6 +108,9 @@ case "${command_name}" in
   test-acceptance)
     select_node
     "${project_root}/scripts/test-acceptance.sh" "$@"
+    ;;
+  audit-release)
+    "${project_root}/scripts/audit-release.sh" "$@"
     ;;
   reset-data)
     if [[ "${1:-}" != "delete-local-data" ]]; then
