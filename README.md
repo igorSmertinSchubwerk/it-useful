@@ -140,6 +140,34 @@ For the real browser-to-Spring-to-PostgreSQL workflow, run
 and the project Node version selected. It starts and cleans up an isolated test
 database, backend, and upload directory. See [testing instructions](docs/TESTING.md).
 
+## Run the complete application with Docker
+
+Copy the example environment once, then build and start the complete local stack:
+
+```bash
+cp --no-clobber .env.example .env
+docker compose up --build --detach --wait
+```
+
+Open `http://127.0.0.1:3000`. The frontend is the only application service
+published to the host; it forwards `/api` to Spring on the private Compose
+network. PostgreSQL remains available on loopback for local database tools.
+The database and uploaded images persist in the `postgres_data` and
+`upload_data` named volumes. The container profile starts with an empty catalogue.
+
+Check status and logs, or stop the application, with:
+
+```bash
+docker compose ps
+docker compose logs --follow
+docker compose down
+```
+
+`docker compose down` preserves both named volumes. Use `docker compose down
+--volumes` only when you intentionally want to delete the local container data.
+To verify a disposable image build and the complete containerized browser flow,
+run `./scripts/test-compose.sh`; its isolated test volumes are removed afterward.
+
 ## Definition of done for the MVP
 
 - Definitions can be listed, created, viewed, edited, and deleted.
