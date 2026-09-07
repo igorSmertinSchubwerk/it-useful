@@ -136,7 +136,7 @@ public class UploadStorageService {
 
 	private static String safeOriginalName(String originalFilename) {
 		String candidate = originalFilename == null ? "upload" : originalFilename.replace('\\', '/');
-		candidate = candidate.substring(candidate.lastIndexOf('/') + 1).replaceAll("[\\p{Cntrl}]", "").trim();
+		candidate = candidate.substring(candidate.lastIndexOf('/') + 1).replaceAll("[\\p{C}]", "").trim();
 		if (candidate.isBlank() || candidate.equals(".") || candidate.equals("..")) {
 			candidate = "upload";
 		}

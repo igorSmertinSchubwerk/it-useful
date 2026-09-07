@@ -25,7 +25,7 @@ class UploadStorageServiceTests {
 	void storesWithAGeneratedNameAndSanitizesTheOriginalName() throws Exception {
 		UploadStorageService service = service(1024);
 		MockMultipartFile upload = new MockMultipartFile(
-				"file", "../private\\diagram.png", "image/png", PNG
+				"file", "../private\\dia\u202Egram.png", "image/png", PNG
 		);
 
 		StoredFile stored = service.store(upload);
