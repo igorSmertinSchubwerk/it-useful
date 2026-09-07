@@ -12,7 +12,9 @@ The default exposure boundary is the loopback interface:
 
 - Spring listens on `127.0.0.1` through `SERVER_ADDRESS`; the Vite development
   server already listens on `127.0.0.1`.
-- Compose publishes PostgreSQL only on `127.0.0.1`.
+- Compose publishes the frontend and PostgreSQL only on `127.0.0.1`. The
+  containerized backend listens on its private Compose network and has no host
+  port mapping.
 - No CORS origins are enabled. The frontend reaches Spring through Vite's
   same-origin `/api` proxy.
 - Browser writes with a cross-site fetch signal or a non-loopback `Origin` are

@@ -70,6 +70,22 @@ return a nonzero exit status. Optional Playwright arguments can follow the scrip
 for example `./scripts/test-full-stack.sh --headed` for an interactive WSL session.
 First runs may download Maven dependencies and the PostgreSQL image.
 
+## Container-stack browser test
+
+Run the production-style images through an isolated Compose project:
+
+```bash
+./scripts/test-compose.sh
+```
+
+The runner builds the backend and frontend images; waits for PostgreSQL, Spring,
+and Nginx health checks; verifies direct SPA navigation; and runs the same real
+Playwright workflow through the Nginx `/api` proxy. Random loopback ports avoid
+the development stack. The runner removes only its uniquely named Compose
+project and disposable volumes afterward. On failure, it prints that project's
+logs before cleanup. As with the full-stack runner, do not invoke its Playwright
+configuration directly against an application containing data.
+
 ## Backend checks
 
 Run `./scripts/test-backend.sh` from the root for Maven unit and disposable-database
