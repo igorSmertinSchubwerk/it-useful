@@ -126,7 +126,7 @@ jobs:
       - name: Run isolated Compose acceptance
         run: ./scripts/project.sh test-acceptance
 
-      - name: Validate backup creation
+      - name: Validate backup and restore
         run: ./scripts/project.sh test-backup
 
       - name: Upload acceptance failure reports

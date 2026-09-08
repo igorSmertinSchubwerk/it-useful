@@ -119,6 +119,22 @@ flyway_version="$(compose exec -T postgres psql -At -U "$db_user" -d "$db_name" 
 upload_kib="$(docker run --rm --volume "$upload_volume:/source:ro" postgres:18.6-alpine \
   sh -c "du -sk /source | awk '{print \$1}'")"
 
+while IFS= read -r storage_path; do
+  [[ -z "$storage_path" ]] && continue
+  case "$storage_path" in
+    /*|../*|*/../*|*/..)
+      echo "Database contains an unsafe upload path: $storage_path" >&2
+      exit 1
+      ;;
+  esac
+  docker run --rm --volume "$upload_volume:/source:ro" postgres:18.6-alpine \
+    test -f "/source/$storage_path" || {
+    echo "Database references a missing upload: $storage_path" >&2
+    exit 1
+  }
+done < <(compose exec -T postgres psql -At -U "$db_user" -d "$db_name" -c \
+  "SELECT storage_path FROM element_image ORDER BY id;")
+
 required_kib=$((database_bytes / 1024 + upload_kib + 51200))
 available_kib="$(df -Pk "$destination" | awk 'NR == 2 {print $4}')"
 if ((available_kib < required_kib)); then
@@ -137,10 +153,18 @@ staging_dir="$(mktemp -d "$destination/.it-useful-backup.XXXXXXXX")"
 echo "Dumping PostgreSQL database $db_name."
 compose exec -T postgres pg_dump --format=custom --compress=9 --no-owner --no-acl \
   -U "$db_user" -d "$db_name" >"$staging_dir/database.dump"
+docker run --rm --volume "$staging_dir:/backup:ro" postgres:18.6-alpine \
+  pg_restore --list /backup/database.dump >/dev/null
 
 echo "Archiving uploaded image bytes."
 docker run --rm --volume "$upload_volume:/source:ro" postgres:18.6-alpine \
   tar -C /source -czf - . >"$staging_dir/uploads.tar.gz"
+if tar -tvzf "$staging_dir/uploads.tar.gz" | awk 'substr($1, 1, 1) !~ /[-d]/ { bad = 1 } END { exit bad }'; then
+  :
+else
+  echo "Upload volume contains a link or unsupported filesystem entry." >&2
+  exit 1
+fi
 
 database_dump_bytes="$(stat -c %s -- "$staging_dir/database.dump")"
 uploads_archive_bytes="$(stat -c %s -- "$staging_dir/uploads.tar.gz")"
