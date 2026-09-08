@@ -58,14 +58,13 @@ logs, and the documented local commands remain the source of truth.
 
 Treat PostgreSQL and uploaded image bytes as one logical backup set.
 
-Backup creation is implemented and documented in
-[`BACKUP_RESTORE.md`](BACKUP_RESTORE.md). It quiesces application writes, captures
-both stores with a versioned manifest and checksums, validates disk space and the
-archive, and restores the previous service state. Destructive restore and a full
-restore drill remain the next group.
+Backup and restore are implemented and documented in
+[`BACKUP_RESTORE.md`](BACKUP_RESTORE.md). They quiesce application writes, capture
+both stores with a versioned manifest and checksums, validate archives before
+replacement, create an automatic safety backup, and restore the previous service
+state. CI runs the complete workflow against disposable Compose data.
 
-- Add explicit backup and restore commands with a versioned manifest. Backup is
-  complete; restore remains.
+- Add explicit backup and restore commands with a versioned manifest.
 - Stop or quiesce writes so database metadata and image files represent the same
   point in time.
 - Validate available disk space, archive integrity, schema version, and safe

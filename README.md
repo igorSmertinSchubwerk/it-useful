@@ -68,9 +68,10 @@ Run `./scripts/project.sh help` to see the current command list.
 | `./scripts/project.sh test-full-stack` | Test the real local application workflow |
 | `./scripts/project.sh test-compose` | Test the production-style images |
 | `./scripts/project.sh test-acceptance` | Run clean-install, restart, persistence, and recovery acceptance |
-| `./scripts/project.sh test-backup` | Validate backup creation with an isolated Compose project |
+| `./scripts/project.sh test-backup` | Validate backup and restore with isolated Compose data |
 | `./scripts/project.sh audit-release` | Check tracked files for credentials and generated output |
 | `./scripts/project.sh backup [directory]` | Back up PostgreSQL and uploaded images together |
+| `./scripts/project.sh restore <archive> confirm-replace-data` | Replace Compose data from a verified backup |
 
 The helper returns a nonzero status when a command or test fails. It can be run
 from any directory because it resolves the repository root itself.
@@ -172,7 +173,7 @@ Create a consistent backup in the default sibling directory with:
 The command briefly stops the application services to prevent writes, captures
 the database and upload volume, verifies the resulting archive, and restores the
 previous service state. See [`docs/BACKUP_RESTORE.md`](docs/BACKUP_RESTORE.md) for
-the format, custom destinations, storage guidance, and current restore status.
+the format, custom destinations, restore procedure, and storage guidance.
 
 ## Tests
 
@@ -187,7 +188,7 @@ Playwright browser once with `cd frontend && npx playwright install chromium`.
 | `./scripts/project.sh test-full-stack` | Real browser workflow through Spring and a disposable database |
 | `./scripts/project.sh test-compose` | Clean image build and real workflow through the Compose stack |
 | `./scripts/project.sh test-acceptance` | Clean checkout, restart persistence, and failure recovery acceptance |
-| `./scripts/project.sh test-backup` | Backup manifest, checksums, database content, image bytes, and service-state recovery |
+| `./scripts/project.sh test-backup` | Backup and restore guards, safety copy, content, image bytes, and service state |
 | `./scripts/project.sh audit-release` | Tracked-file, credential-signature, size, and file-mode audit |
 
 Detailed isolation, cleanup, reports, and optional Playwright arguments are
