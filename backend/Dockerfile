@@ -12,7 +12,7 @@ RUN --mount=type=cache,target=/root/.m2 \
     mvn -B -Dmaven.test.skip=true package && \
     cp target/it-useful-backend-*.jar /workspace/app.jar
 
-FROM eclipse-temurin:21-jre-alpine AS runtime
+FROM eclipse-temurin:25-jre-alpine AS runtime
 RUN apk upgrade --no-cache && \
     addgroup --system app && adduser --system --ingroup app app
 WORKDIR /app
