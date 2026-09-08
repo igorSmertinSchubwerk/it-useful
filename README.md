@@ -231,3 +231,5 @@ machine. Do not publish, tunnel, or reverse-proxy it. Read
 The implementation worksheet is in [`docs/WORKSHEET.csv`](docs/WORKSHEET.csv),
 and the branch, pull-request, and review process is in
 [`docs/DEVELOPMENT_WORKFLOW.md`](docs/DEVELOPMENT_WORKFLOW.md).
+Future work is prioritized separately in the
+[`post-MVP roadmap`](docs/roadmap.md) so it does not delay or change version 0.1.0.
