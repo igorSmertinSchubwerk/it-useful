@@ -64,8 +64,8 @@ the minimum patched Tomcat version through Spring Boot dependency management.
 
 ## Branch protection
 
-After the workflows have run successfully on `main`, configure the repository's
-`main` branch ruleset to require a pull request and these status checks:
+The repository's `main` branch is protected. Changes require a pull request, one
+approval, resolved review conversations, and these status checks:
 
 - `Release audit`
 - `Backend tests`
@@ -75,9 +75,13 @@ After the workflows have run successfully on `main`, configure the repository's
 - `Container scan (frontend)`
 - `Dependency review`
 
-Do not require administrator bypass restrictions until the rules have been
-tested with an ordinary update pull request. GitHub repository settings are not
-managed by source code in this project.
+Required checks must run against the latest `main` revision. New commits dismiss
+stale approvals, and force pushes and branch deletion are disabled. Administrator
+bypass remains available while this initial policy is validated by ordinary pull
+requests; revisit that exception when a second maintainer can review changes.
+
+GitHub repository settings are not managed by source code in this project. This
+section records the intended policy so settings can be audited against it.
 
 ## Scan policy and maintenance
 

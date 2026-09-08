@@ -20,16 +20,16 @@ and release notes.
 
 ## Recommended order
 
-| Order | Track | Priority | Start when | Main outcome |
-| --- | --- | --- | --- | --- |
-| 1 | Continuous integration | Now | Immediately after 0.1.0 | Every pull request runs repeatable quality and security checks. |
-| 2 | Backup and restore | Now | Before important personal content accumulates | Database records and image files can be restored together. |
-| 3 | Server search and pagination | Next | The catalogue makes full-list loading or client filtering noticeably slow | List requests return bounded, indexed, searchable pages. |
-| 4 | Authentication and roles | Conditional | More than one trusted user or any non-loopback access is required | Every request has an identity and explicit authorization. |
-| 5 | Audit history | Conditional | Shared editing, accountability, or recovery requires change history | Important writes have searchable actor and change records. |
-| 6 | S3-compatible image storage | Conditional | Multiple application instances, remote hosting, or storage portability is required | Image storage is durable and independent of one container host. |
-| 7 | Continuous deployment | Conditional | A supported shared environment exists | Reviewed releases deploy predictably with rollback controls. |
-| 8 | Additional languages | Later | Users identify a specific language and translation ownership | Language support expands without weakening completeness checks. |
+| Order | Track                        | Priority    | Start when                                                                         | Main outcome                                                    |
+| ----- | ---------------------------- | ----------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| 1     | Continuous integration       | Now         | Immediately after 0.1.0                                                            | Every pull request runs repeatable quality and security checks. |
+| 2     | Backup and restore           | Now         | Before important personal content accumulates                                      | Database records and image files can be restored together.      |
+| 3     | Server search and pagination | Next        | The catalogue makes full-list loading or client filtering noticeably slow          | List requests return bounded, indexed, searchable pages.        |
+| 4     | Authentication and roles     | Conditional | More than one trusted user or any non-loopback access is required                  | Every request has an identity and explicit authorization.       |
+| 5     | Audit history                | Conditional | Shared editing, accountability, or recovery requires change history                | Important writes have searchable actor and change records.      |
+| 6     | S3-compatible image storage  | Conditional | Multiple application instances, remote hosting, or storage portability is required | Image storage is durable and independent of one container host. |
+| 7     | Continuous deployment        | Conditional | A supported shared environment exists                                              | Reviewed releases deploy predictably with rollback controls.    |
+| 8     | Additional languages         | Later       | Users identify a specific language and translation ownership                       | Language support expands without weakening completeness checks. |
 
 ## 1. Continuous integration
 
@@ -40,7 +40,7 @@ Initial CI is implemented and documented in
 [`CONTINUOUS_INTEGRATION.md`](CONTINUOUS_INTEGRATION.md): release audit, backend,
 frontend, Compose acceptance, dependency review, dependency updates, container
 scanning, and Maven/npm/Playwright/Docker caches now run automatically. Repository
-branch-protection settings remain follow-up work.
+branch protection requires pull requests, review, and all documented CI checks.
 
 - Run the release-content audit.
 - Run backend unit and Testcontainers integration tests.
