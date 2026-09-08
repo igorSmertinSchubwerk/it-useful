@@ -58,7 +58,14 @@ logs, and the documented local commands remain the source of truth.
 
 Treat PostgreSQL and uploaded image bytes as one logical backup set.
 
-- Add explicit backup and restore commands with a versioned manifest.
+Backup creation is implemented and documented in
+[`BACKUP_RESTORE.md`](BACKUP_RESTORE.md). It quiesces application writes, captures
+both stores with a versioned manifest and checksums, validates disk space and the
+archive, and restores the previous service state. Destructive restore and a full
+restore drill remain the next group.
+
+- Add explicit backup and restore commands with a versioned manifest. Backup is
+  complete; restore remains.
 - Stop or quiesce writes so database metadata and image files represent the same
   point in time.
 - Validate available disk space, archive integrity, schema version, and safe
