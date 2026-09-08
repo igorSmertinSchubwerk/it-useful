@@ -179,6 +179,11 @@ Playwright browser once with `cd frontend && npx playwright install chromium`.
 Detailed isolation, cleanup, reports, and optional Playwright arguments are
 documented in [`docs/TESTING.md`](docs/TESTING.md).
 
+GitHub Actions runs the release audit, backend suite, frontend suite, and
+dependency review for pull requests. The workflow design, local reproduction
+commands, Dependabot schedule, and recommended branch protection are documented
+in [`docs/CONTINUOUS_INTEGRATION.md`](docs/CONTINUOUS_INTEGRATION.md).
+
 ## API and application routes
 
 The REST API is rooted at `/api`. The complete request, response, error, language,
