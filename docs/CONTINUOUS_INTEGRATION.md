@@ -58,6 +58,10 @@ cached by ecosystem-specific keys. Caches contain reproducible dependencies and
 build layers only; secrets, application data, uploads, and test databases are not
 cached.
 
+Runtime Docker stages upgrade Alpine packages during each image build so fixes
+published after the upstream image was assembled are included. The backend pins
+the minimum patched Tomcat version through Spring Boot dependency management.
+
 ## Branch protection
 
 After the workflows have run successfully on `main`, configure the repository's
