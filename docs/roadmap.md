@@ -38,9 +38,9 @@ track.
 
 Initial CI is implemented and documented in
 [`CONTINUOUS_INTEGRATION.md`](CONTINUOUS_INTEGRATION.md): release audit, backend,
-frontend, dependency review, dependency updates, and Maven/npm/Playwright caches
-now run automatically. Compose acceptance, Docker-layer caching, container-image
-scanning, and repository branch-protection settings remain follow-up work.
+frontend, Compose acceptance, dependency review, dependency updates, container
+scanning, and Maven/npm/Playwright/Docker caches now run automatically. Repository
+branch-protection settings remain follow-up work.
 
 - Run the release-content audit.
 - Run backend unit and Testcontainers integration tests.
