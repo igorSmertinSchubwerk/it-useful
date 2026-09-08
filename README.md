@@ -247,6 +247,9 @@ custom direct-development `UPLOAD_DIR`.
 IT Useful has no authentication and is intended for one trusted user on a local
 machine. Do not publish, tunnel, or reverse-proxy it. Read
 [`docs/security.md`](docs/security.md) before changing its exposure.
+The approved future private single-user server design is documented in
+[`docs/SERVER_SECURITY_PLAN.md`](docs/SERVER_SECURITY_PLAN.md); it is a plan and
+does not make the current release deployable.
 
 The implementation worksheet is in [`docs/WORKSHEET.csv`](docs/WORKSHEET.csv),
 and the branch, pull-request, and review process is in
