@@ -31,6 +31,13 @@ and release notes.
 | 7     | Continuous deployment        | Conditional | A supported shared environment exists                                              | Reviewed releases deploy predictably with rollback controls.    |
 | 8     | Additional languages         | Later       | Users identify a specific language and translation ownership                       | Language support expands without weakening completeness checks. |
 
+The private single-user server trigger is now real, so authentication and the
+shared-use security gate are selected ahead of search/pagination. The approved
+design and ordered implementation work are in
+[`SERVER_SECURITY_PLAN.md`](SERVER_SECURITY_PLAN.md) and
+[`SERVER_SECURITY_WORKSHEET.csv`](SERVER_SECURITY_WORKSHEET.csv). Search remains
+deferred because the current catalogue has not demonstrated a scaling problem.
+
 ## 1. Continuous integration
 
 Add GitHub Actions for pull requests and `main`. Keep deployment out of this
@@ -99,6 +106,11 @@ The remaining infrastructure tracks do not authorize public deployment. Before
 any non-loopback or multi-user use, complete the requirements in
 [`security.md`](security.md), including HTTPS, secret management, hardened proxy
 headers, rate limits, monitoring, and upload-abuse controls.
+
+For the approved private single-user target, completion also requires every item
+in the deployment gate of
+[`SERVER_SECURITY_PLAN.md`](SERVER_SECURITY_PLAN.md). Planning the gate does not
+complete it; the current release remains local-only.
 
 ## 4. Authentication and roles
 
