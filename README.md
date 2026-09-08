@@ -8,6 +8,10 @@ changed, and deleted from the browser.
 The application uses Java 21 with Spring Boot, React with TypeScript and
 Tailwind CSS, PostgreSQL with Flyway, and Docker Compose.
 
+The current application version is 0.1.0. See [`CHANGELOG.md`](CHANGELOG.md)
+for release notes and known limitations. The release procedure is documented in
+[`docs/RELEASE.md`](docs/RELEASE.md).
+
 ## Prerequisites
 
 Run project commands in Ubuntu on WSL, from the Linux filesystem:
