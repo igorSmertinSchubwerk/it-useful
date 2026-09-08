@@ -17,6 +17,8 @@ The `CI` workflow runs independent jobs so failures are easy to locate:
 - **Compose acceptance** builds a clean archived checkout and verifies startup,
   the real three-language workflow, uploads, outages, recovery, restart
   persistence, editing, and deletion through the production-style containers.
+  It also validates creation of a combined database-and-upload backup, including
+  its manifest, checksums, content, and service-state recovery.
 - **Container scan (backend)** and **Container scan (frontend)** build the runtime
   images and use Trivy to reject fixable High or Critical operating-system and
   application-library vulnerabilities.

@@ -22,9 +22,12 @@ Verification commands:
   test-full-stack   Run the real browser workflow against local processes
   test-compose      Run the real browser workflow against built images
   test-acceptance   Run release acceptance from a clean archived checkout
+  test-backup       Validate backups against an isolated Compose project
   audit-release     Check tracked files for release-blocking content
 
-Data command:
+Data commands:
+  backup [directory]
+                    Back up PostgreSQL and uploads together (default: ../it-useful-backups)
   reset-data delete-local-data
                     Permanently delete the Compose database and uploads
 EOF
@@ -113,8 +116,14 @@ case "${command_name}" in
     select_node
     "${project_root}/scripts/test-acceptance.sh" "$@"
     ;;
+  test-backup)
+    "${project_root}/scripts/test-backup.sh" "$@"
+    ;;
   audit-release)
     "${project_root}/scripts/audit-release.sh" "$@"
+    ;;
+  backup)
+    "${project_root}/scripts/backup.sh" "$@"
     ;;
   reset-data)
     if [[ "${1:-}" != "delete-local-data" ]]; then
