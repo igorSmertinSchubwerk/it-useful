@@ -64,11 +64,16 @@ Run `./scripts/project.sh help` to see the current command list.
 | `./scripts/project.sh status` | Show service and health status |
 | `./scripts/project.sh logs [service]` | Follow all logs or one service |
 | `./scripts/project.sh build` | Build the backend and frontend images |
+| `./scripts/project.sh server-validate /absolute/path/server.env` | Validate external server settings and merged Compose configuration |
+| `./scripts/project.sh server-start /absolute/path/server.env` | Start the loopback-only authenticated server variant |
+| `./scripts/project.sh server-stop /absolute/path/server.env` | Stop the server variant without deleting data |
+| `./scripts/project.sh server-status /absolute/path/server.env` | Show server-variant status |
 | `./scripts/project.sh test` | Run backend and frontend checks |
 | `./scripts/project.sh test-full-stack` | Test the real local application workflow |
 | `./scripts/project.sh test-compose` | Test the production-style images |
 | `./scripts/project.sh test-acceptance` | Run clean-install, restart, persistence, and recovery acceptance |
 | `./scripts/project.sh test-backup` | Validate backup and restore with isolated Compose data |
+| `./scripts/project.sh test-server-topology` | Test private server config, sockets, proxy routes, and authentication boundary |
 | `./scripts/project.sh audit-release` | Check tracked files for credentials and generated output |
 | `./scripts/project.sh backup [directory]` | Back up PostgreSQL and uploaded images together |
 | `./scripts/project.sh restore <archive> confirm-replace-data` | Replace Compose data from a verified backup |
@@ -189,10 +194,15 @@ Playwright browser once with `cd frontend && npx playwright install chromium`.
 | `./scripts/project.sh test-compose` | Clean image build and real workflow through the Compose stack |
 | `./scripts/project.sh test-acceptance` | Clean checkout, restart persistence, and failure recovery acceptance |
 | `./scripts/project.sh test-backup` | Backup and restore guards, safety copy, content, image bytes, and service state |
+| `./scripts/project.sh test-server-topology` | Server config, socket isolation, proxy routing, and anonymous auth boundary |
 | `./scripts/project.sh audit-release` | Tracked-file, credential-signature, size, and file-mode audit |
 
 Detailed isolation, cleanup, reports, and optional Playwright arguments are
 documented in [`docs/TESTING.md`](docs/TESTING.md).
+
+The private server topology and preparation sequence are documented in
+[`docs/SERVER_RUNBOOK.md`](docs/SERVER_RUNBOOK.md). They are not deployment
+approval; the assembled host and Tailscale security gate must still pass.
 
 GitHub Actions runs the release audit, backend suite, frontend suite, and
 dependency review for pull requests. The workflow design, local reproduction

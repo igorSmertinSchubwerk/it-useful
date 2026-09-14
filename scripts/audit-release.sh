@@ -25,7 +25,7 @@ while IFS= read -r -d '' path; do
   tracked_count=$((tracked_count + 1))
   case "$path" in
     .env|*/.env|.env.*|*/.env.*)
-      [[ "$path" == *.env.example || "$path" == .env.example ]] || \
+      [[ "$path" == *.env.example || "$path" == .env.example || "$path" == .env.server.example ]] || \
         reject "local environment file is tracked: $path"
       ;;
   esac

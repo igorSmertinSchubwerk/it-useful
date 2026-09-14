@@ -126,6 +126,9 @@ jobs:
       - name: Run isolated Compose acceptance
         run: ./scripts/project.sh test-acceptance
 
+      - name: Validate private server topology
+        run: ./scripts/project.sh test-server-topology
+
       - name: Validate backup and restore
         run: ./scripts/project.sh test-backup
 
@@ -136,7 +139,9 @@ jobs:
           name: acceptance-failure-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             frontend/playwright-report/acceptance/
+            frontend/playwright-report/server/
             frontend/test-results/acceptance/
+            frontend/test-results/
           if-no-files-found: ignore
           retention-days: 7
 

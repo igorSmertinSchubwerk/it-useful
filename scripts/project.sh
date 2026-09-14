@@ -14,6 +14,14 @@ Application commands:
   status            Show Compose service status
   logs [service]    Follow all logs or one service's logs
   build             Build the backend and frontend container images
+  server-validate <absolute-env-file>
+                    Validate private-server secrets and the Compose model
+  server-start <absolute-env-file>
+                    Build and start the loopback-only private-server stack
+  server-stop <absolute-env-file>
+                    Stop the private-server stack and preserve its data
+  server-status <absolute-env-file>
+                    Show private-server service status
 
 Verification commands:
   test              Run backend and frontend checks
@@ -23,6 +31,8 @@ Verification commands:
   test-compose      Run the real browser workflow against built images
   test-acceptance   Run release acceptance from a clean archived checkout
   test-backup       Validate backup and restore against isolated Compose data
+  test-server-topology
+                    Validate server config, sockets, proxy routes, and auth UI
   audit-release     Check tracked files for release-blocking content
 
 Data commands:
@@ -84,6 +94,26 @@ case "${command_name}" in
   build)
     docker compose build
     ;;
+  server-validate)
+    [[ $# -eq 1 ]] || { echo "Usage: ./scripts/project.sh server-validate /absolute/path/to/server.env" >&2; exit 2; }
+    "${project_root}/scripts/validate-server-config.sh" "$1"
+    "${project_root}/scripts/server-compose.sh" "$1" config --quiet
+    echo "Private server Compose configuration passed validation."
+    ;;
+  server-start)
+    [[ $# -eq 1 ]] || { echo "Usage: ./scripts/project.sh server-start /absolute/path/to/server.env" >&2; exit 2; }
+    "${project_root}/scripts/server-compose.sh" "$1" up --build --detach --wait
+    frontend_endpoint="$("${project_root}/scripts/server-compose.sh" "$1" port frontend 8080)"
+    echo "Private server origin is available to the local Tailscale edge at http://${frontend_endpoint}"
+    ;;
+  server-stop)
+    [[ $# -eq 1 ]] || { echo "Usage: ./scripts/project.sh server-stop /absolute/path/to/server.env" >&2; exit 2; }
+    "${project_root}/scripts/server-compose.sh" "$1" down
+    ;;
+  server-status)
+    [[ $# -eq 1 ]] || { echo "Usage: ./scripts/project.sh server-status /absolute/path/to/server.env" >&2; exit 2; }
+    "${project_root}/scripts/server-compose.sh" "$1" ps
+    ;;
   test)
     "${project_root}/scripts/test-backend.sh"
     select_node
@@ -120,6 +150,10 @@ case "${command_name}" in
     ;;
   test-backup)
     "${project_root}/scripts/test-backup.sh" "$@"
+    ;;
+  test-server-topology)
+    select_node
+    "${project_root}/scripts/test-server-topology.sh" "$@"
     ;;
   audit-release)
     "${project_root}/scripts/audit-release.sh" "$@"

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.ActiveProfiles;
@@ -39,10 +40,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ServerSecurityIntegrationTests {
 
 	private final MockMvc mockMvc;
+	private final Environment environment;
 
 	@Autowired
-	ServerSecurityIntegrationTests(MockMvc mockMvc) {
+	ServerSecurityIntegrationTests(MockMvc mockMvc, Environment environment) {
 		this.mockMvc = mockMvc;
+		this.environment = environment;
+	}
+
+	@Test
+	void trustsForwardingHeadersOnlyInTheExplicitServerProfile() {
+		assertThat(environment.getProperty("server.forward-headers-strategy")).isEqualTo("native");
+		assertThat(environment.getProperty("server.tomcat.remoteip.internal-proxies"))
+				.contains("172\\.(1[6-9]|2\\d|3[0-1])");
 	}
 
 	@Test
