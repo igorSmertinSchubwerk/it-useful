@@ -6,6 +6,8 @@
 - `features/elements/`: list/detail queries and cache keys, filtering/sorting,
   safe Markdown/preview, image display/management and validation, shared form,
   unsaved-change modal, and confirmed deletion.
+- `features/auth/`: server-session state, private-route gating, safe post-login
+  return paths, cache clearing, and in-memory CSRF lifecycle.
 - `hooks/`: cross-feature React hooks, including route accessibility.
 - `i18n/`: interface messages, persisted UI-language context, and localized API
   error presentation. Never put definition records or content selection here.

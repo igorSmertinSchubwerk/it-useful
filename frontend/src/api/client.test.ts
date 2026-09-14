@@ -1,11 +1,12 @@
 // @vitest-environment node
 // Keep Fetch, File, and FormData in the same native runtime for multipart tests.
 import { http, HttpResponse } from 'msw'
-import { afterAll, beforeAll, expect, test, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, expect, test, vi } from 'vitest'
 import { z } from 'zod'
 import { server } from '../test/server'
 import { createApiClient, normalizeBaseUrl } from './client'
 import { createElementsApi } from './elements'
+import { clearCsrfToken, setCsrfToken } from './authSession'
 
 const base = 'http://localhost/api'
 const client = createApiClient(base)
@@ -14,6 +15,7 @@ beforeAll(() =>
   vi.stubGlobal('window', { location: { origin: 'http://localhost' } }),
 )
 afterAll(() => vi.unstubAllGlobals())
+afterEach(() => clearCsrfToken())
 const image = {
   id: 'image-id',
   fileName: 'test.png',
@@ -84,6 +86,51 @@ test.each(['POST', 'PUT'] as const)('sends JSON with %s', async (method) => {
   ).toEqual(detail)
   expect(received).toEqual(body)
   expect(contentType).toBe('application/json')
+})
+
+test('attaches in-memory CSRF to unsafe API and origin requests only', async () => {
+  const received: Array<[string, string | null]> = []
+  setCsrfToken('X-CSRF-TOKEN', 'csrf-value')
+  server.use(
+    http.get(`${base}/elements`, ({ request }) => {
+      received.push(['GET', request.headers.get('X-CSRF-TOKEN')])
+      return HttpResponse.json([])
+    }),
+    http.delete(`${base}/elements/id`, ({ request }) => {
+      received.push(['DELETE', request.headers.get('X-CSRF-TOKEN')])
+      return new HttpResponse(null, { status: 204 })
+    }),
+    http.post('http://localhost/logout', ({ request }) => {
+      received.push(['POST', request.headers.get('X-CSRF-TOKEN')])
+      return new HttpResponse(null, { status: 204 })
+    }),
+  )
+  await api.list()
+  await api.remove('id')
+  await client.requestFromOrigin('/logout', z.undefined(), { method: 'POST' })
+  expect(received).toEqual([
+    ['GET', null],
+    ['DELETE', 'csrf-value'],
+    ['POST', 'csrf-value'],
+  ])
+})
+
+test('never sends the CSRF token to a cross-origin API base', async () => {
+  let header: string | null = 'not-called'
+  setCsrfToken('X-CSRF-TOKEN', 'csrf-value')
+  server.use(
+    http.post('https://api.example.test/api/elements', ({ request }) => {
+      header = request.headers.get('X-CSRF-TOKEN')
+      return HttpResponse.json(detail, { status: 201 })
+    }),
+  )
+  await createElementsApi(
+    createApiClient('https://api.example.test/api'),
+  ).create({
+    slug: 'http',
+    translations: [{ languageCode: 'EN', title: 'HTTP', content: 'Protocol' }],
+  })
+  expect(header).toBeNull()
 })
 
 test.each(['element', 'image'])(

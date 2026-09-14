@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { z } from 'zod'
 import { createApiClient } from './client'
+import { clearCsrfToken, setCsrfToken } from './authSession'
 
 class FakeXhr {
   static latest: FakeXhr
@@ -29,7 +30,10 @@ class FakeXhr {
   abort = vi.fn(() => this.onabort?.())
 }
 beforeEach(() => vi.stubGlobal('XMLHttpRequest', FakeXhr))
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => {
+  clearCsrfToken()
+  vi.unstubAllGlobals()
+})
 const schema = z.object({ id: z.string() })
 function start(signal?: AbortSignal) {
   const progress = vi.fn()
@@ -59,6 +63,16 @@ test('upload uses configured base and browser multipart boundary, reports progre
   xhr.upload.onprogress?.({ lengthComputable: true, loaded: 1, total: 4 })
   xhr.upload.onprogress?.({ lengthComputable: false, loaded: 1, total: 0 })
   expect(progress.mock.calls).toEqual([[25], [null]])
+  xhr.onload?.()
+  await expect(promise).resolves.toEqual({ id: 'image' })
+})
+test('upload progress transport attaches the in-memory CSRF token', async () => {
+  setCsrfToken('X-CSRF-TOKEN', 'upload-csrf')
+  const { promise, xhr } = start()
+  expect(xhr.setRequestHeader).toHaveBeenCalledWith(
+    'x-csrf-token',
+    'upload-csrf',
+  )
   xhr.onload?.()
   await expect(promise).resolves.toEqual({ id: 'image' })
 })

@@ -15,6 +15,33 @@ npm run dev
 Open http://localhost:5173. Stop the server with Ctrl+C.
 The server binds to loopback only and fails clearly if its port is occupied.
 
+## Authentication modes
+
+The default `VITE_AUTHENTICATION=local` keeps the existing loopback development
+workflow authentication-free. It does not call `/api/session`, require a CSRF
+token, or show a sign-out control. This is only suitable for the documented
+trusted local setup.
+
+The future private server build sets `VITE_AUTHENTICATION=server`. In that mode,
+the app checks `/api/session` before rendering any definition route. Anonymous
+users see the GitHub sign-in page; a different GitHub identity sees access
+denied; a later API `401` shows session expired. Successful login can return to
+the remembered internal route. Return values are restricted to local paths to
+prevent open redirects.
+
+The session endpoint supplies a CSRF header name and token. The token stays in
+JavaScript memory and is attached automatically to same-origin POST, PUT, PATCH,
+and DELETE requests, including image uploads and logout. It is never sent to a
+cross-origin API base and is not placed in localStorage,
+sessionStorage, URLs, or build variables. Logout and session expiry clear the
+token and the complete TanStack Query cache before private pages can render
+again. `VITE_AUTHENTICATION` accepts only `local` or `server`; other values stop
+the build/app instead of weakening the selected mode silently.
+
+Run `npm run test:e2e` to exercise both the ordinary local build and a separate
+mocked server-authentication build. These tests never contact GitHub and do not
+use real OAuth credentials.
+
 - `npm run build`: TypeScript check and production output in `dist/`.
 - `npm run lint`: ESLint checks with zero warnings allowed.
 - `npm run typecheck`: strict TypeScript checks, including test configurations.

@@ -99,10 +99,16 @@ fail-closed server profile will be required before the target becomes supported.
 If access becomes public or multi-user, stop and replace the plan with a new
 threat model rather than widening this one informally.
 
-The Spring identity foundation is implemented: the server profile validates its
-required settings, maps the exact numeric GitHub owner ID, protects all API data
-with backend authorization and CSRF, and exposes a minimal session contract. The
-frontend and private server topology are not implemented yet, so server
+The Spring identity foundation and frontend authentication experience are
+implemented. The server profile validates its required settings, maps the exact
+numeric GitHub owner ID, protects all API data with backend authorization and
+CSRF, and exposes a minimal session contract. A server-mode frontend loads that
+contract before mounting private routes, stores the CSRF token only in memory,
+adds it to state-changing requests, clears cached records after logout or session
+expiry, and presents separate anonymous, denied, expired, and unavailable states.
+
+Ordinary local builds use `VITE_AUTHENTICATION=local` and remain unchanged. The
+private server topology and proxy routing are not implemented yet, so server
 deployment remains blocked.
 
 ## Verification

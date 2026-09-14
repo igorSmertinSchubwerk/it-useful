@@ -23,8 +23,10 @@ duplicate-submit prevention and delete confirmation. HTTP is mocked with MSW.
 The dialog shim in component tests only implements open/close; native focus and
 inertness are verified in Chromium, not simulated as browser behavior in jsdom.
 
-`test:e2e` runs the existing mocked Chromium suite on port 4174. It exercises
-UI behavior, failures, keyboard interaction and accessibility without a backend.
+`test:e2e` first runs the local-mode mocked Chromium suite on port 4174, then a
+server-authentication build on port 4175. The authentication suite covers
+anonymous, denied, owner, expired, CSRF logout, safe post-login return, private
+cache removal, and accessibility states without contacting GitHub or a backend.
 
 ## Full-stack browser test
 
