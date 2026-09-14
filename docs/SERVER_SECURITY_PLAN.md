@@ -134,6 +134,10 @@ Add dependencies, server-only configuration validation, GitHub principal
 mapping, the numeric owner allowlist, default-deny authorization, session/CSRF
 endpoints, and backend tests. The local profile must continue to work unchanged.
 
+Status: implemented. The server profile remains unavailable through the current
+Compose topology until the frontend authentication and private topology groups
+are complete.
+
 ### Group 2: Frontend authenticated experience
 
 Add current-session loading, login and logout controls, clear unauthorized and
