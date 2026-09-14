@@ -85,6 +85,20 @@ minimum, a future release must:
 Public deployment is unsupported until these decisions are implemented and
 reviewed. Creating Docker images in later worksheet steps does not change that.
 
+## Approved future target: private single-user server
+
+The selected non-loopback target is a private Tailscale-only Linux server for one
+owner, with a second application-level GitHub login check. It does not authorize
+deployment yet. The architecture, implementation groups, secrets, tests, and
+pass/fail deployment gate are defined in
+[`SERVER_SECURITY_PLAN.md`](SERVER_SECURITY_PLAN.md), with task-level progress in
+[`SERVER_SECURITY_WORKSHEET.csv`](SERVER_SECURITY_WORKSHEET.csv).
+
+The current local profiles remain unauthenticated and loopback-only. A separate
+fail-closed server profile will be required before the target becomes supported.
+If access becomes public or multi-user, stop and replace the plan with a new
+threat model rather than widening this one informally.
+
 ## Verification
 
 Run `./scripts/test-backend.sh` with Docker to verify storage confinement, MIME
