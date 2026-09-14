@@ -1,0 +1,22 @@
+server:
+  servlet:
+    session:
+      timeout: 30m
+      cookie:
+        name: IT_USEFUL_SESSION
+        http-only: true
+        secure: true
+        same-site: lax
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+app:
+  security:
+    public-base-url: ${APP_PUBLIC_BASE_URL}
+    owner-github-id: ${APP_OWNER_GITHUB_ID}
+    github-client-id: ${GITHUB_CLIENT_ID}
+    github-client-secret: ${GITHUB_CLIENT_SECRET}

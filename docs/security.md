@@ -99,6 +99,12 @@ fail-closed server profile will be required before the target becomes supported.
 If access becomes public or multi-user, stop and replace the plan with a new
 threat model rather than widening this one informally.
 
+The Spring identity foundation is implemented: the server profile validates its
+required settings, maps the exact numeric GitHub owner ID, protects all API data
+with backend authorization and CSRF, and exposes a minimal session contract. The
+frontend and private server topology are not implemented yet, so server
+deployment remains blocked.
+
 ## Verification
 
 Run `./scripts/test-backend.sh` with Docker to verify storage confinement, MIME

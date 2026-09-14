@@ -4,6 +4,33 @@ The Spring backend exposes JSON endpoints under `/api`. Development examples
 below assume `http://127.0.0.1:8080`; the container frontend uses the same paths
 through its same-origin `/api` proxy. There is no authentication in the local MVP.
 
+## Server-profile authentication contract
+
+The future `server` profile adds a private, single-owner security boundary. It is
+not enabled by the local or current Compose workflows.
+
+- Start GitHub sign-in with `GET /oauth2/authorization/github`. GitHub returns to
+  the exact configured `/login/oauth2/code/github` callback.
+- Spring accepts the login only when GitHub's numeric account ID equals the
+  configured owner ID. The backend grants that session `ROLE_OWNER` and requires
+  it for every `/api/**` request, including image bytes.
+- `GET /api/session` requires an owner session and returns only the display login,
+  application role, and CSRF header/token pair. It never returns the GitHub access
+  token, OAuth client secret, or owner allowlist value.
+- Send the returned CSRF token in the named header for every `POST`, `PUT`,
+  `PATCH`, `DELETE`, and logout request. `POST /logout` invalidates the session and
+  returns `204 No Content`.
+- An anonymous API request returns `401` with code `authentication_required`.
+  An authenticated identity without owner authority returns `403` with code
+  `forbidden`. A missing or invalid CSRF token returns `403` with code
+  `csrf_invalid`.
+- The server session cookie is named `IT_USEFUL_SESSION`, lasts 30 minutes, and is
+  configured as `Secure`, `HttpOnly`, and `SameSite=Lax`.
+
+Swagger and OpenAPI are disabled in the server profile. Actuator health is the
+only unauthenticated operational route and must remain inside the private backend
+network; the later server topology must not proxy it.
+
 ## Common rules
 
 - Resource identifiers are UUID strings.
@@ -220,6 +247,9 @@ Stable codes currently include:
 | 400 | `validation_failed` | A validated field or parameter is invalid |
 | 400 | `malformed_request` | JSON, multipart data, a UUID, or a required part is malformed |
 | 400 | `invalid_image` | Image type, content, name, or signature is invalid |
+| 401 | `authentication_required` | The server profile requires an owner session |
+| 403 | `forbidden` | The authenticated identity does not have owner authority |
+| 403 | `csrf_invalid` | A state-changing server request lacks a valid CSRF token |
 | 404 | `element_not_found` | The element UUID does not exist |
 | 404 | `image_not_found` | The image UUID does not exist |
 | 409 | `duplicate_slug` | Another element has the slug |

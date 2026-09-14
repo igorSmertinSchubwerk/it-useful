@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -13,6 +14,7 @@ import java.net.URISyntaxException;
 import java.util.Set;
 
 @Component
+@Profile("!server")
 public class ApiSecurityFilter extends OncePerRequestFilter {
 
 	private static final Set<String> SAFE_METHODS = Set.of("GET", "HEAD", "OPTIONS");
