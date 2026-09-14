@@ -9,6 +9,8 @@ RUN --mount=type=cache,target=/root/.npm npm ci
 COPY . .
 ARG VITE_API_BASE_URL=/api
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+ARG VITE_AUTHENTICATION=local
+ENV VITE_AUTHENTICATION=${VITE_AUTHENTICATION}
 RUN npm run build
 
 FROM nginxinc/nginx-unprivileged:1.29-alpine AS runtime

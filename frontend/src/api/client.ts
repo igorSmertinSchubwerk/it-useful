@@ -1,11 +1,13 @@
 import { z } from 'zod'
 import { ApiError, httpError } from './errors'
+import { applyCsrfToken, notifyAuthenticationRequired } from './authSession'
 
 function decodeResponse<T>(
   status: number,
   text: string,
   schema: z.ZodType<T>,
 ): T {
+  if (status === 401) notifyAuthenticationRequired()
   let body: unknown
   try {
     body = text ? JSON.parse(text) : undefined
@@ -17,7 +19,9 @@ function decodeResponse<T>(
       'invalid_response',
     )
   }
-  if (status < 200 || status >= 300) throw httpError(status, body)
+  if (status < 200 || status >= 300) {
+    throw httpError(status, body)
+  }
   const parsed = schema.safeParse(body)
   if (!parsed.success)
     throw new ApiError(
@@ -66,19 +70,38 @@ export function createApiClient(
     return new URL(`${base}${path}`, window.location.origin).href
   }
 
+  function originUrl(path: string): string {
+    if (
+      !path.startsWith('/') ||
+      path.startsWith('//') ||
+      path.includes('\\') ||
+      path.split('/').some((part) => part === '..' || part === '.')
+    ) {
+      throw new Error('Expected an origin-relative endpoint path')
+    }
+    return new URL(path, window.location.origin).href
+  }
+
   async function request<T>(
     path: string,
     schema: z.ZodType<T>,
     options: RequestInit = {},
+    endpointUrl = url,
   ): Promise<T> {
+    const endpoint = endpointUrl(path)
     const headers = new Headers(options.headers)
     headers.set('Accept', 'application/json, application/problem+json')
     if (options.body instanceof FormData) headers.delete('Content-Type')
     else if (options.body != null)
       headers.set('Content-Type', 'application/json')
+    if (
+      options.method &&
+      !['GET', 'HEAD', 'OPTIONS'].includes(options.method.toUpperCase()) &&
+      new URL(endpoint).origin === window.location.origin
+    )
+      applyCsrfToken(headers)
     let response: Response
     let text: string
-    const endpoint = url(path)
     try {
       response = await fetch(endpoint, { ...options, headers })
       text = await response.text()
@@ -152,6 +175,13 @@ export function createApiClient(
           'Accept',
           'application/json, application/problem+json',
         )
+        if (new URL(endpoint).origin === window.location.origin) {
+          const csrfHeaders = new Headers()
+          applyCsrfToken(csrfHeaders)
+          csrfHeaders.forEach((value, name) =>
+            xhr.setRequestHeader(name, value),
+          )
+        }
         xhr.send(body)
       } catch {
         fail(new ApiError('Unable to start upload.', null, 'network_error'))
@@ -159,5 +189,11 @@ export function createApiClient(
     })
   }
 
-  return { request, url, upload }
+  const requestFromOrigin = <T>(
+    path: string,
+    schema: z.ZodType<T>,
+    options: RequestInit = {},
+  ) => request(path, schema, options, originUrl)
+
+  return { request, requestFromOrigin, url, upload }
 }

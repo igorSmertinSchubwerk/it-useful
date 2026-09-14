@@ -144,6 +144,11 @@ Add current-session loading, login and logout controls, clear unauthorized and
 expired-session states, and CSRF-aware mutations. Add component and mocked
 browser tests for each state.
 
+Status: implemented. Server authentication remains disabled in ordinary local
+builds. The private topology group must build the frontend with
+`VITE_AUTHENTICATION=server` and route the OAuth/session endpoints before the
+server profile can be used.
+
 ### Group 3: Private server topology
 
 Add the server Compose override, nginx auth routing, forwarded-header rules,
