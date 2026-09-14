@@ -155,6 +155,12 @@ Add the server Compose override, nginx auth routing, forwarded-header rules,
 secret templates, firewall/Tailscale instructions, and a configuration validator.
 No real server secrets or machine-specific hostnames enter Git.
 
+Status: implemented. The repository now provides a server-only frontend build,
+loopback-only Compose override, fail-closed external environment validation, and
+the preparation runbook. Deployment remains blocked until the assembled security
+verification group exercises the real OAuth App, Tailscale edge, firewall, and
+selected host.
+
 ### Group 4: Assembled security verification
 
 Exercise anonymous access, the owner, a different authenticated GitHub identity,

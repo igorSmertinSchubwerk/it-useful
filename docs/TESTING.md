@@ -90,6 +90,26 @@ logs before cleanup. After a successful browser run, it also rejects `ERROR`,
 do not invoke its Playwright configuration directly against an application
 containing data.
 
+## Private server topology
+
+Run the disposable server-profile topology suite with:
+
+```bash
+./scripts/project.sh test-server-topology
+```
+
+The suite creates a mode-`600` environment file with dummy OAuth values, checks
+unsafe permissions, missing secrets, and placeholders, validates the merged
+Compose model, then builds and starts isolated server containers. It verifies
+that only frontend nginx publishes an IPv4 loopback port, that Spring and
+PostgreSQL remain private, and that API, OAuth, callback, and logout routing is
+not swallowed by SPA fallback. A real Chromium browser also confirms that the
+server build loads session state and hides private routes from an anonymous user.
+
+The suite never contacts GitHub and does not validate a real Tailscale edge. Its
+containers, volumes, dummy environment file, and locally built images are removed
+after the run, including on failure.
+
 ## Backend checks
 
 Run `./scripts/test-backend.sh` from the root for Maven unit and disposable-database

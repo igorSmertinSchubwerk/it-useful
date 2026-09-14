@@ -108,8 +108,18 @@ adds it to state-changing requests, clears cached records after logout or sessio
 expiry, and presents separate anonymous, denied, expired, and unavailable states.
 
 Ordinary local builds use `VITE_AUTHENTICATION=local` and remain unchanged. The
-private server topology and proxy routing are not implemented yet, so server
-deployment remains blocked.
+private topology is now implemented as a separate Compose override: only nginx
+publishes a loopback socket, the server frontend enables authentication, OAuth
+and logout routes reach Spring before SPA fallback, and forwarded headers are
+scrubbed and rebuilt at that sole proxy boundary. Real server settings remain in
+an external mode-`400` or mode-`600` environment file checked by a fail-closed
+validator. See [`SERVER_RUNBOOK.md`](SERVER_RUNBOOK.md).
+
+This topology is preparation, not deployment approval. The real OAuth callback,
+owner identity, Tailscale grant, Funnel absence, firewall, external HTTPS
+headers, cookies, restart behavior, and denied-device path remain unverified.
+Server deployment stays blocked until the assembled verification group closes
+the documented gate.
 
 ## Verification
 
@@ -117,6 +127,9 @@ Run `./scripts/test-backend.sh` with Docker to verify storage confinement, MIME
 checks, safe problem responses, parser limits, headers, cross-origin write
 rejection, and persistence behavior. Run `./scripts/test-full-stack.sh` to verify
 that legitimate loopback frontend writes still complete through the real stack.
+Run `./scripts/project.sh test-server-topology` to build the server variant with
+dummy credentials and verify its environment guards, published sockets, proxy
+routes, and anonymous browser boundary.
 
 The header choices follow the OWASP
 [HTTP Headers Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html)
