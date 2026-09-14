@@ -13,7 +13,7 @@ ARG VITE_AUTHENTICATION=local
 ENV VITE_AUTHENTICATION=${VITE_AUTHENTICATION}
 RUN npm run build
 
-FROM nginxinc/nginx-unprivileged:1.29-alpine AS runtime
+FROM nginxinc/nginx-unprivileged:1.31-alpine AS runtime
 USER root
 RUN apk upgrade --no-cache
 ARG NGINX_CONFIG=nginx.conf
