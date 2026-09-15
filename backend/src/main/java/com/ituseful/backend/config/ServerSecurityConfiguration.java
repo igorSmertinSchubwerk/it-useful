@@ -9,13 +9,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
@@ -44,18 +49,27 @@ class ServerSecurityConfiguration {
 	SecurityFilterChain serverSecurityFilterChain(
 			HttpSecurity http,
 			GitHubOwnerOAuth2UserService ownerUserService,
+			ServerSecurityProperties properties,
 			SecurityProblemWriter problemWriter
 	) throws Exception {
 		PathPatternRequestMatcher apiMatcher = PathPatternRequestMatcher.withDefaults().matcher("/api/**");
+		AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 		AccessDeniedHandler accessDeniedHandler = (request, response, exception) -> {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			boolean unauthenticated = authentication == null || trustResolver.isAnonymous(authentication);
 			boolean csrfFailure = exception instanceof MissingCsrfTokenException
 					|| exception instanceof InvalidCsrfTokenException;
+			HttpStatus status = unauthenticated ? HttpStatus.UNAUTHORIZED : HttpStatus.FORBIDDEN;
 			problemWriter.write(
 					request,
 					response,
-					HttpStatus.FORBIDDEN,
-					csrfFailure ? "A valid CSRF token is required" : "The authenticated account is not authorized",
-					csrfFailure ? "csrf_invalid" : "forbidden"
+					status,
+					unauthenticated
+							? "Authentication is required"
+							: csrfFailure
+									? "A valid CSRF token is required"
+									: "The authenticated account is not authorized",
+					unauthenticated ? "authentication_required" : csrfFailure ? "csrf_invalid" : "forbidden"
 			);
 		};
 
@@ -81,6 +95,7 @@ class ServerSecurityConfiguration {
 						.userInfoEndpoint(userInfo -> userInfo.userService(ownerUserService)))
 				.sessionManagement(session -> session
 						.sessionFixation(fixation -> fixation.migrateSession()))
+				.addFilterAfter(new ServerOriginFilter(properties, problemWriter), CsrfFilter.class)
 				.logout(logout -> logout
 						.logoutUrl("/logout")
 						.invalidateHttpSession(true)

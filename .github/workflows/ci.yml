@@ -126,8 +126,8 @@ jobs:
       - name: Run isolated Compose acceptance
         run: ./scripts/project.sh test-acceptance
 
-      - name: Validate private server topology
-        run: ./scripts/project.sh test-server-topology
+      - name: Verify assembled private-server security
+        run: ./scripts/project.sh test-server-security
 
       - name: Validate backup and restore
         run: ./scripts/project.sh test-backup

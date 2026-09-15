@@ -17,8 +17,9 @@ The `CI` workflow runs independent jobs so failures are easy to locate:
 - **Compose acceptance** builds a clean archived checkout and verifies startup,
   the real three-language workflow, uploads, outages, recovery, restart
   persistence, editing, and deletion through the production-style containers.
-  It also validates the private server variant's secret guards, socket isolation,
-  proxy routes, and anonymous browser boundary. Finally, it validates combined
+  It also validates the private server variant's authorization matrix, secret
+  guards, socket isolation, proxy routes, headers, abuse limits, service restart,
+  and anonymous browser boundary. Finally, it validates combined
   database-and-upload backup and restore, including rejection guards, a safety
   backup, checksums, content, and service-state recovery.
 - **Container scan (backend)** and **Container scan (frontend)** build the runtime
@@ -44,7 +45,7 @@ Run these commands in Ubuntu on WSL from the repository root:
 ./scripts/project.sh test-backend
 ./scripts/project.sh test-frontend
 ./scripts/project.sh test-acceptance
-./scripts/project.sh test-server-topology
+./scripts/project.sh test-server-security
 ```
 
 Docker must be running. The frontend command requires Chromium; install it once
