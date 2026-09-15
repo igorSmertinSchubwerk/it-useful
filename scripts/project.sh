@@ -32,7 +32,9 @@ Verification commands:
   test-acceptance   Run release acceptance from a clean archived checkout
   test-backup       Validate backup and restore against isolated Compose data
   test-server-topology
-                    Validate server config, sockets, proxy routes, and auth UI
+                    Compatibility alias for test-server-security
+  test-server-security
+                    Verify the assembled private-server security boundary
   audit-release     Check tracked files for release-blocking content
 
 Data commands:
@@ -152,6 +154,10 @@ case "${command_name}" in
     "${project_root}/scripts/test-backup.sh" "$@"
     ;;
   test-server-topology)
+    select_node
+    "${project_root}/scripts/test-server-topology.sh" "$@"
+    ;;
+  test-server-security)
     select_node
     "${project_root}/scripts/test-server-topology.sh" "$@"
     ;;
