@@ -115,11 +115,15 @@ scrubbed and rebuilt at that sole proxy boundary. Real server settings remain in
 an external mode-`400` or mode-`600` environment file checked by a fail-closed
 validator. See [`SERVER_RUNBOOK.md`](SERVER_RUNBOOK.md).
 
-This topology is preparation, not deployment approval. The real OAuth callback,
-owner identity, Tailscale grant, Funnel absence, firewall, external HTTPS
-headers, cookies, restart behavior, and denied-device path remain unverified.
-Server deployment stays blocked until the assembled verification group closes
-the documented gate.
+The assembled repository verification now covers the full backend authorization
+matrix, CSRF and origin failures, cookie and response policy, hidden services,
+proxy-header forgery, request limits, and service restarts. The exact evidence is
+in [`SERVER_SECURITY_VERIFICATION.md`](SERVER_SECURITY_VERIFICATION.md).
+
+This remains preparation, not deployment approval. The real OAuth callback and
+owner identity, Tailscale grant, Funnel absence, host firewall, final HTTPS edge,
+host restart, denied-device path, and off-host recovery remain unverified. Server
+deployment stays blocked until those external items close the documented gate.
 
 ## Verification
 
@@ -127,9 +131,10 @@ Run `./scripts/test-backend.sh` with Docker to verify storage confinement, MIME
 checks, safe problem responses, parser limits, headers, cross-origin write
 rejection, and persistence behavior. Run `./scripts/test-full-stack.sh` to verify
 that legitimate loopback frontend writes still complete through the real stack.
-Run `./scripts/project.sh test-server-topology` to build the server variant with
-dummy credentials and verify its environment guards, published sockets, proxy
-routes, and anonymous browser boundary.
+Run `./scripts/project.sh test-server-security` to build the server variant with
+dummy credentials and verify its environment guards, authorization boundary,
+published sockets, proxy routes, headers, limits, browser behavior, and service
+restart recovery.
 
 The header choices follow the OWASP
 [HTTP Headers Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html)

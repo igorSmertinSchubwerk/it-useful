@@ -23,6 +23,17 @@ compose() {
   docker compose --project-directory "$checkout_dir" --project-name "$project_name" "$@"
 }
 
+frontend_binding() {
+  local container binding
+  container="$(compose ps --quiet frontend)"
+  binding="$(docker inspect --format '{{range (index .NetworkSettings.Ports "8080/tcp")}}{{.HostIp}}:{{.HostPort}}{{println}}{{end}}' "$container")"
+  [[ "$binding" =~ ^127\.0\.0\.1:([0-9]+)$ && "${BASH_REMATCH[1]}" -gt 0 ]] || {
+    echo "Frontend must have exactly one allocated loopback binding: $binding" >&2
+    return 1
+  }
+  printf '%s\n' "$binding"
+}
+
 wait_for_url() {
   local url="$1"
   for _ in {1..60}; do
@@ -70,7 +81,7 @@ export DB_PORT=0 FRONTEND_PORT=0
 
 echo "Building and starting a clean archived checkout."
 compose up --build --detach --wait --wait-timeout 240
-published="$(compose port frontend 8080)"
+published="$(frontend_binding)"
 [[ "$published" == 127.0.0.1:* ]] || {
   echo "Frontend is not bound to loopback: $published" >&2
   exit 1
@@ -99,7 +110,7 @@ echo "Restarting PostgreSQL and every application container."
 compose restart postgres
 wait_for_database
 compose restart backend frontend
-published="$(compose port frontend 8080)"
+published="$(frontend_binding)"
 [[ "$published" == 127.0.0.1:* ]] || {
   echo "Frontend is not bound to loopback after restart: $published" >&2
   exit 1

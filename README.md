@@ -73,7 +73,7 @@ Run `./scripts/project.sh help` to see the current command list.
 | `./scripts/project.sh test-compose` | Test the production-style images |
 | `./scripts/project.sh test-acceptance` | Run clean-install, restart, persistence, and recovery acceptance |
 | `./scripts/project.sh test-backup` | Validate backup and restore with isolated Compose data |
-| `./scripts/project.sh test-server-topology` | Test private server config, sockets, proxy routes, and authentication boundary |
+| `./scripts/project.sh test-server-security` | Test the assembled private-server authorization, browser defenses, exposure, limits, and restart behavior |
 | `./scripts/project.sh audit-release` | Check tracked files for credentials and generated output |
 | `./scripts/project.sh backup [directory]` | Back up PostgreSQL and uploaded images together |
 | `./scripts/project.sh restore <archive> confirm-replace-data` | Replace Compose data from a verified backup |
@@ -200,9 +200,11 @@ Playwright browser once with `cd frontend && npx playwright install chromium`.
 Detailed isolation, cleanup, reports, and optional Playwright arguments are
 documented in [`docs/TESTING.md`](docs/TESTING.md).
 
-The private server topology and preparation sequence are documented in
-[`docs/SERVER_RUNBOOK.md`](docs/SERVER_RUNBOOK.md). They are not deployment
-approval; the assembled host and Tailscale security gate must still pass.
+The private server preparation sequence is documented in
+[`docs/SERVER_RUNBOOK.md`](docs/SERVER_RUNBOOK.md), and the verified versus
+external evidence split is in
+[`docs/SERVER_SECURITY_VERIFICATION.md`](docs/SERVER_SECURITY_VERIFICATION.md).
+These are not deployment approval; the real host and Tailscale gate must pass.
 
 GitHub Actions runs the release audit, backend suite, frontend suite, and
 dependency review for pull requests. The workflow design, local reproduction
@@ -254,12 +256,13 @@ custom direct-development `UPLOAD_DIR`.
 
 ## Security and contribution workflow
 
-IT Useful has no authentication and is intended for one trusted user on a local
-machine. Do not publish, tunnel, or reverse-proxy it. Read
-[`docs/security.md`](docs/security.md) before changing its exposure.
-The approved future private single-user server design is documented in
-[`docs/SERVER_SECURITY_PLAN.md`](docs/SERVER_SECURITY_PLAN.md); it is a plan and
-does not make the current release deployable.
+Ordinary local mode has no authentication and is intended for one trusted user
+on a local machine. Do not publish or tunnel that mode. A separate authenticated,
+loopback-only server variant is implemented for the approved private single-user
+design, but real server deployment remains blocked until its external gate passes.
+Read [`docs/security.md`](docs/security.md) and
+[`docs/SERVER_SECURITY_PLAN.md`](docs/SERVER_SECURITY_PLAN.md) before changing
+either exposure boundary.
 
 The implementation worksheet is in [`docs/WORKSHEET.csv`](docs/WORKSHEET.csv),
 and the branch, pull-request, and review process is in

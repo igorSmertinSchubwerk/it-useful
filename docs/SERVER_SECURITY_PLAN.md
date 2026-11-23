@@ -169,6 +169,12 @@ OAuth callback matching, service restarts, headers, and rate/size limits against
 the real stack. Record residual risks and close the deployment gate only when all
 checks pass.
 
+Status: implemented. Repository-level authorization, browser-defense, exposure,
+rate/size-limit, and service-restart checks are automated and documented in
+[`SERVER_SECURITY_VERIFICATION.md`](SERVER_SECURITY_VERIFICATION.md). The
+deployment gate was reviewed and remains blocked until the external host,
+Tailscale, real OAuth, HTTPS-edge, and recovery evidence is collected.
+
 ### Group 5: Server operations
 
 After the target Linux host is chosen, pin the supported OS and container runtime,
@@ -203,12 +209,13 @@ The private server is supported only when every item is checked:
 - [ ] Exact GitHub OAuth callback registered with wildcard matching disabled.
 - [ ] Sole owner's numeric GitHub ID verified out of band.
 - [ ] Server secrets exist outside Git with owner-only filesystem permissions.
-- [ ] Server profile fails closed and all authorization/CSRF tests pass.
+- [x] Server profile fails closed and all authorization/CSRF tests pass.
 - [ ] Tailscale policy permits only the owner to reach the application server.
 - [ ] `tailscale serve status` shows private Serve and no Funnel configuration.
 - [ ] Host socket and firewall audit shows no public application/database ports.
 - [ ] HTTPS, HSTS, cookie flags, CSP, and other response headers pass inspection.
-- [ ] Swagger/OpenAPI are disabled and health is internal-only.
+- [x] Swagger/OpenAPI are disabled and health is internal-only in the assembled
+      Compose boundary.
 - [ ] Server data survives service and host restarts.
 - [ ] A fresh server backup restores successfully in an isolated drill.
 - [ ] An encrypted/off-host copy reaches the trusted local backup computer.
@@ -216,6 +223,8 @@ The private server is supported only when every item is checked:
       documented for the selected host.
 
 Until then, use the application only through its documented local loopback URLs.
+The exact automated and external evidence split is recorded in
+[`SERVER_SECURITY_VERIFICATION.md`](SERVER_SECURITY_VERIFICATION.md).
 
 ## Explicit non-goals
 
