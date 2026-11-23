@@ -55,7 +55,7 @@ ensure_environment() {
 }
 
 select_node() {
-  if command -v node >/dev/null 2>&1 && [[ "$(node --version)" == v24.* ]]; then
+  if command -v node >/dev/null 2>&1 && [[ "$(node --version)" == v26.* ]]; then
     return
   fi
 
@@ -65,8 +65,8 @@ select_node() {
     nvm use --silent
   fi
 
-  if ! command -v node >/dev/null 2>&1 || [[ "$(node --version)" != v24.* ]]; then
-    echo "Node.js 24 is required. Run: nvm install && nvm use" >&2
+  if ! command -v node >/dev/null 2>&1 || [[ "$(node --version)" != v26.* ]]; then
+    echo "Node.js 26 is required. Run: nvm install && nvm use" >&2
     exit 1
   fi
 }

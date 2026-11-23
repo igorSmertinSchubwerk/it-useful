@@ -26,8 +26,8 @@ node_path="$(command -v node)"
   exit 1
 }
 
-[[ "${node_version}" == v24.* ]] || {
-  echo "Expected Node.js 24, received: ${node_version}" >&2
+[[ "${node_version}" == v26.* ]] || {
+  echo "Expected Node.js 26, received: ${node_version}" >&2
   exit 1
 }
 

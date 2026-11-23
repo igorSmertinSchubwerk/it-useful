@@ -13,7 +13,7 @@ The Windows Codex desktop app and editor can open this directory through WSL int
 - Git
 - Docker and Docker Compose
 - Java 21 JDK
-- Node.js 24 LTS and npm
+- Node.js 26 LTS and npm
 
 The repository pins the Java major in `.java-version` and the Node major in `.nvmrc`.
 
@@ -31,11 +31,11 @@ Install and select the repository version:
 ```bash
 cd ~/workspace/icebreaker/it-useful
 nvm install
-nvm alias default 24
+nvm alias default 26
 nvm use
 ```
 
-The checked-in `.nvmrc` makes `nvm install` and `nvm use` select Node.js 24 LTS.
+The checked-in `.nvmrc` makes `nvm install` and `nvm use` select Node.js 26 LTS.
 
 ## Java 21
 
@@ -68,13 +68,13 @@ From the repository root, run:
 ./scripts/verify-toolchain.sh
 ```
 
-The script fails when Java is not version 21, Node is not version 24, or Node resolves to a Windows path.
+The script fails when Java is not version 21, Node is not version 26, or Node resolves to a Windows path.
 
 ## Currently verified versions
 
 - Eclipse Temurin JDK `21.0.12.1`
-- Node.js `24.20.0`
-- npm `11.19.0`
+- Node.js `26.13.1`
+- npm `11.20.0`
 - Docker Engine `29.1.3`
 - Docker Compose `2.40.3`
 

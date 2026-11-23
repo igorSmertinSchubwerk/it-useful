@@ -11,7 +11,7 @@ The `CI` workflow runs independent jobs so failures are easy to locate:
   file modes, oversized files, merge markers, and Git whitespace errors.
 - **Backend tests** use Java 21 and Docker to run Maven unit tests and isolated
   PostgreSQL Testcontainers integration tests.
-- **Frontend checks** use Node.js 24 to run formatting, lint, TypeScript, Vitest,
+- **Frontend checks** use Node.js 26 to run formatting, lint, TypeScript, Vitest,
   the production build, and mocked Chromium tests. A failed run retains the
   Playwright report and traces for seven days.
 - **Compose acceptance** builds a clean archived checkout and verifies startup,

@@ -1,7 +1,7 @@
 # IT Useful frontend
 
 React and TypeScript with Vite and Tailwind CSS. Run commands inside WSL
-using the Node.js 24 version selected by the root `.nvmrc`.
+using the Node.js 26 version selected by the root `.nvmrc`.
 
 ```bash
 cd ~/workspace/icebreaker/it-useful
