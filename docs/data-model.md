@@ -1,6 +1,7 @@
 # Data model
 
-Flyway migration `V1__create_initial_schema.sql` creates the current schema.
+Flyway migrations `V1__create_initial_schema.sql` and `V2__create_account.sql`
+create the current schema.
 Application code uses UUID identifiers and UTC timestamps. PostgreSQL is the
 source of truth for element and image metadata; image bytes live in the configured
 upload storage.
@@ -63,6 +64,20 @@ The `(element_id, display_order)` constraint produces a stable image order.
 Display positions may contain gaps but must be unique within one element. Images
 are shared by all translations; alternative text is not translated. Storage
 paths are internal and are never returned by the REST API.
+
+## `account`
+
+A person who can sign in to the server variant
+([`PUBLIC_ACCOUNTS_SPEC.md`](PUBLIC_ACCOUNTS_SPEC.md)). Each row contains:
+
+- `email`: stored lowercased, unique without regard to letter case
+- `password_hash`: a bcrypt hash with its `{bcrypt}` algorithm prefix, never the password
+- `role`: `USER` or `ADMIN`
+- `status`: `ACCEPTED`, `CONFIRMED`, or `DISABLED`
+- `created_at`: a UTC-aware timestamp
+
+Pending invitations are not accounts. An account row exists once an invitee has
+set a password.
 
 ## Persistence and deletion
 
