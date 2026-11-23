@@ -47,7 +47,8 @@ The flow follows Bitwarden's organization members: invited, accepted, confirmed.
 ### Access
 
 - **AC-1:** WHEN a request without a valid session reaches any page or `/api/**`
-  route other than sign-in, invitation acceptance, and password reset, THE SYSTEM
+  route other than sign-in, invitation acceptance, password reset, and the legal
+  pages, THE SYSTEM
   SHALL answer `401` for API calls and send browser navigation to the sign-in page.
 - **AC-2:** WHEN a `USER` calls any create, update, or delete endpoint for
   definitions or images, THE SYSTEM SHALL answer `403` and change nothing.
@@ -111,6 +112,16 @@ The flow follows Bitwarden's organization members: invited, accepted, confirmed.
   accept the public HTTPS origin.
 - **AC-23:** The co-hosted pagegenerator site, certificate, and ports SHALL stay
   unchanged. The host gains only one new nginx server block for this domain.
+- **AC-24:** THE SYSTEM SHALL serve an Impressum page and a privacy-policy page
+  without sign-in, linked from the sign-in page.
+
+### Email
+
+- **AC-25:** WHERE SMTP settings are configured, THE SYSTEM SHALL email
+  invitation and reset links to the address concerned. The admin can always copy
+  the link as well.
+- **AC-26:** WHEN sending an email fails, THE SYSTEM SHALL still return the link
+  to the admin and log a warning with the account or invitation id.
 
 ## Decisions taken
 
@@ -118,19 +129,14 @@ The flow follows Bitwarden's organization members: invited, accepted, confirmed.
   writes are admin-only. Roles `USER` and `ADMIN`. Owner decisions of 2026-11-23.
 - **D2:** The GitHub owner login and Tailscale are removed from the server
   variant, which keeps one credential model.
-- **D3:** This version sends no email. The admin copies invitation and reset
-  links and passes them on. Adding SMTP later does not change the data model.
+- **D3:** Admins can always copy invitation and reset links. Email delivery is
+  optional and active only when SMTP settings are configured.
 - **D4:** The host's existing nginx and certbot terminate TLS, as they already
-  do for pagegenerator.
+  do for pagegenerator. The pagegenerator owner agreed on 2026-11-23.
 - **D5:** Spring Security form login with the existing server-side session,
   cookie, and CSRF settings.
-
-## Open questions (they block going public, not development)
-
-- **Q1:** A public company website that stores personal data needs an Impressum
-  and a privacy policy. Who provides the text?
-- **Q2:** Is D3 acceptable, or will an SMTP account be provided?
-- **Q3:** Does the pagegenerator owner agree to the extra nginx site and certificate?
+- **D6:** The owner and the developer write the Impressum and privacy policy
+  together. Staging starts from a typical template that names the real operator.
 
 ## Delivery phases
 
@@ -139,12 +145,13 @@ public before phase 5.
 
 | Phase | Content | Fulfills |
 | --- | --- | --- |
-| 1 | Accounts schema (`V2` migration for accounts, invitations, reset tokens) and password rules | AC-11, AC-12 |
+| 1 | Accounts table, password rules, and password hashing | AC-11, AC-12 |
 | 2 | Form login replaces the GitHub login, role checks, lockout, security logging | AC-1 to AC-4, AC-13, AC-14, AC-20 |
 | 3 | Invitations, acceptance page, waiting page, confirmation, and the first-admin command | AC-5 to AC-10, AC-19 |
 | 4 | Account administration page, password change, and reset links | AC-15 to AC-18 |
-| 5 | Public origin in the validator, nginx site and certificate, runbook and security docs | AC-21 to AC-23 |
+| 5 | Public origin, nginx site and certificate, legal pages, runbook and security docs | AC-21 to AC-24 |
+| 6 | Optional SMTP delivery of invitation and reset links | AC-25, AC-26 |
 
-**Go-live gate:** Q1 to Q3 answered, every criterion covered by a passing test or
-a recorded manual check, and the assembled security test passing against the
-public configuration.
+**Go-live gate:** the Impressum and privacy policy are reviewed by the owner,
+every criterion is covered by a passing test or a recorded manual check, and the
+assembled security test passes against the public configuration.
