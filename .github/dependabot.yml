@@ -39,6 +39,11 @@ updates:
       npm:
         patterns:
           - "*"
+    ignore:
+      # typescript-eslint does not support TypeScript 7 yet.
+      - dependency-name: typescript
+        update-types:
+          - version-update:semver-major
 
   - package-ecosystem: docker
     directory: /
@@ -57,6 +62,13 @@ updates:
       time: "07:00"
       timezone: Europe/Berlin
     open-pull-requests-limit: 3
+    ignore:
+      # Java majors stay on the LTS line in .java-version and change deliberately.
+      - dependency-name: eclipse-temurin
+        update-types:
+          - version-update:semver-major
+      # The maven tag embeds the Java major, and the floating 3.9 tag gets patches on rebuild.
+      - dependency-name: maven
 
   - package-ecosystem: docker
     directory: /frontend

@@ -58,6 +58,9 @@ Dependabot checks GitHub Actions, Maven, npm, the Compose PostgreSQL image, and
 both Dockerfiles every Monday morning in the Europe/Berlin time zone. Action,
 Maven, and npm changes are grouped by ecosystem to limit pull-request noise.
 Every update still has to pass review and CI before it is merged.
+TypeScript major updates are ignored until typescript-eslint supports them.
+Backend Java image majors are ignored so the Java LTS line in `.java-version`
+changes only on purpose.
 
 Maven, npm, Playwright browsers, and the backend/frontend BuildKit layers are
 cached by ecosystem-specific keys. Caches contain reproducible dependencies and
