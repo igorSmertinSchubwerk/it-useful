@@ -11,7 +11,7 @@ The `CI` workflow runs independent jobs so failures are easy to locate:
   file modes, oversized files, merge markers, and Git whitespace errors.
 - **Backend tests** use Java 21 and Docker to run Maven unit tests and isolated
   PostgreSQL Testcontainers integration tests.
-- **Frontend checks** use Node.js 24 to run formatting, lint, TypeScript, Vitest,
+- **Frontend checks** use Node.js 26 to run formatting, lint, TypeScript, Vitest,
   the production build, and mocked Chromium tests. A failed run retains the
   Playwright report and traces for seven days.
 - **Compose acceptance** builds a clean archived checkout and verifies startup,
@@ -58,6 +58,9 @@ Dependabot checks GitHub Actions, Maven, npm, the Compose PostgreSQL image, and
 both Dockerfiles every Monday morning in the Europe/Berlin time zone. Action,
 Maven, and npm changes are grouped by ecosystem to limit pull-request noise.
 Every update still has to pass review and CI before it is merged.
+TypeScript major updates are ignored until typescript-eslint supports them.
+Backend Java image majors are ignored so the Java LTS line in `.java-version`
+changes only on purpose.
 
 Maven, npm, Playwright browsers, and the backend/frontend BuildKit layers are
 cached by ecosystem-specific keys. Caches contain reproducible dependencies and

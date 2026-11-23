@@ -25,7 +25,7 @@ Install or provide these tools:
 - Git;
 - Docker Desktop with Ubuntu WSL integration and Docker Compose;
 - Java 21 JDK;
-- Node.js 24 and npm through nvm.
+- Node.js 26 and npm through nvm.
 
 The detailed installation instructions are in
 [`docs/DEVELOPMENT_SETUP.md`](docs/DEVELOPMENT_SETUP.md). Verify everything with:
