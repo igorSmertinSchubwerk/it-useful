@@ -1,2 +1,4 @@
 /mvnw text eol=lf
-*.cmd text eol=crlf
+# Stored byte for byte with CRLF. Dependabot's Maven wrapper updates commit
+# CRLF, and LF normalization made every checkout show mvnw.cmd as modified.
+*.cmd -text
