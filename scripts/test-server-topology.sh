@@ -77,6 +77,13 @@ postgres_container="$(./scripts/server-compose.sh "$server_env" --project-name "
 backend_container="$(./scripts/server-compose.sh "$server_env" --project-name "$project_name" ps --quiet backend)"
 frontend_container="$(./scripts/server-compose.sh "$server_env" --project-name "$project_name" ps --quiet frontend)"
 
+for container in "$postgres_container" "$backend_container" "$frontend_container"; do
+  [[ "$(docker inspect --format '{{.HostConfig.Memory}}' "$container")" -gt 0 ]] || {
+    echo "Every server container needs a memory limit to protect co-hosted services." >&2
+    exit 1
+  }
+done
+
 [[ -z "$(docker port "$postgres_container" 5432/tcp 2>/dev/null || true)" ]] || {
   echo "PostgreSQL must not publish a host port in the server topology." >&2
   exit 1
