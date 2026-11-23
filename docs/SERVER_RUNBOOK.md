@@ -28,6 +28,49 @@ Do not add router forwarding, a LAN bind, a public reverse proxy, or Tailscale
 Funnel. The application uses GitHub OAuth as its application identity; it does
 not authorize from Tailscale identity headers.
 
+The server Compose file caps memory at 768 MiB for Spring, 256 MiB for
+PostgreSQL, and 64 MiB for nginx. Spring sizes its heap to 75% of its cap, so
+the stack cannot starve other services on a shared host.
+
+## 0. Prepare the host
+
+The supported host baseline is:
+
+| Item | Baseline |
+| --- | --- |
+| Operating system | Ubuntu 24.04 LTS, with security updates from `unattended-upgrades` |
+| Container runtime | Ubuntu's `docker.io` and `docker-compose-v2` packages, patched with the OS |
+| Container logs | Docker `local` log driver, which rotates logs per container |
+| Memory | At least 1.5 GiB free for the stack, plus a swap file when the host has none |
+| Storage | Named volumes `postgres_data` and `upload_data` under `/var/lib/docker` |
+| Checkout | A directory owned by the deploying user that no web server serves |
+
+Install the runtime, log rotation, and swap:
+
+```bash
+sudo apt update
+sudo apt install -y docker.io docker-compose-v2
+echo '{"log-driver": "local"}' | sudo tee /etc/docker/daemon.json
+sudo systemctl restart docker
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+Skip the swap commands when `swapon --show` already lists swap. Skip the
+`daemon.json` step when the file exists, and merge the setting instead.
+
+Patch the host with `sudo apt update && sudo apt full-upgrade`. Docker restarts
+the containers after an engine upgrade because every service uses
+`restart: unless-stopped`.
+
+On a host shared with another application, leave its web server sites, SSH
+policy, and firewall rules unchanged. This stack needs no public port. If a host
+web server already listens on `0.0.0.0:443`, confirm after step 5 that the
+`ts.net` origin serves this application and not the other site.
+
 ## 1. Prepare the external environment file
 
 Copy the template to an absolute path outside the Git checkout. A root-owned
