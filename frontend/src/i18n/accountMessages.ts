@@ -66,6 +66,10 @@ export const accountMessages = {
     passwordChanged:
       'Your password is changed. Your other sessions are signed out.',
     adminsOnlyEditing: 'Only admins can create or change definitions.',
+    invitationEmailSent:
+      'We emailed the invitation to {email}. You can also copy the link.',
+    resetEmailSent:
+      'We emailed the reset link to {email}. You can also copy it.',
     legalNotice: 'Legal notice',
     privacyPolicy: 'Privacy policy',
     legalTextNote:
@@ -141,6 +145,10 @@ export const accountMessages = {
     passwordChanged:
       'Dein Passwort ist geändert. Deine anderen Sitzungen sind abgemeldet.',
     adminsOnlyEditing: 'Nur Admins können Definitionen erstellen oder ändern.',
+    invitationEmailSent:
+      'Wir haben die Einladung an {email} gesendet. Du kannst den Link auch kopieren.',
+    resetEmailSent:
+      'Wir haben den Link zum Zurücksetzen an {email} gesendet. Du kannst ihn auch kopieren.',
     legalNotice: 'Impressum',
     privacyPolicy: 'Datenschutz',
     legalTextNote:
@@ -213,6 +221,10 @@ export const accountMessages = {
     currentPasswordIncorrect: 'Текущий пароль неверен.',
     passwordChanged: 'Пароль изменён. Другие сеансы завершены.',
     adminsOnlyEditing: 'Только админы могут создавать и изменять определения.',
+    invitationEmailSent:
+      'Мы отправили приглашение на {email}. Ссылку можно также скопировать.',
+    resetEmailSent:
+      'Мы отправили ссылку для сброса на {email}. Её можно также скопировать.',
     legalNotice: 'Правовая информация',
     privacyPolicy: 'Конфиденциальность',
     legalTextNote:

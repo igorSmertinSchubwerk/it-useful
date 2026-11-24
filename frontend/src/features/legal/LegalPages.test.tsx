@@ -63,3 +63,17 @@ test('ac24 the privacy policy is reachable without sign-in and names the session
     screen.queryByRole('heading', { name: 'Sign in' }),
   ).not.toBeInTheDocument()
 })
+
+test('ac25 the privacy policy names the email provider for invitation and reset links', async () => {
+  renderAnonymousServerApp('/privacy')
+
+  expect(
+    await screen.findByRole('heading', {
+      name: 'Datenschutzerklärung',
+      level: 1,
+    }),
+  ).toBeVisible()
+  expect(
+    screen.getAllByText(/Microsoft Ireland Operations Limited/).length,
+  ).toBe(2)
+})
