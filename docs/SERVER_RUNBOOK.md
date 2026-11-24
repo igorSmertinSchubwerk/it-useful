@@ -5,6 +5,10 @@ host's existing nginx, as specified in
 [`PUBLIC_ACCOUNTS_SPEC.md`](PUBLIC_ACCOUNTS_SPEC.md). The deployment is ready
 for people only after the go-live gate in that spec passes.
 
+Every command below runs on the host from the checkout directory, unless a step
+says otherwise. Log in once with `ssh` and run a step's commands in that session,
+so `sudo` asks for the password only once.
+
 ## Boundary provided by this repository
 
 | Component | Exposure |
@@ -165,6 +169,10 @@ curl -sI https://it-useful.schubwerk.tech | grep -iE '^(HTTP|strict-transport|co
 
 The first command must show a redirect to HTTPS. The second must show `200`,
 `strict-transport-security`, and `content-security-policy`.
+
+Certbot edits the installed site file. To change the site later, edit
+`/etc/nginx/sites-available/it-useful` in place with `sudoedit` instead of
+copying the template again, then run `sudo nginx -t` and reload.
 
 Stop the application without deleting database or upload volumes:
 

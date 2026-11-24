@@ -60,6 +60,24 @@ for it.
 6. After a host restart, definitions and images persist. A fresh encrypted
    backup restores in isolation and reaches the trusted local computer.
 
+## Staging evidence
+
+Checked on 2026-11-24 against `https://it-useful.schubwerk.tech`, from outside and
+on the host without `sudo`.
+
+| Item | Result |
+| --- | --- |
+| 1. Host baseline and secrets | Pass. Ubuntu 24.04, Docker 29.1.3 with Compose 2.40.3, `local` log driver, and 2 GiB swap. `/etc/it-useful` is not readable by the deploy user |
+| 2. Exposure | Pass. Only ports 22, 80, and 443 answer from outside. The stack listens only on `127.0.0.1:3000`, and Spring and PostgreSQL have no host socket |
+| 3. HTTPS edge | Pass. HTTP answers `301` to HTTPS. The Let's Encrypt certificate is valid until 2027-02-22, and the certbot timer is active. HSTS, CSP, frame denial, `nosniff`, referrer, and permissions headers are present. The session cookie is `Secure`, `HttpOnly`, and `SameSite=Lax`. Open: `certbot renew --dry-run` needs `sudo` |
+| 3a. Hidden routes | Pass. `/swagger-ui.html`, `/v3/api-docs`, and `/actuator/health` return only the application page. `/api/session` returns `401 authentication_required`, an unknown sign-in returns `401 sign_in_failed`, and a hostile-origin write is refused |
+| 4. Co-hosted site | Pass. Its nginx site file is unchanged since 2026-10-07, it keeps its own certificate, and it answers as before |
+| 5. Accounts | Partly open. The owner created the first admin. A live check that a confirmed `USER` cannot write is still open |
+| 6. Restart and recovery | Open. Host restart persistence and an encrypted off-host backup with a restore drill (S23) |
+
+Finding: the host's nginx sent its version in the `Server` header. The site
+template now sets `server_tokens off` for this site only.
+
 ## Residual risk review
 
 The accepted residual risks are listed in [`security.md`](security.md). The
