@@ -97,6 +97,8 @@ The flow follows Bitwarden's organization members: invited, accepted, confirmed.
   SHALL apply it on that user's next request, and end the user's sessions when
   the account is disabled.
 - **AC-18:** THE SYSTEM SHALL refuse to disable or demote the last confirmed `ADMIN`.
+- **AC-28:** WHEN an admin enables a disabled account, THE SYSTEM SHALL make it
+  `CONFIRMED` again with its role.
 - **AC-19:** WHEN no account exists, an operator command on the host SHALL create
   the first admin's invitation link. That first account is `CONFIRMED` on
   acceptance, because no admin exists to confirm it. No default password exists.
@@ -144,6 +146,9 @@ The flow follows Bitwarden's organization members: invited, accepted, confirmed.
   hash is stored.
 - **D8:** Each request recomputes a signed-in account's authorities from the
   database, so confirmations and role changes reach open sessions at once.
+- **D9:** Each account has a session version that every session records at
+  sign-in. A password change, a reset, or disabling the account increments it,
+  which ends every other session on its next request without a session store.
 
 ## Delivery phases
 
@@ -155,7 +160,7 @@ public before phase 5.
 | 1 | Accounts table, password rules, and password hashing | AC-11, AC-12 |
 | 2 | Form login replaces the GitHub login, role checks, lockout, security logging | AC-1 to AC-4, AC-13, AC-14, AC-20 |
 | 3 | Invitations, acceptance page, waiting page, confirmation, a minimal accounts page (invite and confirm), and the first-admin command | AC-5 to AC-10, AC-19 |
-| 4 | Full account administration (role changes, disabling, reset links, invitation list and revoking), password change, and role-aware controls | AC-15 to AC-18, AC-27 |
+| 4 | Full account administration (role changes, disabling, reset links, invitation list and revoking), password change, re-enabling, and role-aware controls | AC-15 to AC-18, AC-27, AC-28 |
 | 5 | Public origin, nginx site and certificate, legal pages, runbook and security docs | AC-21 to AC-24 |
 | 6 | Optional SMTP delivery of invitation and reset links | AC-25, AC-26 |
 
