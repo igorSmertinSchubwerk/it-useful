@@ -74,6 +74,29 @@ for unsafe_origin in http://it-useful-test.staging.invalid https://it-useful-tes
   fi
 done
 
+reject_with_extra_settings() {
+  write_valid_environment
+  printf '%s\n' "$@" >> "$server_env"
+  if ./scripts/validate-server-config.sh "$server_env" >/dev/null 2>&1; then
+    echo "Validator accepted incomplete mail settings: $*" >&2
+    exit 1
+  fi
+}
+reject_with_extra_settings 'SMTP_HOST=smtp.mail.test'
+reject_with_extra_settings 'SMTP_HOST=smtp.mail.test' 'SMTP_PORT=25'
+reject_with_extra_settings 'SMTP_HOST=smtp.mail.test' 'SMTP_PORT=25' 'SMTP_FROM=it-useful@mail.test' \
+  'SMTP_USERNAME=sender'
+reject_with_extra_settings 'SMTP_HOST=smtp.mail.test' 'SMTP_PORT=25' 'SMTP_FROM=no-reply@your.domain'
+reject_with_extra_settings 'SMTP_HOST=smtp.mail.test' 'SMTP_PORT=25' 'SMTP_FROM=it-useful@mail.test' \
+  'SMTP_STARTTLS=maybe'
+write_valid_environment
+printf '%s\n' 'SMTP_HOST=smtp.mail.test' 'SMTP_PORT=587' 'SMTP_FROM=it-useful@mail.test' \
+  'SMTP_USERNAME=sender@mail.test' 'SMTP_PASSWORD=0123456789abcdefghij' 'SMTP_STARTTLS=true' >> "$server_env"
+./scripts/validate-server-config.sh "$server_env" >/dev/null || {
+  echo "Validator rejected complete mail settings." >&2
+  exit 1
+}
+
 write_valid_environment
 ./scripts/validate-server-config.sh "$server_env" >/dev/null
 ./scripts/server-compose.sh "$server_env" --project-name "$project_name" config --quiet

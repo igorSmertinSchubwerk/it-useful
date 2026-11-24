@@ -38,7 +38,8 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   value="${BASH_REMATCH[2]}"
   [[ -z "${seen[$key]:-}" ]] || fail "duplicate setting $key"
   case "$key" in
-    APP_PUBLIC_BASE_URL|DB_NAME|DB_USER|DB_PASSWORD|FRONTEND_PORT) ;;
+    APP_PUBLIC_BASE_URL|DB_NAME|DB_USER|DB_PASSWORD|FRONTEND_PORT|\
+    SMTP_HOST|SMTP_PORT|SMTP_FROM|SMTP_USERNAME|SMTP_PASSWORD|SMTP_STARTTLS) ;;
     *) fail "unsupported setting $key" ;;
   esac
   [[ -n "$value" ]] || fail "$key must not be empty"
@@ -78,5 +79,25 @@ if [[ -n "${values[FRONTEND_PORT]:-}" ]]; then
   ((frontend_port >= 1 && frontend_port <= 65535)) || \
     fail "FRONTEND_PORT must be between 1 and 65535"
 fi
+
+# Email delivery is optional. Without SMTP_HOST, admins copy every link by hand.
+if [[ -n "${values[SMTP_HOST]:-}" ]]; then
+  [[ "${values[SMTP_HOST]}" =~ ^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$ ]] || \
+    fail "SMTP_HOST must be a host name"
+  smtp_port="${values[SMTP_PORT]:-}"
+  [[ "$smtp_port" =~ ^[0-9]{1,5}$ ]] || fail "SMTP_PORT is required with SMTP_HOST and must be numeric"
+  ((smtp_port >= 1 && smtp_port <= 65535)) || fail "SMTP_PORT must be between 1 and 65535"
+  [[ "${values[SMTP_FROM]:-}" =~ ^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$ ]] || \
+    fail "SMTP_FROM is required with SMTP_HOST and must be an email address"
+  [[ "${values[SMTP_FROM]}" != *your.domain* && "${values[SMTP_FROM]}" != *example* ]] || \
+    fail "SMTP_FROM still contains a placeholder"
+elif [[ -n "${values[SMTP_PORT]:-}${values[SMTP_FROM]:-}${values[SMTP_USERNAME]:-}${values[SMTP_PASSWORD]:-}" ]]; then
+  fail "SMTP settings require SMTP_HOST"
+fi
+smtp_user_set=$([[ -n "${values[SMTP_USERNAME]:-}" ]] && echo 1 || echo 0)
+smtp_password_set=$([[ -n "${values[SMTP_PASSWORD]:-}" ]] && echo 1 || echo 0)
+[[ "$smtp_user_set" == "$smtp_password_set" ]] || fail "SMTP_USERNAME and SMTP_PASSWORD must be set together"
+[[ -z "${values[SMTP_STARTTLS]:-}" || "${values[SMTP_STARTTLS]}" =~ ^(true|false)$ ]] || \
+  fail "SMTP_STARTTLS must be true or false"
 
 echo "Server environment file passed validation."
