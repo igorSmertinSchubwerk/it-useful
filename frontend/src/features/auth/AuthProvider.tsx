@@ -56,7 +56,11 @@ export function AuthProvider({
         // Accepted and disabled accounts may hold a session but no access.
         if (session.status !== 'CONFIRMED') {
           queryClient.clear()
-          setState({ status: 'denied' })
+          setState(
+            session.status === 'ACCEPTED'
+              ? { status: 'pending', email: session.email }
+              : { status: 'denied' },
+          )
           return
         }
         setState({
@@ -95,7 +99,11 @@ export function AuthProvider({
         setAttempt((current) => current + 1)
       },
       logout: async () => {
-        if (!enabled || state.status !== 'signedIn') return
+        if (
+          !enabled ||
+          (state.status !== 'signedIn' && state.status !== 'pending')
+        )
+          return
         setLoggingOut(true)
         try {
           await api.logout()

@@ -7,18 +7,21 @@ export class ApiError extends Error {
   readonly status: number | null
   readonly code: string
   readonly fieldErrors: FieldError[]
+  readonly violation: string | null
 
   constructor(
     message: string,
     status: number | null,
     code: string,
     fieldErrors: FieldError[] = [],
+    violation: string | null = null,
   ) {
     super(message)
     this.name = 'ApiError'
     this.status = status
     this.code = code
     this.fieldErrors = fieldErrors
+    this.violation = violation
   }
 }
 
@@ -40,5 +43,6 @@ export function httpError(status: number, body: unknown): ApiError {
     status,
     typeof problem.code === 'string' ? problem.code : 'http_error',
     errors,
+    typeof problem.violation === 'string' ? problem.violation : null,
   )
 }
