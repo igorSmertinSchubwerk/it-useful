@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Objects;
@@ -22,6 +23,10 @@ import java.util.UUID;
 @Entity
 @Table(name = "account")
 public class Account {
+
+	public static final int MAX_FAILED_SIGN_INS = 5;
+	public static final Duration FAILURE_WINDOW = Duration.ofMinutes(15);
+	public static final Duration LOCK_DURATION = Duration.ofMinutes(15);
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
@@ -44,6 +49,15 @@ public class Account {
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private Instant createdAt;
 
+	@Column(name = "failed_sign_ins", nullable = false)
+	private int failedSignIns;
+
+	@Column(name = "failure_window_started_at")
+	private Instant failureWindowStartedAt;
+
+	@Column(name = "locked_until")
+	private Instant lockedUntil;
+
 	protected Account() {
 	}
 
@@ -59,12 +73,43 @@ public class Account {
 		createdAt = Instant.now();
 	}
 
+	/**
+	 * Counts a wrong password. The fifth failure within one window locks the
+	 * account and starts a fresh count for the time after the lock.
+	 */
+	public void recordFailedSignIn(Instant now) {
+		if (failureWindowStartedAt == null || now.isAfter(failureWindowStartedAt.plus(FAILURE_WINDOW))) {
+			failureWindowStartedAt = now;
+			failedSignIns = 0;
+		}
+		failedSignIns++;
+		if (failedSignIns >= MAX_FAILED_SIGN_INS) {
+			lockedUntil = now.plus(LOCK_DURATION);
+			failedSignIns = 0;
+			failureWindowStartedAt = null;
+		}
+	}
+
+	public void recordSuccessfulSignIn() {
+		failedSignIns = 0;
+		failureWindowStartedAt = null;
+		lockedUntil = null;
+	}
+
+	public boolean isLockedAt(Instant now) {
+		return lockedUntil != null && now.isBefore(lockedUntil);
+	}
+
 	public UUID getId() {
 		return id;
 	}
 
 	public String getEmail() {
 		return email;
+	}
+
+	public String getPasswordHash() {
+		return passwordHash;
 	}
 
 	public AccountRole getRole() {
