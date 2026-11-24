@@ -108,7 +108,9 @@ documentation endpoints, request size and rate limits, and recovery after each
 service restarts. A real Chromium browser confirms that the server build loads
 session state and hides private routes from an anonymous user. Backend integration tests separately exercise every private route
 as anonymous, `USER`, `ADMIN`, accepted, and disabled accounts, the lockout, the
-invitation lifecycle, and every mutation with missing and invalid CSRF tokens.
+invitation lifecycle, password changes and resets, role changes, disabling and
+enabling, the last-admin guard, and every mutation with missing and invalid CSRF
+tokens.
 
 The suite does not validate a real public edge. Its
 containers, volumes, dummy environment file, and locally built images are removed

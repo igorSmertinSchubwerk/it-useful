@@ -41,6 +41,19 @@ local Compose workflow.
   `GET /api/admin/accounts` lists accounts, and
   `POST /api/admin/accounts/{id}/confirm` confirms an accepted one. The new role
   applies to sessions that are already open.
+- `POST /api/session/password` takes `{"currentPassword", "newPassword"}` from any
+  signed-in account. It keeps the current session under a new id and ends every
+  other session of the account. A wrong current password returns
+  `400 current_password_incorrect`.
+- Admins manage accounts with `PUT /api/admin/accounts/{id}/role` (`{"role"}`),
+  `POST /api/admin/accounts/{id}/disable` and `/enable`, and
+  `POST /api/admin/accounts/{id}/password-resets`, which returns a one-time
+  `link` valid for 24 hours. Disabling ends the account's sessions. The last
+  confirmed admin cannot be disabled or demoted (`409 last_admin`).
+  `GET /api/admin/invitations` lists open invitations without their links.
+- `POST /api/password-resets/complete` is open to anonymous browsers and takes
+  `{"token", "password"}` with the CSRF header. It sets the password, ends every
+  session of the account, and lifts a lockout.
 - The server session cookie is named `IT_USEFUL_SESSION`, lasts 30 minutes, and is
   configured as `Secure`, `HttpOnly`, and `SameSite=Lax`.
 
@@ -268,6 +281,8 @@ Stable codes currently include:
 | 401 | `sign_in_failed` | The email address, password, or account state did not allow sign-in |
 | 400 | `invitation_invalid` | The invitation link is unknown, used, revoked, or expired |
 | 400 | `password_rejected` | The password breaks a rule named in `violation` |
+| 400 | `current_password_incorrect` | The current password does not match |
+| 400 | `reset_invalid` | The reset link is unknown, used, replaced, or expired |
 | 403 | `forbidden` | The signed-in account does not have the required role |
 | 403 | `confirmation_pending` | An admin has not confirmed the account yet |
 | 403 | `csrf_invalid` | A state-changing server request lacks a valid CSRF token |
@@ -276,6 +291,8 @@ Stable codes currently include:
 | 404 | `invitation_not_found` | The invitation UUID does not exist |
 | 409 | `account_exists` | An account with the invited email address exists |
 | 409 | `account_not_pending` | Only an accepted account can be confirmed |
+| 409 | `account_not_disabled` | Only a disabled account can be enabled |
+| 409 | `last_admin` | The last confirmed admin cannot be disabled or demoted |
 | 404 | `element_not_found` | The element UUID does not exist |
 | 404 | `image_not_found` | The image UUID does not exist |
 | 409 | `duplicate_slug` | Another element has the slug |

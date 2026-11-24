@@ -53,6 +53,11 @@ export function SignInPage() {
           {t.accountCreatedNotice}
         </p>
       )}
+      {navigation?.notice === 'passwordReset' && (
+        <p role="status" className="mt-4 rounded bg-canvas p-3">
+          {t.passwordResetNotice}
+        </p>
+      )}
       <form onSubmit={submit} className="mt-6 grid max-w-md gap-4">
         <label className="font-semibold">
           {t.emailAddress}

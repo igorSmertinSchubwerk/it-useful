@@ -7,6 +7,9 @@ import { NotFoundPage } from '../pages/NotFoundPage'
 import { SignInPage } from '../pages/SignInPage'
 import { AcceptInvitationPage } from '../pages/AcceptInvitationPage'
 import { AccountsPage } from '../pages/AccountsPage'
+import { ChangePasswordPage } from '../pages/ChangePasswordPage'
+import { ResetPasswordPage } from '../pages/ResetPasswordPage'
+import { AdminOnly } from '../features/auth/AdminOnly'
 import { AuthenticationGate } from '../features/auth/AuthenticationGate'
 
 export function AppRoutes() {
@@ -15,17 +18,27 @@ export function AppRoutes() {
       <Route element={<AppLayout />}>
         <Route path="sign-in" element={<SignInPage />} />
         <Route path="accept-invitation" element={<AcceptInvitationPage />} />
+        <Route path="reset-password" element={<ResetPasswordPage />} />
         <Route element={<AuthenticationGate />}>
           <Route index element={<ElementListPage />} />
           <Route
             path="elements/new"
-            element={<ElementEditorPage mode="create" />}
+            element={
+              <AdminOnly>
+                <ElementEditorPage mode="create" />
+              </AdminOnly>
+            }
           />
           <Route path="elements/:id" element={<ElementDetailPage />} />
           <Route path="admin/accounts" element={<AccountsPage />} />
+          <Route path="account/password" element={<ChangePasswordPage />} />
           <Route
             path="elements/:id/edit"
-            element={<ElementEditorPage mode="edit" />}
+            element={
+              <AdminOnly>
+                <ElementEditorPage mode="edit" />
+              </AdminOnly>
+            }
           />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

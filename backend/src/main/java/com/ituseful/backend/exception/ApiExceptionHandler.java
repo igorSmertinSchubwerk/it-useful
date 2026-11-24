@@ -121,6 +121,26 @@ public class ApiExceptionHandler {
 		return ResponseEntity.badRequest().body(problem);
 	}
 
+	@ExceptionHandler(LastAdminException.class)
+	ResponseEntity<ProblemDetail> handleLastAdmin(LastAdminException exception, HttpServletRequest request) {
+		return response(HttpStatus.CONFLICT, exception.getMessage(), "last_admin", request);
+	}
+
+	@ExceptionHandler(AccountNotDisabledException.class)
+	ResponseEntity<ProblemDetail> handleAccountNotDisabled(AccountNotDisabledException exception, HttpServletRequest request) {
+		return response(HttpStatus.CONFLICT, exception.getMessage(), "account_not_disabled", request);
+	}
+
+	@ExceptionHandler(CurrentPasswordIncorrectException.class)
+	ResponseEntity<ProblemDetail> handleCurrentPasswordIncorrect(CurrentPasswordIncorrectException exception, HttpServletRequest request) {
+		return response(HttpStatus.BAD_REQUEST, exception.getMessage(), "current_password_incorrect", request);
+	}
+
+	@ExceptionHandler(PasswordResetInvalidException.class)
+	ResponseEntity<ProblemDetail> handlePasswordResetInvalid(PasswordResetInvalidException exception, HttpServletRequest request) {
+		return response(HttpStatus.BAD_REQUEST, exception.getMessage(), "reset_invalid", request);
+	}
+
 	@ExceptionHandler(InvalidImageException.class)
 	ResponseEntity<ProblemDetail> handleInvalidImage(InvalidImageException exception, HttpServletRequest request) {
 		return response(HttpStatus.BAD_REQUEST, exception.getMessage(), "invalid_image", request);

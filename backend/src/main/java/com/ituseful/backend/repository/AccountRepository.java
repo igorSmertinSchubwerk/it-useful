@@ -1,6 +1,8 @@
 package com.ituseful.backend.repository;
 
 import com.ituseful.backend.domain.Account;
+import com.ituseful.backend.domain.AccountRole;
+import com.ituseful.backend.domain.AccountStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -12,4 +14,6 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
 	Optional<Account> findByEmailIgnoreCase(String email);
 
 	List<Account> findAllByOrderByCreatedAtAsc();
+
+	long countByRoleAndStatus(AccountRole role, AccountStatus status);
 }

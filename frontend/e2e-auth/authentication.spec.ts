@@ -168,3 +168,26 @@ test('the admin accounts page is accessible', async ({ page }) => {
   await expect(page.getByText('pending@example.com')).toBeVisible()
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
 })
+
+test('the password reset and password change pages are accessible', async ({
+  page,
+}) => {
+  await page.route('**/api/session', (route) =>
+    route.fulfill({ status: 401, json: { code: 'authentication_required' } }),
+  )
+  await page.goto('/reset-password#browser-reset-token')
+  await expect(
+    page.getByRole('heading', { name: 'Choose a new password' }),
+  ).toBeVisible()
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
+
+  await page.unroute('**/api/session')
+  await page.route('**/api/session', (route) =>
+    route.fulfill({ json: { ...session, role: 'USER' } }),
+  )
+  await page.goto('/account/password')
+  await expect(
+    page.getByRole('heading', { name: 'Change password' }),
+  ).toBeVisible()
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
+})

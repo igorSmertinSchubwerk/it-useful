@@ -1,5 +1,6 @@
 package com.ituseful.backend.security;
 
+import com.ituseful.backend.repository.AccountRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Profile;
@@ -26,10 +27,16 @@ public class SignInHandler implements AuthenticationSuccessHandler, Authenticati
 
 	private final SignInAttempts signInAttempts;
 	private final SecurityProblemWriter problemWriter;
+	private final AccountRepository accountRepository;
 
-	public SignInHandler(SignInAttempts signInAttempts, SecurityProblemWriter problemWriter) {
+	public SignInHandler(
+			SignInAttempts signInAttempts,
+			SecurityProblemWriter problemWriter,
+			AccountRepository accountRepository
+	) {
 		this.signInAttempts = signInAttempts;
 		this.problemWriter = problemWriter;
+		this.accountRepository = accountRepository;
 	}
 
 	@Override
@@ -39,6 +46,8 @@ public class SignInHandler implements AuthenticationSuccessHandler, Authenticati
 			Authentication authentication
 	) {
 		signInAttempts.recordSuccess(authentication.getName());
+		accountRepository.findByEmailIgnoreCase(authentication.getName()).ifPresent(account ->
+				SessionVersion.remember(request.getSession(), account.getSessionVersion()));
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 

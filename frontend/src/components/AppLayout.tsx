@@ -2,13 +2,14 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { useRouteAccessibility } from '../hooks/useRouteAccessibility'
 import { useI18n } from '../i18n/context'
 import { LanguageSelector } from './LanguageSelector'
-import { useAuthentication } from '../features/auth/context'
+import { useAuthentication, useCanEdit } from '../features/auth/context'
 import { useState } from 'react'
 
 export function AppLayout() {
   useRouteAccessibility()
   const { t } = useI18n()
   const { state, logout, loggingOut } = useAuthentication()
+  const canEdit = useCanEdit()
   const [logoutFailed, setLogoutFailed] = useState(false)
   return (
     <>
@@ -32,12 +33,14 @@ export function AppLayout() {
               >
                 {t.definitions}
               </NavLink>
-              <NavLink
-                to="/elements/new"
-                className="text-brand underline-offset-4 hover:underline aria-[current=page]:font-bold aria-[current=page]:underline"
-              >
-                {t.create}
-              </NavLink>
+              {canEdit && (
+                <NavLink
+                  to="/elements/new"
+                  className="text-brand underline-offset-4 hover:underline aria-[current=page]:font-bold aria-[current=page]:underline"
+                >
+                  {t.create}
+                </NavLink>
+              )}
               {state.role === 'ADMIN' && !state.local && (
                 <NavLink
                   to="/admin/accounts"
@@ -54,6 +57,14 @@ export function AppLayout() {
               <span>
                 {state.local ? t.localMode : `${t.signedInAs} ${state.email}`}
               </span>
+              {!state.local && (
+                <NavLink
+                  to="/account/password"
+                  className="text-brand underline"
+                >
+                  {t.changePassword}
+                </NavLink>
+              )}
               {!state.local && (
                 <button
                   type="button"

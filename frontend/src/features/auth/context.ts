@@ -27,3 +27,12 @@ export function useAuthentication() {
   if (!context) throw new Error('useAuthentication requires an AuthProvider')
   return context
 }
+
+/**
+ * Only admins may create, edit, or delete definitions. The backend enforces the
+ * same rule, so this only hides controls that would be refused anyway.
+ */
+export function useCanEdit() {
+  const { state } = useAuthentication()
+  return state.status === 'signedIn' && state.role === 'ADMIN'
+}
