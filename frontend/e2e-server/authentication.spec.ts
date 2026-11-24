@@ -17,3 +17,19 @@ test('server frontend keeps private routes behind the email sign-in screen', asy
   await expect(page).toHaveURL(/\/sign-in$/)
   await expect(page.locator('nav')).toHaveCount(0)
 })
+
+test('the legal notice and privacy policy are public on the assembled stack', async ({
+  page,
+}) => {
+  await page.goto('/legal-notice')
+  await expect(
+    page.getByRole('heading', { name: 'Impressum', level: 1 }),
+  ).toBeVisible()
+  await expect(page).toHaveURL(/\/legal-notice$/)
+
+  await page.goto('/privacy')
+  await expect(
+    page.getByRole('heading', { name: 'Datenschutzerklärung', level: 1 }),
+  ).toBeVisible()
+  await expect(page).toHaveURL(/\/privacy$/)
+})

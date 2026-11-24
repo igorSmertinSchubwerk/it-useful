@@ -66,6 +66,10 @@ export const accountMessages = {
     passwordChanged:
       'Your password is changed. Your other sessions are signed out.',
     adminsOnlyEditing: 'Only admins can create or change definitions.',
+    legalNotice: 'Legal notice',
+    privacyPolicy: 'Privacy policy',
+    legalTextNote:
+      'The German text is binding. The English translation is provided for convenience.',
   },
   de: {
     accounts: 'Konten',
@@ -137,6 +141,10 @@ export const accountMessages = {
     passwordChanged:
       'Dein Passwort ist geändert. Deine anderen Sitzungen sind abgemeldet.',
     adminsOnlyEditing: 'Nur Admins können Definitionen erstellen oder ändern.',
+    legalNotice: 'Impressum',
+    privacyPolicy: 'Datenschutz',
+    legalTextNote:
+      'Der deutsche Text ist verbindlich. Die englische Übersetzung dient der Information.',
   },
   ru: {
     accounts: 'Учётные записи',
@@ -205,5 +213,9 @@ export const accountMessages = {
     currentPasswordIncorrect: 'Текущий пароль неверен.',
     passwordChanged: 'Пароль изменён. Другие сеансы завершены.',
     adminsOnlyEditing: 'Только админы могут создавать и изменять определения.',
+    legalNotice: 'Правовая информация',
+    privacyPolicy: 'Конфиденциальность',
+    legalTextNote:
+      'Юридически обязателен текст на немецком языке. Английский перевод приведён для удобства.',
   },
 } as const
