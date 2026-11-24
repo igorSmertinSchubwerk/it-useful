@@ -1,4 +1,4 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuthentication } from './context'
 import { useI18n } from '../../i18n/context'
@@ -9,7 +9,7 @@ export function AuthenticationGate() {
   const { t } = useI18n()
   const location = useLocation()
   const [returnPath] = useState(takeReturnPath)
-  if (state.status === 'owner') {
+  if (state.status === 'signedIn') {
     if (
       !state.local &&
       returnPath &&
@@ -52,12 +52,9 @@ export function AuthenticationGate() {
           {t.retry}
         </button>
       ) : (
-        <a
-          href="/oauth2/authorization/github"
-          className="mt-6 inline-block text-brand underline"
-        >
+        <Link to="/sign-in" className="mt-6 inline-block text-brand underline">
           {t.signInAgain}
-        </a>
+        </Link>
       )}
     </section>
   )

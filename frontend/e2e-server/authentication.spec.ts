@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-test('server frontend keeps private routes behind the GitHub sign-in screen', async ({
+test('server frontend keeps private routes behind the email sign-in screen', async ({
   page,
 }) => {
   const sessionResponse = page.waitForResponse(
@@ -13,9 +13,7 @@ test('server frontend keeps private routes behind the GitHub sign-in screen', as
 
   expect((await sessionResponse).status()).toBe(401)
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
-  await expect(
-    page.getByRole('link', { name: 'Sign in with GitHub' }),
-  ).toHaveAttribute('href', '/oauth2/authorization/github')
+  await expect(page.getByLabel('Email address')).toBeVisible()
   await expect(page).toHaveURL(/\/sign-in$/)
   await expect(page.locator('nav')).toHaveCount(0)
 })

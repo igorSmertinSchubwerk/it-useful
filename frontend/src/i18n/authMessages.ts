@@ -3,8 +3,13 @@ export const authMessages = {
     authLoading: 'Checking your session…',
     signIn: 'Sign in',
     signInText:
-      'Sign in with the approved GitHub owner account to use IT Useful.',
-    signInWithGitHub: 'Sign in with GitHub',
+      'Sign in with the email address and password of your invited account.',
+    emailAddress: 'Email address',
+    password: 'Password',
+    signingIn: 'Signing in…',
+    signInFailed: 'The email address or password is incorrect.',
+    signInThrottled:
+      'Too many sign-in attempts. Wait a few minutes and try again.',
     signInAgain: 'Sign in again',
     signedInAs: 'Signed in as',
     localMode: 'Local mode',
@@ -12,7 +17,7 @@ export const authMessages = {
     loggingOut: 'Signing out…',
     logoutFailed: 'Sign out failed. Please try again.',
     accessDenied: 'Access denied',
-    accessDeniedText: 'This GitHub account is not the configured owner.',
+    accessDeniedText: 'This account is not confirmed yet or has been disabled.',
     sessionExpired: 'Session expired',
     sessionExpiredText: 'Your session ended. Sign in again to continue.',
     authUnavailable: 'Authentication unavailable',
@@ -22,8 +27,13 @@ export const authMessages = {
     authLoading: 'Sitzung wird geprüft…',
     signIn: 'Anmelden',
     signInText:
-      'Melde dich mit dem freigegebenen GitHub-Inhaberkonto an, um IT Useful zu verwenden.',
-    signInWithGitHub: 'Mit GitHub anmelden',
+      'Melde dich mit der E-Mail-Adresse und dem Passwort deines eingeladenen Kontos an.',
+    emailAddress: 'E-Mail-Adresse',
+    password: 'Passwort',
+    signingIn: 'Anmeldung läuft…',
+    signInFailed: 'E-Mail-Adresse oder Passwort ist falsch.',
+    signInThrottled:
+      'Zu viele Anmeldeversuche. Warte einige Minuten und versuche es erneut.',
     signInAgain: 'Erneut anmelden',
     signedInAs: 'Angemeldet als',
     localMode: 'Lokaler Modus',
@@ -32,7 +42,7 @@ export const authMessages = {
     logoutFailed: 'Abmeldung fehlgeschlagen. Bitte erneut versuchen.',
     accessDenied: 'Zugriff verweigert',
     accessDeniedText:
-      'Dieses GitHub-Konto ist nicht der konfigurierte Inhaber.',
+      'Dieses Konto ist noch nicht bestätigt oder wurde deaktiviert.',
     sessionExpired: 'Sitzung abgelaufen',
     sessionExpiredText:
       'Deine Sitzung ist beendet. Melde dich erneut an, um fortzufahren.',
@@ -44,8 +54,13 @@ export const authMessages = {
     authLoading: 'Проверка сеанса…',
     signIn: 'Войти',
     signInText:
-      'Войди через разрешённую учётную запись владельца GitHub, чтобы использовать IT Useful.',
-    signInWithGitHub: 'Войти через GitHub',
+      'Войди с адресом электронной почты и паролем приглашённой учётной записи.',
+    emailAddress: 'Адрес электронной почты',
+    password: 'Пароль',
+    signingIn: 'Вход…',
+    signInFailed: 'Неверный адрес электронной почты или пароль.',
+    signInThrottled:
+      'Слишком много попыток входа. Подожди несколько минут и попробуй снова.',
     signInAgain: 'Войти снова',
     signedInAs: 'Выполнен вход как',
     localMode: 'Локальный режим',
@@ -53,8 +68,7 @@ export const authMessages = {
     loggingOut: 'Выход…',
     logoutFailed: 'Не удалось выйти. Попробуй ещё раз.',
     accessDenied: 'Доступ запрещён',
-    accessDeniedText:
-      'Эта учётная запись GitHub не является настроенным владельцем.',
+    accessDeniedText: 'Эта учётная запись ещё не подтверждена или отключена.',
     sessionExpired: 'Сеанс истёк',
     sessionExpiredText: 'Сеанс завершён. Войди снова, чтобы продолжить.',
     authUnavailable: 'Аутентификация недоступна',

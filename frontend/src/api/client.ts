@@ -91,7 +91,11 @@ export function createApiClient(
     const endpoint = endpointUrl(path)
     const headers = new Headers(options.headers)
     headers.set('Accept', 'application/json, application/problem+json')
-    if (options.body instanceof FormData) headers.delete('Content-Type')
+    if (
+      options.body instanceof FormData ||
+      options.body instanceof URLSearchParams
+    )
+      headers.delete('Content-Type')
     else if (options.body != null)
       headers.set('Content-Type', 'application/json')
     if (

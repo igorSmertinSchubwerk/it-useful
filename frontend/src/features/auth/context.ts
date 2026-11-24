@@ -5,11 +5,17 @@ export type AuthenticationState =
   | { status: 'anonymous' }
   | { status: 'denied' }
   | { status: 'expired' }
-  | { status: 'owner'; login: string; local: boolean }
+  | {
+      status: 'signedIn'
+      email: string
+      role: 'USER' | 'ADMIN'
+      local: boolean
+    }
   | { status: 'error' }
 
 export const AuthenticationContext = createContext<{
   state: AuthenticationState
+  signIn: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   retry: () => void
   loggingOut: boolean

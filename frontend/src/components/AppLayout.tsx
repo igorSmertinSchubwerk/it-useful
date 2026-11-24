@@ -23,7 +23,7 @@ export function AppLayout() {
           <NavLink to="/" className="text-xl font-bold text-ink">
             IT Useful
           </NavLink>
-          {state.status === 'owner' && (
+          {state.status === 'signedIn' && (
             <nav aria-label={t.nav} className="flex flex-wrap gap-5">
               <NavLink
                 to="/"
@@ -41,10 +41,10 @@ export function AppLayout() {
             </nav>
           )}
           <LanguageSelector />
-          {state.status === 'owner' && (
+          {state.status === 'signedIn' && (
             <div className="flex flex-wrap items-center gap-3 text-sm">
               <span>
-                {state.local ? t.localMode : `${t.signedInAs} ${state.login}`}
+                {state.local ? t.localMode : `${t.signedInAs} ${state.email}`}
               </span>
               {!state.local && (
                 <button
