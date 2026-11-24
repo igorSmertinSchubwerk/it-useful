@@ -75,6 +75,7 @@ on the host without `sudo`.
 | 4. Co-hosted site | Pass. Its nginx site file is unchanged since 2026-10-07, it keeps its own certificate, and it answers as before |
 | 5. Accounts | Partly open. The owner created the first admin. A live check that a confirmed `USER` cannot write is still open |
 | 6. Restart and recovery | Open. Host restart persistence and an encrypted off-host backup with a restore drill (S23) |
+| 7. Email relay | Pass on 2026-11-24. SPF for `schubwerk.de` lists the server's IPv4 address. A no-DATA SMTP session from the host over IPv4 got `250 Recipient OK` for an external recipient through the Microsoft 365 connector. Over IPv6 the same session got `550 5.7.64 Relay Access Denied`, as expected for an IPv4-only connector |
 
 Finding: the host's nginx sent its version in the `Server` header. The site
 template now sets `server_tokens off` for this site only.
