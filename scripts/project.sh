@@ -22,6 +22,8 @@ Application commands:
                     Stop the private-server stack and preserve its data
   server-status <absolute-env-file>
                     Show private-server service status
+  server-create-first-admin <absolute-env-file> <email>
+                    Print the first admin's invitation link while no account exists
 
 Verification commands:
   test              Run backend and frontend checks
@@ -115,6 +117,9 @@ case "${command_name}" in
   server-status)
     [[ $# -eq 1 ]] || { echo "Usage: ./scripts/project.sh server-status /absolute/path/to/server.env" >&2; exit 2; }
     "${project_root}/scripts/server-compose.sh" "$1" ps
+    ;;
+  server-create-first-admin)
+    "${project_root}/scripts/create-first-admin.sh" "$@"
     ;;
   test)
     "${project_root}/scripts/test-backend.sh"

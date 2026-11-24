@@ -149,6 +149,45 @@ sign_in_status="$(curl --silent --output "$test_dir/sign-in.json" --write-out '%
 [[ "$sign_in_status" == 401 ]] || { echo "Sign-in did not reach the account check." >&2; exit 1; }
 grep -q '"code":"sign_in_failed"' "$test_dir/sign-in.json"
 
+fresh_anonymous_session() {
+  curl --fail --silent --show-error --dump-header "$test_dir/fresh.headers" \
+    "$base_url/api/session/csrf" --output "$test_dir/fresh.json"
+  session_cookie="$(grep -i '^set-cookie: IT_USEFUL_SESSION=' "$test_dir/fresh.headers" \
+    | sed -E 's/^[Ss]et-[Cc]ookie: (IT_USEFUL_SESSION=[^;]+);.*/\1/')"
+  csrf_token="$(sed -E 's/.*"token":"([^"]+)".*/\1/' "$test_dir/fresh.json")"
+}
+
+first_admin_link="$(COMPOSE_PROJECT_NAME="$project_name" \
+  ./scripts/create-first-admin.sh "$server_env" First.Admin@example.test)"
+[[ "$first_admin_link" == https://it-useful-test.test-tailnet.ts.net/accept-invitation#* ]] || {
+  echo "The first-admin command did not print an invitation link." >&2
+  exit 1
+}
+fresh_anonymous_session
+accept_status="$(curl --silent --output /dev/null --write-out '%{http_code}' \
+  -H "Cookie: $session_cookie" -H "X-CSRF-TOKEN: $csrf_token" -H 'Content-Type: application/json' \
+  --data "{\"token\":\"${first_admin_link#*#}\",\"password\":\"correct horse battery staple\"}" \
+  "$base_url/api/invitations/accept")"
+[[ "$accept_status" == 204 ]] || { echo "The first-admin invitation was not accepted." >&2; exit 1; }
+fresh_anonymous_session
+admin_sign_in_status="$(curl --silent --output /dev/null --dump-header "$test_dir/admin.headers" \
+  --write-out '%{http_code}' -H "Cookie: $session_cookie" -H "X-CSRF-TOKEN: $csrf_token" \
+  --data-urlencode 'email=first.admin@example.test' \
+  --data-urlencode 'password=correct horse battery staple' \
+  "$base_url/api/session/login")"
+[[ "$admin_sign_in_status" == 204 ]] || { echo "The first admin could not sign in." >&2; exit 1; }
+admin_cookie="$(grep -i '^set-cookie: IT_USEFUL_SESSION=' "$test_dir/admin.headers" \
+  | sed -E 's/^[Ss]et-[Cc]ookie: (IT_USEFUL_SESSION=[^;]+);.*/\1/')"
+curl --fail --silent --show-error -H "Cookie: $admin_cookie" "$base_url/api/session" \
+  --output "$test_dir/admin-session.json"
+grep -q '"role":"ADMIN"' "$test_dir/admin-session.json"
+grep -q '"status":"CONFIRMED"' "$test_dir/admin-session.json"
+if COMPOSE_PROJECT_NAME="$project_name" \
+  ./scripts/create-first-admin.sh "$server_env" second.admin@example.test >/dev/null 2>&1; then
+  echo "The first-admin command ran although an account exists." >&2
+  exit 1
+fi
+
 logout_status="$(curl --silent --output /dev/null --write-out '%{http_code}' "$base_url/logout")"
 [[ "$logout_status" == 401 ]] || { echo "Logout route was swallowed by the SPA fallback." >&2; exit 1; }
 
