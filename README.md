@@ -201,11 +201,10 @@ Playwright browser once with `cd frontend && npx playwright install chromium`.
 Detailed isolation, cleanup, reports, and optional Playwright arguments are
 documented in [`docs/TESTING.md`](docs/TESTING.md).
 
-The private server preparation sequence is documented in
+The server deployment steps are in
 [`docs/SERVER_RUNBOOK.md`](docs/SERVER_RUNBOOK.md), and the verified versus
 external evidence split is in
 [`docs/SERVER_SECURITY_VERIFICATION.md`](docs/SERVER_SECURITY_VERIFICATION.md).
-These are not deployment approval; the real host and Tailscale gate must pass.
 
 GitHub Actions runs the release audit, backend suite, frontend suite, and
 dependency review for pull requests. The workflow design, local reproduction
@@ -258,12 +257,10 @@ custom direct-development `UPLOAD_DIR`.
 ## Security and contribution workflow
 
 Ordinary local mode has no authentication and is intended for one trusted user
-on a local machine. Do not publish or tunnel that mode. A separate authenticated,
-loopback-only server variant is implemented for the approved private single-user
-design, but real server deployment remains blocked until its external gate passes.
-Read [`docs/security.md`](docs/security.md) and
-[`docs/SERVER_SECURITY_PLAN.md`](docs/SERVER_SECURITY_PLAN.md) before changing
-either exposure boundary.
+on a local machine. Do not publish or tunnel that mode. The separate server
+variant is public with invited, admin-confirmed accounts
+([`docs/PUBLIC_ACCOUNTS_SPEC.md`](docs/PUBLIC_ACCOUNTS_SPEC.md)). Read
+[`docs/security.md`](docs/security.md) before changing either exposure boundary.
 
 The implementation worksheet is in [`docs/WORKSHEET.csv`](docs/WORKSHEET.csv),
 and the branch, pull-request, and review process is in

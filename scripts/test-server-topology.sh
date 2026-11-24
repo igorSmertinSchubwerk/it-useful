@@ -35,7 +35,7 @@ trap 'exit 143' TERM
 
 write_valid_environment() {
   printf '%s\n' \
-    'APP_PUBLIC_BASE_URL=https://it-useful-test.test-tailnet.ts.net' \
+    'APP_PUBLIC_BASE_URL=https://it-useful-test.staging.invalid' \
     'DB_NAME=it_useful' \
     'DB_USER=it_useful' \
     'DB_PASSWORD=0123456789abcdef0123456789abcdef' \
@@ -63,6 +63,16 @@ if ./scripts/validate-server-config.sh "$server_env" >/dev/null 2>&1; then
   echo "Validator accepted a placeholder database password." >&2
   exit 1
 fi
+
+for unsafe_origin in http://it-useful-test.staging.invalid https://it-useful-test.staging.invalid/app \
+  https://it-useful-test.staging.invalid:8443; do
+  write_valid_environment
+  sed -i "s#^APP_PUBLIC_BASE_URL=.*#APP_PUBLIC_BASE_URL=${unsafe_origin}#" "$server_env"
+  if ./scripts/validate-server-config.sh "$server_env" >/dev/null 2>&1; then
+    echo "Validator accepted the unsafe public origin ${unsafe_origin}." >&2
+    exit 1
+  fi
+done
 
 write_valid_environment
 ./scripts/validate-server-config.sh "$server_env" >/dev/null
@@ -159,7 +169,7 @@ fresh_anonymous_session() {
 
 first_admin_link="$(COMPOSE_PROJECT_NAME="$project_name" \
   ./scripts/create-first-admin.sh "$server_env" First.Admin@example.test)"
-[[ "$first_admin_link" == https://it-useful-test.test-tailnet.ts.net/accept-invitation#* ]] || {
+[[ "$first_admin_link" == https://it-useful-test.staging.invalid/accept-invitation#* ]] || {
   echo "The first-admin command did not print an invitation link." >&2
   exit 1
 }
@@ -250,6 +260,24 @@ for _ in {1..20}; do
 done
 grep -q '^429$' "$test_dir/sign-in-statuses" || {
   echo "The proxy did not rate-limit sign-in requests." >&2
+  exit 1
+}
+
+# The host proxy replaces X-Forwarded-For with the visitor's address, so one
+# visitor's burst must not consume another visitor's sign-in allowance.
+: > "$test_dir/client-a-statuses"
+for _ in {1..20}; do
+  curl --silent --output /dev/null --write-out '%{http_code}\n' --request POST \
+    -H 'X-Forwarded-For: 198.51.100.7' "$base_url/api/session/login" >> "$test_dir/client-a-statuses"
+done
+grep -q '^429$' "$test_dir/client-a-statuses" || {
+  echo "The proxy did not rate-limit a single forwarded client." >&2
+  exit 1
+}
+other_client_status="$(curl --silent --output /dev/null --write-out '%{http_code}' --request POST \
+  -H 'X-Forwarded-For: 198.51.100.8' "$base_url/api/session/login")"
+[[ "$other_client_status" != 429 ]] || {
+  echo "Sign-in limits are shared by all clients instead of applying per client." >&2
   exit 1
 }
 

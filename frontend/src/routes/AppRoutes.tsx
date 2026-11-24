@@ -9,6 +9,8 @@ import { AcceptInvitationPage } from '../pages/AcceptInvitationPage'
 import { AccountsPage } from '../pages/AccountsPage'
 import { ChangePasswordPage } from '../pages/ChangePasswordPage'
 import { ResetPasswordPage } from '../pages/ResetPasswordPage'
+import { LegalNoticePage } from '../pages/LegalNoticePage'
+import { PrivacyPage } from '../pages/PrivacyPage'
 import { AdminOnly } from '../features/auth/AdminOnly'
 import { AuthenticationGate } from '../features/auth/AuthenticationGate'
 
@@ -19,6 +21,8 @@ export function AppRoutes() {
         <Route path="sign-in" element={<SignInPage />} />
         <Route path="accept-invitation" element={<AcceptInvitationPage />} />
         <Route path="reset-password" element={<ResetPasswordPage />} />
+        <Route path="legal-notice" element={<LegalNoticePage />} />
+        <Route path="privacy" element={<PrivacyPage />} />
         <Route element={<AuthenticationGate />}>
           <Route index element={<ElementListPage />} />
           <Route

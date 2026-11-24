@@ -1,8 +1,8 @@
 # Security and access policy
 
-## Current decision: local-only, without authentication
+## Local mode: loopback-only, without authentication
 
-IT Useful is currently a single-user application for a trusted local computer.
+In local mode, IT Useful is a single-user application for a trusted local computer.
 There are no accounts, sessions, roles, API keys, or authorization checks. Every
 client that can connect to the backend can read, create, change, and permanently
 delete definitions and images. This is a deliberate MVP decision, not an
@@ -82,52 +82,46 @@ minimum, a future release must:
 8. Add the frontend server's CSP and security headers at the final serving layer,
    then run security tests against the assembled deployment.
 
-Public deployment is unsupported until these decisions are implemented and
-reviewed. Creating Docker images in later worksheet steps does not change that.
+The server variant below implements these requirements. Its residual risks list
+the parts that remain open, and local mode must still never be published.
 
-## Approved future target: private single-user server
+## Server variant: public with invited accounts
 
-**Being replaced.** [`PUBLIC_ACCOUNTS_SPEC.md`](PUBLIC_ACCOUNTS_SPEC.md) moves the
-server variant to invited email and password accounts on a public domain. Its
-phase 5 replaces this section with a new threat model.
+The server variant runs at a public domain behind the host's nginx, as specified
+in [`PUBLIC_ACCOUNTS_SPEC.md`](PUBLIC_ACCOUNTS_SPEC.md). It replaces the earlier
+private single-user plan in [`SERVER_SECURITY_PLAN.md`](SERVER_SECURITY_PLAN.md).
+Deployment steps are in [`SERVER_RUNBOOK.md`](SERVER_RUNBOOK.md).
 
-The selected non-loopback target is a private Tailscale-only Linux server for one
-owner, with a second application-level login check. It does not authorize
-deployment yet. The architecture, implementation groups, secrets, tests, and
-pass/fail deployment gate are defined in
-[`SERVER_SECURITY_PLAN.md`](SERVER_SECURITY_PLAN.md), with task-level progress in
-[`SERVER_SECURITY_WORKSHEET.csv`](SERVER_SECURITY_WORKSHEET.csv).
+**Protected assets:** account credentials and sessions, the shared catalog of
+definitions and images, admin powers, and personal data (email addresses and the
+IP addresses in web server logs).
 
-The current local profiles remain unauthenticated and loopback-only. A separate
-fail-closed server profile will be required before the target becomes supported.
-If access becomes public or multi-user, stop and replace the plan with a new
-threat model rather than widening this one informally.
+| Threat | Controls |
+| --- | --- |
+| Anonymous internet visitors | Every route except sign-in, invitation acceptance, password reset, and the legal pages requires a session. Swagger and OpenAPI are disabled, Actuator stays inside the Compose network, and Spring and PostgreSQL have no host port |
+| Password guessing and credential stuffing | Passwords need 12 characters and must not be common or equal the email address. Hashes use bcrypt. Every sign-in failure gets the same answer. Five failures in 15 minutes lock an account for 15 minutes, and nginx allows 10 sign-in requests per minute per visitor |
+| Self-registration and forwarded links | There is no sign-up. Invitation and reset links are single-use, expire after 7 days and 24 hours, carry their token in the URL fragment, and are stored only as hashes. An admin must confirm every new account |
+| Stolen sessions | The cookie is `Secure`, `HttpOnly`, and `SameSite=Lax`, behind HTTPS with HSTS. Sessions expire after 30 idle minutes and get a new id at sign-in and password change. A password change, a reset, or disabling the account ends every other session |
+| Cross-site attacks | Every write and the sign-in need a CSRF token. Browser writes must come from the exact public origin. The CSP allows only same-origin content, and framing is denied |
+| A malicious or compromised `USER` | The backend refuses every content write and every account-management call from a `USER` |
+| Admin mistakes | The last confirmed admin cannot be disabled or demoted, and the security log records the acting admin's id |
+| Leaked logs or database dumps | The database holds only password and token hashes. Logs name accounts by id, never by email address, password, or token |
+| The co-hosted application | The stack binds only to loopback, runs under memory caps, and adds its own nginx site and certificate without touching the other site |
 
-The Spring identity foundation and frontend authentication experience are
-implemented. The server profile validates its required settings, signs in email
-and password accounts with `USER` and `ADMIN` roles and a lockout, protects all
-API data with backend authorization and CSRF, and exposes a minimal session contract. A server-mode frontend loads that
-contract before mounting private routes, stores the CSRF token only in memory,
-adds it to state-changing requests, clears cached records after logout or session
-expiry, and presents separate anonymous, denied, expired, and unavailable states.
+**Residual risks, accepted for staging:**
 
-Ordinary local builds use `VITE_AUTHENTICATION=local` and remain unchanged. The
-private topology is now implemented as a separate Compose override: only nginx
-publishes a loopback socket, the server frontend enables authentication, sign-in
-and logout routes reach Spring before SPA fallback, and forwarded headers are
-scrubbed and rebuilt at that sole proxy boundary. Real server settings remain in
-an external mode-`400` or mode-`600` environment file checked by a fail-closed
-validator. See [`SERVER_RUNBOOK.md`](SERVER_RUNBOOK.md).
-
-The assembled repository verification now covers the full backend authorization
-matrix, CSRF and origin failures, cookie and response policy, hidden services,
-proxy-header forgery, request limits, and service restarts. The exact evidence is
-in [`SERVER_SECURITY_VERIFICATION.md`](SERVER_SECURITY_VERIFICATION.md).
-
-This remains preparation, not deployment approval. Real accounts, the
-Tailscale grant, Funnel absence, host firewall, final HTTPS edge,
-host restart, denied-device path, and off-host recovery remain unverified. Server
-deployment stays blocked until those external items close the documented gate.
+- There is no multi-factor authentication.
+- Links reach people through whatever channel the admin uses until SMTP delivery
+  arrives in phase 6.
+- Only admins can upload images, and uploads are checked for type and file
+  signature. There are no pixel, decompression, or malware checks.
+- Limits are per IP address. An attacker with many addresses gets more sign-in
+  attempts, although the per-account lockout still applies.
+- There is no automated monitoring or alerting. Logs are reviewed by hand.
+- Encrypted off-host backups and a server restore drill (S23) are not in place yet.
+- Root or Docker access on the shared host gives full access to this stack too.
+- The last-admin check reads before it writes, so two admins demoting each other
+  at the same moment could both succeed.
 
 ## Verification
 

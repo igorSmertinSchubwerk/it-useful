@@ -97,8 +97,14 @@ export function AppLayout() {
       >
         <Outlet />
       </main>
-      <footer className="mx-auto max-w-5xl px-6 py-6 text-sm text-muted">
-        {t.footer}
+      <footer className="mx-auto flex max-w-5xl flex-wrap gap-x-6 gap-y-2 px-6 py-6 text-sm text-muted">
+        <span>{t.footer}</span>
+        <NavLink to="/legal-notice" className="underline">
+          {t.legalNotice}
+        </NavLink>
+        <NavLink to="/privacy" className="underline">
+          {t.privacyPolicy}
+        </NavLink>
       </footer>
     </>
   )

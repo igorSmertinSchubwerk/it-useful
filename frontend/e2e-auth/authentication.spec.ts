@@ -191,3 +191,14 @@ test('the password reset and password change pages are accessible', async ({
   ).toBeVisible()
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
 })
+
+test('the legal pages are accessible', async ({ page }) => {
+  await page.route('**/api/session', (route) =>
+    route.fulfill({ status: 401, json: { code: 'authentication_required' } }),
+  )
+  for (const path of ['/legal-notice', '/privacy']) {
+    await page.goto(path)
+    await expect(page.locator('h1')).toBeVisible()
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
+  }
+})

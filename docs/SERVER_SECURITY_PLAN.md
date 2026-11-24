@@ -1,5 +1,10 @@
 # Private single-user server security plan
 
+> **Superseded on 2026-11-24** by [`PUBLIC_ACCOUNTS_SPEC.md`](PUBLIC_ACCOUNTS_SPEC.md).
+> The server variant is now public with invited accounts instead of private
+> Tailscale access for one GitHub owner. This plan stays as the record of the
+> earlier design. The current threat model is in [`security.md`](security.md).
+
 ## Decision
 
 The first supported server deployment will be private and single-user. It will
