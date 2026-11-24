@@ -27,7 +27,7 @@ if [[ "$(printf '%s\n%s\n' "$minimum_version" "$compose_version" | sort -V | hea
 fi
 
 (
-  unset APP_PUBLIC_BASE_URL APP_OWNER_GITHUB_ID GITHUB_CLIENT_ID GITHUB_CLIENT_SECRET
+  unset APP_PUBLIC_BASE_URL
   unset DB_NAME DB_USER DB_PASSWORD FRONTEND_PORT
   cd "$project_root"
   exec docker compose \

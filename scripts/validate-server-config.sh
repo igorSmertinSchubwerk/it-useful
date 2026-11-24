@@ -38,8 +38,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   value="${BASH_REMATCH[2]}"
   [[ -z "${seen[$key]:-}" ]] || fail "duplicate setting $key"
   case "$key" in
-    APP_PUBLIC_BASE_URL|APP_OWNER_GITHUB_ID|GITHUB_CLIENT_ID|GITHUB_CLIENT_SECRET|\
-    DB_NAME|DB_USER|DB_PASSWORD|FRONTEND_PORT) ;;
+    APP_PUBLIC_BASE_URL|DB_NAME|DB_USER|DB_PASSWORD|FRONTEND_PORT) ;;
     *) fail "unsupported setting $key" ;;
   esac
   [[ -n "$value" ]] || fail "$key must not be empty"
@@ -50,9 +49,6 @@ done < "$config_path"
 
 required=(
   APP_PUBLIC_BASE_URL
-  APP_OWNER_GITHUB_ID
-  GITHUB_CLIENT_ID
-  GITHUB_CLIENT_SECRET
   DB_NAME
   DB_USER
   DB_PASSWORD
@@ -67,16 +63,6 @@ public_url="${values[APP_PUBLIC_BASE_URL]}"
 [[ "$public_url" != *tailnet-name* && "$public_url" != *example* ]] || \
   fail "APP_PUBLIC_BASE_URL still contains a placeholder"
 
-[[ "${values[APP_OWNER_GITHUB_ID]}" =~ ^[1-9][0-9]{0,18}$ ]] || \
-  fail "APP_OWNER_GITHUB_ID must be a positive numeric GitHub user ID"
-[[ "${values[GITHUB_CLIENT_ID]}" =~ ^[A-Za-z0-9._-]{10,100}$ ]] || \
-  fail "GITHUB_CLIENT_ID has an unexpected format"
-[[ "${values[GITHUB_CLIENT_ID]}" != replace-* ]] || \
-  fail "GITHUB_CLIENT_ID still contains a placeholder"
-[[ "${values[GITHUB_CLIENT_SECRET]}" =~ ^[A-Za-z0-9_-]{20,200}$ ]] || \
-  fail "GITHUB_CLIENT_SECRET has an unexpected format"
-[[ "${values[GITHUB_CLIENT_SECRET]}" != replace-* ]] || \
-  fail "GITHUB_CLIENT_SECRET still contains a placeholder"
 [[ "${values[DB_NAME]}" =~ ^[A-Za-z_][A-Za-z0-9_]{0,62}$ ]] || \
   fail "DB_NAME must be a PostgreSQL identifier"
 [[ "${values[DB_USER]}" =~ ^[A-Za-z_][A-Za-z0-9_]{0,62}$ ]] || \

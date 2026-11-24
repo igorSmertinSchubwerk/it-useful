@@ -36,9 +36,6 @@ trap 'exit 143' TERM
 write_valid_environment() {
   printf '%s\n' \
     'APP_PUBLIC_BASE_URL=https://it-useful-test.test-tailnet.ts.net' \
-    'APP_OWNER_GITHUB_ID=42' \
-    'GITHUB_CLIENT_ID=Ov23liTestClientIdentifier' \
-    'GITHUB_CLIENT_SECRET=0123456789abcdef0123456789abcdef01234567' \
     'DB_NAME=it_useful' \
     'DB_USER=it_useful' \
     'DB_PASSWORD=0123456789abcdef0123456789abcdef' \
@@ -54,9 +51,9 @@ if ./scripts/validate-server-config.sh "$server_env" >/dev/null 2>&1; then
 fi
 
 write_valid_environment
-sed -i '/^GITHUB_CLIENT_SECRET=/d' "$server_env"
+sed -i '/^APP_PUBLIC_BASE_URL=/d' "$server_env"
 if ./scripts/validate-server-config.sh "$server_env" >/dev/null 2>&1; then
-  echo "Validator accepted a missing OAuth secret." >&2
+  echo "Validator accepted a missing public base URL." >&2
   exit 1
 fi
 
@@ -137,14 +134,20 @@ session_status="$(curl --silent --output "$test_dir/session.json" --write-out '%
 [[ "$session_status" == 401 ]] || { echo "Anonymous session request was not rejected." >&2; exit 1; }
 grep -q '"code":"authentication_required"' "$test_dir/session.json"
 
-oauth_status="$(curl --silent --output /dev/null --dump-header "$test_dir/oauth.headers" \
-  --write-out '%{http_code}' "$base_url/oauth2/authorization/github")"
-[[ "$oauth_status" == 302 ]] || { echo "GitHub authorization route did not reach Spring." >&2; exit 1; }
-grep -qi '^location: https://github.com/login/oauth/authorize?' "$test_dir/oauth.headers"
-grep -Eqi 'redirect_uri=(https://it-useful-test\.test-tailnet\.ts\.net/login/oauth2/code/github|https%3A%2F%2Fit-useful-test\.test-tailnet\.ts\.net%2Flogin%2Foauth2%2Fcode%2Fgithub)' \
-  "$test_dir/oauth.headers"
+curl --fail --silent --show-error --dump-header "$test_dir/csrf.headers" \
+  "$base_url/api/session/csrf" --output "$test_dir/csrf.json"
 grep -Eqi '^set-cookie: IT_USEFUL_SESSION=[^;]+;.*Path=/.*Secure.*HttpOnly.*SameSite=Lax' \
-  "$test_dir/oauth.headers"
+  "$test_dir/csrf.headers"
+session_cookie="$(grep -i '^set-cookie: IT_USEFUL_SESSION=' "$test_dir/csrf.headers" \
+  | sed -E 's/^[Ss]et-[Cc]ookie: (IT_USEFUL_SESSION=[^;]+);.*/\1/')"
+csrf_token="$(sed -E 's/.*"token":"([^"]+)".*/\1/' "$test_dir/csrf.json")"
+sign_in_status="$(curl --silent --output "$test_dir/sign-in.json" --write-out '%{http_code}' \
+  -H "Cookie: $session_cookie" -H "X-CSRF-TOKEN: $csrf_token" \
+  --data-urlencode 'email=nobody@example.com' \
+  --data-urlencode 'password=correct horse battery staple' \
+  "$base_url/api/session/login")"
+[[ "$sign_in_status" == 401 ]] || { echo "Sign-in did not reach the account check." >&2; exit 1; }
+grep -q '"code":"sign_in_failed"' "$test_dir/sign-in.json"
 
 logout_status="$(curl --silent --output /dev/null --write-out '%{http_code}' "$base_url/logout")"
 [[ "$logout_status" == 401 ]] || { echo "Logout route was swallowed by the SPA fallback." >&2; exit 1; }
@@ -198,6 +201,16 @@ done
 grep -q '^401$' "$test_dir/rate-statuses"
 grep -q '^429$' "$test_dir/rate-statuses" || {
   echo "The assembled API did not enforce its request-rate limit." >&2
+  exit 1
+}
+
+: > "$test_dir/sign-in-statuses"
+for _ in {1..20}; do
+  curl --silent --output /dev/null --write-out '%{http_code}\n' --request POST \
+    "$base_url/api/session/login" >> "$test_dir/sign-in-statuses"
+done
+grep -q '^429$' "$test_dir/sign-in-statuses" || {
+  echo "The proxy did not rate-limit sign-in requests." >&2
   exit 1
 }
 
