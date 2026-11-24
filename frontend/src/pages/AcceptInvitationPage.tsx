@@ -2,8 +2,8 @@ import { useState, type FormEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { createAccountsApi } from '../api/accounts'
 import { setCsrfToken } from '../api/authSession'
-import { ApiError } from '../api/errors'
 import { createSessionApi } from '../api/session'
+import { describePasswordFailure } from '../features/accounts/passwordFailure'
 import { useI18n } from '../i18n/context'
 
 const accountsApi = createAccountsApi()
@@ -20,21 +20,6 @@ export function AcceptInvitationPage() {
   const [repeated, setRepeated] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
-
-  function describe(failure: unknown) {
-    if (!(failure instanceof ApiError)) return t.authUnavailableText
-    if (failure.code === 'invitation_invalid') return t.invitationInvalid
-    if (failure.code === 'password_rejected')
-      return (
-        {
-          TOO_SHORT: t.passwordTooShort,
-          TOO_LONG: t.passwordTooLong,
-          MATCHES_EMAIL: t.passwordMatchesEmail,
-          TOO_COMMON: t.passwordTooCommon,
-        }[failure.violation ?? ''] ?? t.passwordTooCommon
-      )
-    return t.authUnavailableText
-  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -53,7 +38,7 @@ export function AcceptInvitationPage() {
         state: { notice: 'accountCreated' },
       })
     } catch (failure) {
-      setError(describe(failure))
+      setError(describePasswordFailure(failure, t))
     } finally {
       setSubmitting(false)
     }

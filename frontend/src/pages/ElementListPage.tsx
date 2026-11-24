@@ -11,8 +11,10 @@ import {
   selectElements,
 } from '../features/elements/list'
 import { DeleteElementDialog } from '../features/elements/DeleteElementDialog'
+import { useCanEdit } from '../features/auth/context'
 
 export default function ElementListPage() {
+  const canEdit = useCanEdit()
   const { t, language } = useI18n()
   const [params, setParams] = useSearchParams()
   const contentLanguage = parseContentLanguage(params.get('language'))
@@ -122,12 +124,14 @@ export default function ElementListPage() {
         >
           {t.refresh}
         </button>
-        <Link
-          to={`/elements/new${params.size ? `?${params.toString()}` : ''}`}
-          className="text-brand underline"
-        >
-          {t.create}
-        </Link>
+        {canEdit && (
+          <Link
+            to={`/elements/new${params.size ? `?${params.toString()}` : ''}`}
+            className="text-brand underline"
+          >
+            {t.create}
+          </Link>
+        )}
       </div>
       <p role="status" className="mt-5 text-sm text-muted">
         {deleted ? `${t.deleted} ` : ''}
@@ -179,7 +183,12 @@ export default function ElementListPage() {
               <caption className="sr-only">{t.definitions}</caption>
               <thead className="border-b border-line bg-canvas">
                 <tr>
-                  {[t.title, t.slug, t.updated, t.actions].map((label) => (
+                  {[
+                    t.title,
+                    t.slug,
+                    t.updated,
+                    ...(canEdit ? [t.actions] : []),
+                  ].map((label) => (
                     <th key={label} scope="col" className="px-4 py-3">
                       {label}
                     </th>
@@ -218,28 +227,30 @@ export default function ElementListPage() {
                         </time>
                       )}
                     </td>
-                    <td className="px-4 py-4">
-                      <div className="flex flex-wrap gap-3">
-                        <Link
-                          to={`${elementPath(item.id, true)}${params.size ? `?${params.toString()}` : ''}`}
-                          aria-label={`${t.edit}: ${item.titles[contentLanguage] || item.slug}`}
-                          className="text-brand underline"
-                        >
-                          {t.edit}
-                        </Link>
-                        <button
-                          type="button"
-                          aria-label={`${t.delete}: ${item.titles[contentLanguage] || item.slug}`}
-                          className="text-red-800 underline"
-                          onClick={() => {
-                            setDeleted(false)
-                            setSelected(item)
-                          }}
-                        >
-                          {t.delete}
-                        </button>
-                      </div>
-                    </td>
+                    {canEdit && (
+                      <td className="px-4 py-4">
+                        <div className="flex flex-wrap gap-3">
+                          <Link
+                            to={`${elementPath(item.id, true)}${params.size ? `?${params.toString()}` : ''}`}
+                            aria-label={`${t.edit}: ${item.titles[contentLanguage] || item.slug}`}
+                            className="text-brand underline"
+                          >
+                            {t.edit}
+                          </Link>
+                          <button
+                            type="button"
+                            aria-label={`${t.delete}: ${item.titles[contentLanguage] || item.slug}`}
+                            className="text-red-800 underline"
+                            onClick={() => {
+                              setDeleted(false)
+                              setSelected(item)
+                            }}
+                          >
+                            {t.delete}
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

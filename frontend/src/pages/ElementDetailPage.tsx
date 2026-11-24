@@ -4,11 +4,13 @@ import { useElement } from '../features/elements/queries'
 import { parseContentLanguage } from '../features/elements/list'
 import { SafeMarkdown } from '../features/elements/SafeMarkdown'
 import { DetailImage } from '../features/elements/DetailImage'
+import { useCanEdit } from '../features/auth/context'
 import { useI18n } from '../i18n/context'
 import { localizeApiError } from '../i18n/errors'
 import { elementPath } from '../utils/paths'
 
 export function ElementDetailPage() {
+  const canEdit = useCanEdit()
   const { id = '' } = useParams()
   const [params, setParams] = useSearchParams()
   const contentLanguage = parseContentLanguage(params.get('language'))
@@ -58,7 +60,7 @@ export function ElementDetailPage() {
         <Link to={`/${suffix}`} className="text-brand underline">
           {t.back}
         </Link>
-        {element && (
+        {element && canEdit && (
           <Link
             to={`${elementPath(id, true)}${suffix}`}
             className="text-brand underline"

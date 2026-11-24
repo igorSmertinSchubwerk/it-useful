@@ -40,6 +40,32 @@ export const accountMessages = {
     waitingForConfirmationText:
       'An admin must confirm your account before you can use IT Useful.',
     checkAgain: 'Check again',
+    makeAdmin: 'Make admin',
+    makeUser: 'Make user',
+    disable: 'Disable',
+    enable: 'Enable',
+    lastAdmin: 'The last admin cannot be disabled or made a user.',
+    createResetLink: 'Create reset link',
+    passwordResetLink: 'Password reset link',
+    passwordResetLinkHint:
+      'Send this link to {email}. It works once within 24 hours and is shown only once.',
+    copyResetLink: 'Copy reset link',
+    openInvitations: 'Open invitations',
+    noOpenInvitations: 'No open invitations.',
+    revoke: 'Revoke',
+    revokeInvitationFor: 'Revoke invitation for',
+    resetPassword: 'Choose a new password',
+    setNewPassword: 'Set new password',
+    resetInvalid:
+      'This password reset link is invalid or has expired. Ask an admin for a new one.',
+    passwordResetNotice:
+      'Your password is changed. Sign in with the new password.',
+    changePassword: 'Change password',
+    currentPassword: 'Current password',
+    currentPasswordIncorrect: 'The current password is incorrect.',
+    passwordChanged:
+      'Your password is changed. Your other sessions are signed out.',
+    adminsOnlyEditing: 'Only admins can create or change definitions.',
   },
   de: {
     accounts: 'Konten',
@@ -84,6 +110,33 @@ export const accountMessages = {
     waitingForConfirmationText:
       'Ein Admin muss dein Konto bestätigen, bevor du IT Useful verwenden kannst.',
     checkAgain: 'Erneut prüfen',
+    makeAdmin: 'Zum Admin machen',
+    makeUser: 'Zum Benutzer machen',
+    disable: 'Deaktivieren',
+    enable: 'Aktivieren',
+    lastAdmin:
+      'Der letzte Admin kann nicht deaktiviert oder zum Benutzer gemacht werden.',
+    createResetLink: 'Link zum Zurücksetzen erstellen',
+    passwordResetLink: 'Link zum Zurücksetzen des Passworts',
+    passwordResetLinkHint:
+      'Sende diesen Link an {email}. Er funktioniert einmal innerhalb von 24 Stunden und wird nur einmal angezeigt.',
+    copyResetLink: 'Link zum Zurücksetzen kopieren',
+    openInvitations: 'Offene Einladungen',
+    noOpenInvitations: 'Keine offenen Einladungen.',
+    revoke: 'Widerrufen',
+    revokeInvitationFor: 'Einladung widerrufen für',
+    resetPassword: 'Neues Passwort wählen',
+    setNewPassword: 'Neues Passwort festlegen',
+    resetInvalid:
+      'Dieser Link zum Zurücksetzen ist ungültig oder abgelaufen. Bitte einen Admin um einen neuen.',
+    passwordResetNotice:
+      'Dein Passwort ist geändert. Melde dich mit dem neuen Passwort an.',
+    changePassword: 'Passwort ändern',
+    currentPassword: 'Aktuelles Passwort',
+    currentPasswordIncorrect: 'Das aktuelle Passwort ist falsch.',
+    passwordChanged:
+      'Dein Passwort ist geändert. Deine anderen Sitzungen sind abgemeldet.',
+    adminsOnlyEditing: 'Nur Admins können Definitionen erstellen oder ändern.',
   },
   ru: {
     accounts: 'Учётные записи',
@@ -128,5 +181,29 @@ export const accountMessages = {
     waitingForConfirmationText:
       'Админ должен подтвердить учётную запись, прежде чем ты сможешь пользоваться IT Useful.',
     checkAgain: 'Проверить снова',
+    makeAdmin: 'Сделать админом',
+    makeUser: 'Сделать пользователем',
+    disable: 'Отключить',
+    enable: 'Включить',
+    lastAdmin: 'Последнего админа нельзя отключить или сделать пользователем.',
+    createResetLink: 'Создать ссылку для сброса',
+    passwordResetLink: 'Ссылка для сброса пароля',
+    passwordResetLinkHint:
+      'Отправь эту ссылку {email}. Она работает один раз в течение 24 часов и показывается один раз.',
+    copyResetLink: 'Скопировать ссылку для сброса',
+    openInvitations: 'Открытые приглашения',
+    noOpenInvitations: 'Открытых приглашений нет.',
+    revoke: 'Отозвать',
+    revokeInvitationFor: 'Отозвать приглашение для',
+    resetPassword: 'Выбери новый пароль',
+    setNewPassword: 'Сохранить новый пароль',
+    resetInvalid:
+      'Эта ссылка для сброса недействительна или устарела. Попроси у админа новую.',
+    passwordResetNotice: 'Пароль изменён. Войди с новым паролем.',
+    changePassword: 'Сменить пароль',
+    currentPassword: 'Текущий пароль',
+    currentPasswordIncorrect: 'Текущий пароль неверен.',
+    passwordChanged: 'Пароль изменён. Другие сеансы завершены.',
+    adminsOnlyEditing: 'Только админы могут создавать и изменять определения.',
   },
 } as const
