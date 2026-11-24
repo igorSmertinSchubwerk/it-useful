@@ -217,7 +217,7 @@ class ServerSecurityIntegrationTests {
 				.andExpect(status().isForbidden())
 				.andExpect(jsonPath("$.code").value("forbidden"));
 		mockMvc.perform(get("/api/admin/accounts").session(signIn(ADMIN)))
-				.andExpect(status().isNotFound());
+				.andExpect(status().isOk());
 	}
 
 	@Test

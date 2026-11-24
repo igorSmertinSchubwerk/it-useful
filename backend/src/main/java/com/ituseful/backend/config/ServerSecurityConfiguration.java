@@ -1,5 +1,10 @@
 package com.ituseful.backend.config;
 
+import com.ituseful.backend.repository.AccountRepository;
+import com.ituseful.backend.security.AccountAuthorities;
+import com.ituseful.backend.security.AccountAuthorityRefreshFilter;
+import com.ituseful.backend.security.InvitationTokens;
+import com.ituseful.backend.security.PasswordPolicy;
 import com.ituseful.backend.security.SecurityProblemWriter;
 import com.ituseful.backend.security.ServerSecurityProperties;
 import com.ituseful.backend.security.SignInHandler;
@@ -17,10 +22,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+
+import java.security.SecureRandom;
 
 @Configuration(proxyBeanMethods = false)
 @Profile("server")
@@ -28,11 +36,22 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 class ServerSecurityConfiguration {
 
 	@Bean
+	PasswordPolicy passwordPolicy() {
+		return PasswordPolicy.withBundledCommonPasswords();
+	}
+
+	@Bean
+	InvitationTokens invitationTokens() {
+		return new InvitationTokens(new SecureRandom());
+	}
+
+	@Bean
 	SecurityFilterChain serverSecurityFilterChain(
 			HttpSecurity http,
 			ServerSecurityProperties properties,
 			SecurityProblemWriter problemWriter,
-			SignInHandler signInHandler
+			SignInHandler signInHandler,
+			AccountRepository accountRepository
 	) throws Exception {
 		PathPatternRequestMatcher apiMatcher = PathPatternRequestMatcher.withDefaults().matcher("/api/**");
 		AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
@@ -42,6 +61,13 @@ class ServerSecurityConfiguration {
 			boolean csrfFailure = exception instanceof MissingCsrfTokenException
 					|| exception instanceof InvalidCsrfTokenException;
 			HttpStatus status = unauthenticated ? HttpStatus.UNAUTHORIZED : HttpStatus.FORBIDDEN;
+			boolean pending = !unauthenticated && !csrfFailure && authentication.getAuthorities().stream()
+					.anyMatch(authority -> AccountAuthorities.PENDING.equals(authority.getAuthority()));
+			if (pending) {
+				problemWriter.write(request, response, status,
+						"An admin has not confirmed this account yet", "confirmation_pending");
+				return;
+			}
 			problemWriter.write(
 					request,
 					response,
@@ -60,6 +86,7 @@ class ServerSecurityConfiguration {
 						.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/session/csrf").permitAll()
 						.requestMatchers(HttpMethod.POST, "/api/session/login").permitAll()
+						.requestMatchers(HttpMethod.POST, "/api/invitations/accept").permitAll()
 						.requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/session").authenticated()
 						.requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -85,6 +112,7 @@ class ServerSecurityConfiguration {
 				.sessionManagement(session -> session
 						.sessionFixation(fixation -> fixation.migrateSession()))
 				.addFilterAfter(new ServerOriginFilter(properties, problemWriter), CsrfFilter.class)
+				.addFilterBefore(new AccountAuthorityRefreshFilter(accountRepository), AuthorizationFilter.class)
 				.logout(logout -> logout
 						.logoutUrl("/logout")
 						.invalidateHttpSession(true)

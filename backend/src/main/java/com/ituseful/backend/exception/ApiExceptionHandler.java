@@ -77,6 +77,50 @@ public class ApiExceptionHandler {
 		return response(HttpStatus.NOT_FOUND, "The requested route does not exist", "route_not_found", request);
 	}
 
+	@ExceptionHandler(AccountExistsException.class)
+	ResponseEntity<ProblemDetail> handleAccountExists(AccountExistsException exception, HttpServletRequest request) {
+		return response(HttpStatus.CONFLICT, exception.getMessage(), "account_exists", request);
+	}
+
+	@ExceptionHandler(AccountNotPendingException.class)
+	ResponseEntity<ProblemDetail> handleAccountNotPending(
+			AccountNotPendingException exception,
+			HttpServletRequest request
+	) {
+		return response(HttpStatus.CONFLICT, exception.getMessage(), "account_not_pending", request);
+	}
+
+	@ExceptionHandler(AccountNotFoundException.class)
+	ResponseEntity<ProblemDetail> handleAccountNotFound(AccountNotFoundException exception, HttpServletRequest request) {
+		return response(HttpStatus.NOT_FOUND, exception.getMessage(), "account_not_found", request);
+	}
+
+	@ExceptionHandler(InvitationNotFoundException.class)
+	ResponseEntity<ProblemDetail> handleInvitationNotFound(
+			InvitationNotFoundException exception,
+			HttpServletRequest request
+	) {
+		return response(HttpStatus.NOT_FOUND, exception.getMessage(), "invitation_not_found", request);
+	}
+
+	@ExceptionHandler(InvitationInvalidException.class)
+	ResponseEntity<ProblemDetail> handleInvitationInvalid(
+			InvitationInvalidException exception,
+			HttpServletRequest request
+	) {
+		return response(HttpStatus.BAD_REQUEST, exception.getMessage(), "invitation_invalid", request);
+	}
+
+	@ExceptionHandler(PasswordRejectedException.class)
+	ResponseEntity<ProblemDetail> handlePasswordRejected(
+			PasswordRejectedException exception,
+			HttpServletRequest request
+	) {
+		ProblemDetail problem = problem(HttpStatus.BAD_REQUEST, exception.getMessage(), "password_rejected", request);
+		problem.setProperty("violation", exception.getViolation());
+		return ResponseEntity.badRequest().body(problem);
+	}
+
 	@ExceptionHandler(InvalidImageException.class)
 	ResponseEntity<ProblemDetail> handleInvalidImage(InvalidImageException exception, HttpServletRequest request) {
 		return response(HttpStatus.BAD_REQUEST, exception.getMessage(), "invalid_image", request);

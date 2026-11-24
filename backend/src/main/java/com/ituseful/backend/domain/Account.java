@@ -90,6 +90,13 @@ public class Account {
 		}
 	}
 
+	public void confirm() {
+		if (status != AccountStatus.ACCEPTED) {
+			throw new IllegalStateException("Only an accepted account can be confirmed");
+		}
+		status = AccountStatus.CONFIRMED;
+	}
+
 	public void recordSuccessfulSignIn() {
 		failedSignIns = 0;
 		failureWindowStartedAt = null;
@@ -118,5 +125,9 @@ public class Account {
 
 	public AccountStatus getStatus() {
 		return status;
+	}
+
+	public Instant getCreatedAt() {
+		return createdAt;
 	}
 }
