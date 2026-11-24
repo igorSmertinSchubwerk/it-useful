@@ -1,6 +1,6 @@
 # Data model
 
-Flyway migrations `V1__create_initial_schema.sql` and `V2__create_account.sql`
+Flyway migrations `V1` to `V4` in `backend/src/main/resources/db/migration`
 create the current schema.
 Application code uses UUID identifiers and UTC timestamps. PostgreSQL is the
 source of truth for element and image metadata; image bytes live in the configured
@@ -75,9 +75,27 @@ A person who can sign in to the server variant
 - `role`: `USER` or `ADMIN`
 - `status`: `ACCEPTED`, `CONFIRMED`, or `DISABLED`
 - `created_at`: a UTC-aware timestamp
+- `failed_sign_ins`, `failure_window_started_at`, `locked_until`: the sign-in
+  lockout state (5 failures within 15 minutes lock the account for 15 minutes)
 
 Pending invitations are not accounts. An account row exists once an invitee has
 set a password.
+
+## `invitation`
+
+A single-use link that lets one email address create an account. Each row
+contains:
+
+- `email` and `role`: the address and role the account will get
+- `token_hash`: the SHA-256 hex hash of the link token, never the token itself
+- `created_by`: the inviting admin's account id, or empty for the first-admin
+  invitation created by `server-create-first-admin`
+- `created_at` and `expires_at`: the link is valid for 7 days
+- `accepted_at` and `revoked_at`: set when the link is used or withdrawn
+
+An invitation is usable only while it is unexpired, unaccepted, unrevoked, and no
+account exists for its address. A first-admin invitation is usable only while no
+account exists at all.
 
 ## Persistence and deletion
 

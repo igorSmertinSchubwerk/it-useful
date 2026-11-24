@@ -12,7 +12,11 @@ export function SignInPage() {
   const { state, signIn } = useAuthentication()
   const { t } = useI18n()
   const location = useLocation()
-  const from = (location.state as { from?: unknown } | null)?.from
+  const navigation = location.state as {
+    from?: unknown
+    notice?: unknown
+  } | null
+  const from = navigation?.from
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -44,6 +48,11 @@ export function SignInPage() {
     <section className="rounded-xl border border-line bg-surface p-6 sm:p-8">
       <h1 className="text-3xl font-bold">{t.signIn}</h1>
       <p className="mt-4 text-muted">{t.signInText}</p>
+      {navigation?.notice === 'accountCreated' && (
+        <p role="status" className="mt-4 rounded bg-canvas p-3">
+          {t.accountCreatedNotice}
+        </p>
+      )}
       <form onSubmit={submit} className="mt-6 grid max-w-md gap-4">
         <label className="font-semibold">
           {t.emailAddress}

@@ -3,6 +3,7 @@ import { detailMessages } from './detailMessages'
 import { editorMessages } from './editorMessages'
 import { imageMessages } from './imageMessages'
 import { authMessages } from './authMessages'
+import { accountMessages } from './accountMessages'
 export type UiLanguage = 'en' | 'de' | 'ru'
 
 const en = {
@@ -11,6 +12,7 @@ const en = {
   ...editorMessages.en,
   ...imageMessages.en,
   ...authMessages.en,
+  ...accountMessages.en,
   skip: 'Skip to content',
   nav: 'Main navigation',
   definitions: 'Definitions',
@@ -68,6 +70,7 @@ export const messages: Record<UiLanguage, Messages> = {
     ...editorMessages.de,
     ...imageMessages.de,
     ...authMessages.de,
+    ...accountMessages.de,
     skip: 'Zum Inhalt springen',
     nav: 'Hauptnavigation',
     definitions: 'Begriffe',
@@ -125,6 +128,7 @@ export const messages: Record<UiLanguage, Messages> = {
     ...editorMessages.ru,
     ...imageMessages.ru,
     ...authMessages.ru,
+    ...accountMessages.ru,
     skip: 'Перейти к содержимому',
     nav: 'Основная навигация',
     definitions: 'Термины',

@@ -91,7 +91,7 @@ test('denied and expired sessions have different recovery screens', async ({
   page,
 }) => {
   await page.route('**/api/session', (route) =>
-    route.fulfill({ json: { ...session, status: 'ACCEPTED' } }),
+    route.fulfill({ json: { ...session, status: 'DISABLED' } }),
   )
   await page.goto('/')
   await expect(
@@ -110,4 +110,61 @@ test('denied and expired sessions have different recovery screens', async ({
     page.getByRole('heading', { name: 'Session expired' }),
   ).toBeVisible()
   await expect(page.getByRole('link', { name: 'Sign in again' })).toBeVisible()
+})
+
+test('an invitee creates an account on an accessible page and lands on sign-in', async ({
+  page,
+}) => {
+  let body: unknown = null
+  await page.route('**/api/session', (route) =>
+    route.fulfill({ status: 401, json: { code: 'authentication_required' } }),
+  )
+  await page.route('**/api/session/csrf', (route) =>
+    route.fulfill({ json: { headerName: 'X-CSRF-TOKEN', token: 'csrf' } }),
+  )
+  await page.route('**/api/invitations/accept', (route) => {
+    body = route.request().postDataJSON()
+    return route.fulfill({ status: 204 })
+  })
+  await page.goto('/accept-invitation#browser-token')
+  await expect(
+    page.getByRole('heading', { name: 'Create your account' }),
+  ).toBeVisible()
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
+
+  await page.getByLabel('New password').fill('correct horse battery staple')
+  await page.getByLabel('Repeat password').fill('correct horse battery staple')
+  await page.getByRole('button', { name: 'Create account' }).click()
+
+  await expect(page).toHaveURL(/\/sign-in$/)
+  await expect(page.getByRole('status')).toContainText('Your account is ready')
+  expect(body).toEqual({
+    token: 'browser-token',
+    password: 'correct horse battery staple',
+  })
+})
+
+test('the admin accounts page is accessible', async ({ page }) => {
+  await page.route('**/api/session', (route) =>
+    route.fulfill({ json: session }),
+  )
+  await page.route('**/api/admin/accounts', (route) =>
+    route.fulfill({
+      json: [
+        {
+          id: '00000000-0000-0000-0000-0000000000c1',
+          email: 'pending@example.com',
+          role: 'USER',
+          status: 'ACCEPTED',
+          createdAt: '2026-11-24T09:00:00Z',
+        },
+      ],
+    }),
+  )
+  await page.goto('/admin/accounts')
+  await expect(
+    page.getByRole('heading', { name: 'Accounts', exact: true }),
+  ).toBeVisible()
+  await expect(page.getByText('pending@example.com')).toBeVisible()
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
 })

@@ -38,6 +38,14 @@ export function AppLayout() {
               >
                 {t.create}
               </NavLink>
+              {state.role === 'ADMIN' && !state.local && (
+                <NavLink
+                  to="/admin/accounts"
+                  className="text-brand underline-offset-4 hover:underline aria-[current=page]:font-bold aria-[current=page]:underline"
+                >
+                  {t.accounts}
+                </NavLink>
+              )}
             </nav>
           )}
           <LanguageSelector />

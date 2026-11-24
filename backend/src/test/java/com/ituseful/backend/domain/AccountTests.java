@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AccountTests {
 
@@ -43,6 +44,16 @@ class AccountTests {
 		failAtMinutes(4, 5, 6, 7);
 
 		assertThat(account.isLockedAt(minutes(7))).isFalse();
+	}
+
+	@Test
+	void ac8ConfirmsAnAcceptedAccountButNoOtherState() {
+		Account pending = new Account("p@example.com", "{bcrypt}hash", AccountRole.USER, AccountStatus.ACCEPTED);
+
+		pending.confirm();
+
+		assertThat(pending.getStatus()).isEqualTo(AccountStatus.CONFIRMED);
+		assertThatThrownBy(pending::confirm).isInstanceOf(IllegalStateException.class);
 	}
 
 	private void failAtMinutes(int... offsets) {

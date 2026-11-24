@@ -29,6 +29,18 @@ local Compose workflow.
   A signed-in account without the required role returns `403` with code
   `forbidden`. A missing or invalid CSRF token returns `403` with code
   `csrf_invalid`.
+- `POST /api/admin/invitations` takes `{"email", "role"}` and returns `201` with
+  `id`, `email`, `role`, `expiresAt`, and the one-time `link`. The token sits in
+  the link's fragment, is never stored, and cannot be shown again.
+  `DELETE /api/admin/invitations/{id}` revokes an invitation.
+- `POST /api/invitations/accept` is open to anonymous browsers and takes
+  `{"token", "password"}` with the CSRF header. It returns `204` and creates an
+  `ACCEPTED` account. A rejected password returns `400 password_rejected` with
+  `violation` set to `TOO_SHORT`, `TOO_LONG`, `MATCHES_EMAIL`, or `TOO_COMMON`.
+- An `ACCEPTED` account receives `403 confirmation_pending` for content.
+  `GET /api/admin/accounts` lists accounts, and
+  `POST /api/admin/accounts/{id}/confirm` confirms an accepted one. The new role
+  applies to sessions that are already open.
 - The server session cookie is named `IT_USEFUL_SESSION`, lasts 30 minutes, and is
   configured as `Secure`, `HttpOnly`, and `SameSite=Lax`.
 
@@ -254,9 +266,16 @@ Stable codes currently include:
 | 400 | `invalid_image` | Image type, content, name, or signature is invalid |
 | 401 | `authentication_required` | The server profile requires a signed-in account |
 | 401 | `sign_in_failed` | The email address, password, or account state did not allow sign-in |
+| 400 | `invitation_invalid` | The invitation link is unknown, used, revoked, or expired |
+| 400 | `password_rejected` | The password breaks a rule named in `violation` |
 | 403 | `forbidden` | The signed-in account does not have the required role |
-| 404 | `route_not_found` | No API route matches the path |
+| 403 | `confirmation_pending` | An admin has not confirmed the account yet |
 | 403 | `csrf_invalid` | A state-changing server request lacks a valid CSRF token |
+| 404 | `route_not_found` | No API route matches the path |
+| 404 | `account_not_found` | The account UUID does not exist |
+| 404 | `invitation_not_found` | The invitation UUID does not exist |
+| 409 | `account_exists` | An account with the invited email address exists |
+| 409 | `account_not_pending` | Only an accepted account can be confirmed |
 | 404 | `element_not_found` | The element UUID does not exist |
 | 404 | `image_not_found` | The image UUID does not exist |
 | 409 | `duplicate_slug` | Another element has the slug |

@@ -127,10 +127,10 @@ test('shows one generic message for rejected credentials and a throttling messag
   )
 })
 
-test('keeps an account that is not confirmed out of the application', async () => {
+test('keeps a disabled account out of the application', async () => {
   server.use(
     http.get('http://localhost/api/session', () =>
-      HttpResponse.json({ ...adminSession, status: 'ACCEPTED' }),
+      HttpResponse.json({ ...adminSession, status: 'DISABLED' }),
     ),
   )
   renderServerApp()

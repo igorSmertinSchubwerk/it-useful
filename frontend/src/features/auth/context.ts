@@ -4,6 +4,7 @@ export type AuthenticationState =
   | { status: 'loading' }
   | { status: 'anonymous' }
   | { status: 'denied' }
+  | { status: 'pending'; email: string }
   | { status: 'expired' }
   | {
       status: 'signedIn'

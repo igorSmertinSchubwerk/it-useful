@@ -5,7 +5,7 @@ import { useI18n } from '../../i18n/context'
 import { takeReturnPath } from './returnPath'
 
 export function AuthenticationGate() {
-  const { state, retry } = useAuthentication()
+  const { state, retry, logout, loggingOut } = useAuthentication()
   const { t } = useI18n()
   const location = useLocation()
   const [returnPath] = useState(takeReturnPath)
@@ -27,6 +27,30 @@ export function AuthenticationGate() {
       />
     )
   if (state.status === 'loading') return <p role="status">{t.authLoading}</p>
+  if (state.status === 'pending')
+    return (
+      <section className="rounded-xl border border-line bg-surface p-6 sm:p-8">
+        <h1 className="text-3xl font-bold">{t.waitingForConfirmation}</h1>
+        <p className="mt-4 text-muted">{t.waitingForConfirmationText}</p>
+        <div className="mt-6 flex flex-wrap gap-4">
+          <button
+            type="button"
+            onClick={retry}
+            className="rounded bg-brand px-4 py-2 font-semibold text-white hover:opacity-90"
+          >
+            {t.checkAgain}
+          </button>
+          <button
+            type="button"
+            disabled={loggingOut}
+            onClick={() => void logout()}
+            className="text-brand underline disabled:opacity-50"
+          >
+            {loggingOut ? t.loggingOut : t.logout}
+          </button>
+        </div>
+      </section>
+    )
   return (
     <section className="rounded-xl border border-line bg-surface p-6 sm:p-8">
       <h1 className="text-3xl font-bold">
