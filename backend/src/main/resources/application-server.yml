@@ -22,3 +22,10 @@ springdoc:
 app:
   security:
     public-base-url: ${APP_PUBLIC_BASE_URL}
+  mail:
+    host: ${SMTP_HOST:}
+    port: ${SMTP_PORT:25}
+    from: ${SMTP_FROM:}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    starttls: ${SMTP_STARTTLS:true}

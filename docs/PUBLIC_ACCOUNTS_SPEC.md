@@ -1,7 +1,6 @@
 # Public accounts spec
 
-**Status:** approved. Phases 1 to 5 are implemented, and phase 6 (SMTP) is
-open. For the server variant, this replaces the
+**Status:** approved. All six phases are implemented. For the server variant, this replaces the
 private single-owner target in [`SERVER_SECURITY_PLAN.md`](SERVER_SECURITY_PLAN.md).
 Local development mode stays unchanged.
 

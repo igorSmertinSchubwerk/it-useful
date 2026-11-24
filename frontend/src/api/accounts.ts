@@ -19,6 +19,7 @@ const invitationSchema = z.object({
   role: roleSchema,
   expiresAt: z.string().min(1),
   link: z.string().url(),
+  emailSent: z.boolean().default(false),
 })
 export type CreatedInvitation = z.infer<typeof invitationSchema>
 
@@ -34,6 +35,7 @@ const passwordResetSchema = z.object({
   id: z.string().min(1),
   expiresAt: z.string().min(1),
   link: z.string().url(),
+  emailSent: z.boolean().default(false),
 })
 export type CreatedPasswordReset = z.infer<typeof passwordResetSchema>
 

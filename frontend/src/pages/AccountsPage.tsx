@@ -89,6 +89,11 @@ function InviteForm() {
             {t.invitationLink}
             <input readOnly value={created.link} className={inputClass} />
           </label>
+          {created.emailSent && (
+            <p role="status">
+              {t.invitationEmailSent.replace('{email}', created.email)}
+            </p>
+          )}
           <p className="text-muted">{t.invitationLinkHint}</p>
           <button
             type="button"
@@ -120,7 +125,7 @@ function runAction(account: AccountSummary, action: AccountAction) {
   }
 }
 
-type CreatedReset = { email: string; link: string }
+type CreatedReset = { email: string; link: string; emailSent: boolean }
 
 function AccountRow({
   account,
@@ -143,7 +148,11 @@ function AccountRow({
     mutationFn: () => api.createPasswordReset(account.id),
     onMutate: () => onFailure(null),
     onSuccess: (created) =>
-      onReset({ email: account.email, link: created.link }),
+      onReset({
+        email: account.email,
+        link: created.link,
+        emailSent: created.emailSent,
+      }),
     onError: onFailure,
   })
   const busy = action.isPending || reset.isPending
@@ -307,6 +316,11 @@ export function AccountsPage() {
               {t.passwordResetLink}
               <input readOnly value={reset.link} className={inputClass} />
             </label>
+            {reset.emailSent && (
+              <p role="status">
+                {t.resetEmailSent.replace('{email}', reset.email)}
+              </p>
+            )}
             <p className="text-muted">
               {t.passwordResetLinkHint.replace('{email}', reset.email)}
             </p>

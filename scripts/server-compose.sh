@@ -27,7 +27,7 @@ if [[ "$(printf '%s\n%s\n' "$minimum_version" "$compose_version" | sort -V | hea
 fi
 
 (
-  unset APP_PUBLIC_BASE_URL
+  unset APP_PUBLIC_BASE_URL SMTP_HOST SMTP_PORT SMTP_FROM SMTP_USERNAME SMTP_PASSWORD SMTP_STARTTLS
   unset DB_NAME DB_USER DB_PASSWORD FRONTEND_PORT
   cd "$project_root"
   exec docker compose \

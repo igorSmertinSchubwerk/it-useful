@@ -115,6 +115,7 @@ export const privacyPolicy: { de: LegalSection[]; en: LegalSection[] } = {
         'Für ein Konto speichern wir Ihre E-Mail-Adresse, einen Hashwert Ihres Passworts (nie das Passwort selbst), Rolle, Status, Erstellungszeitpunkt und den Zähler für Fehlversuche. Das ist nötig, um Ihnen den Zugang bereitzustellen, um den Sie gebeten haben (Art. 6 Abs. 1 lit. b DSGVO).',
         'Für eine Einladung speichern wir die eingeladene E-Mail-Adresse und Rolle. Einladungs- und Rücksetzlinks speichern wir nur als Hashwert. Sie gelten 7 Tage beziehungsweise 24 Stunden und nur einmal.',
         'Ihr Konto bleibt bestehen, bis Sie oder ein Admin die Löschung veranlassen. Schreiben Sie dafür an info@schubwerk.de.',
+        'Ist der E-Mail-Versand eingerichtet, senden wir Einladungs- und Rücksetzlinks an die betroffene E-Mail-Adresse. Den Versand übernimmt Microsoft 365 der schubwerk GmbH, betrieben von der Microsoft Ireland Operations Limited, One Microsoft Place, South County Business Park, Leopardstown, Dublin 18, Irland, als Auftragsverarbeiter (Art. 28 DSGVO).',
       ],
     },
     {
@@ -126,7 +127,7 @@ export const privacyPolicy: { de: LegalSection[]; en: LegalSection[] } = {
     {
       heading: '7. Empfänger',
       paragraphs: [
-        'Außer an den Hoster geben wir Ihre Daten nicht weiter. Eine Übermittlung in Länder außerhalb der Europäischen Union findet nicht statt.',
+        'Außer an den Hoster und, für E-Mails, an Microsoft geben wir Ihre Daten nicht weiter. Microsoft kann E-Mail-Daten auch außerhalb der Europäischen Union verarbeiten. Dafür gelten die EU-Standardvertragsklauseln und der EU-US Data Privacy Framework.',
       ],
     },
     {
@@ -174,6 +175,7 @@ export const privacyPolicy: { de: LegalSection[]; en: LegalSection[] } = {
         'For an account, we store your email address, a hash of your password (never the password itself), role, status, creation time, and the failed-attempt counter. This is necessary to provide the access you asked for (Art. 6(1)(b) GDPR).',
         'For an invitation, we store the invited email address and role. We store invitation and reset links only as hashes. They are valid for 7 days and 24 hours respectively, and only once.',
         'Your account remains until you or an admin request its deletion. Write to info@schubwerk.de to do so.',
+        'When email delivery is set up, we send invitation and reset links to the email address concerned. Delivery runs through schubwerk GmbH’s Microsoft 365, operated by Microsoft Ireland Operations Limited, One Microsoft Place, South County Business Park, Leopardstown, Dublin 18, Ireland, as a processor (Art. 28 GDPR).',
       ],
     },
     {
@@ -185,7 +187,7 @@ export const privacyPolicy: { de: LegalSection[]; en: LegalSection[] } = {
     {
       heading: '7. Recipients',
       paragraphs: [
-        'We do not pass your data on to anyone except the hosting provider. No data is transferred to countries outside the European Union.',
+        'We do not pass your data on to anyone except the hosting provider and, for emails, Microsoft. Microsoft may also process email data outside the European Union, under the EU Standard Contractual Clauses and the EU-US Data Privacy Framework.',
       ],
     },
     {

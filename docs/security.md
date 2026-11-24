@@ -111,8 +111,9 @@ IP addresses in web server logs).
 **Residual risks, accepted for staging:**
 
 - There is no multi-factor authentication.
-- Links reach people through whatever channel the admin uses until SMTP delivery
-  arrives in phase 6.
+- Without SMTP settings, links reach people through whatever channel the admin
+  uses. With SMTP, they travel as plain email, protected only by the transport
+  encryption between the mail servers.
 - Only admins can upload images, and uploads are checked for type and file
   signature. There are no pixel, decompression, or malware checks.
 - Limits are per IP address. An attacker with many addresses gets more sign-in

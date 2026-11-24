@@ -30,8 +30,10 @@ local Compose workflow.
   `forbidden`. A missing or invalid CSRF token returns `403` with code
   `csrf_invalid`.
 - `POST /api/admin/invitations` takes `{"email", "role"}` and returns `201` with
-  `id`, `email`, `role`, `expiresAt`, and the one-time `link`. The token sits in
-  the link's fragment, is never stored, and cannot be shown again.
+  `id`, `email`, `role`, `expiresAt`, the one-time `link`, and `emailSent`. The
+  token sits in the link's fragment, is never stored, and cannot be shown again.
+  `emailSent` is `true` only when SMTP is configured and the mail server accepted
+  the email.
   `DELETE /api/admin/invitations/{id}` revokes an invitation.
 - `POST /api/invitations/accept` is open to anonymous browsers and takes
   `{"token", "password"}` with the CSRF header. It returns `204` and creates an
@@ -48,7 +50,7 @@ local Compose workflow.
 - Admins manage accounts with `PUT /api/admin/accounts/{id}/role` (`{"role"}`),
   `POST /api/admin/accounts/{id}/disable` and `/enable`, and
   `POST /api/admin/accounts/{id}/password-resets`, which returns a one-time
-  `link` valid for 24 hours. Disabling ends the account's sessions. The last
+  `link` valid for 24 hours and `emailSent`. Disabling ends the account's sessions. The last
   confirmed admin cannot be disabled or demoted (`409 last_admin`).
   `GET /api/admin/invitations` lists open invitations without their links.
 - `POST /api/password-resets/complete` is open to anonymous browsers and takes

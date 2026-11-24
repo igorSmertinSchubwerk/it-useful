@@ -9,6 +9,8 @@ import com.ituseful.backend.exception.AccountNotFoundException;
 import com.ituseful.backend.exception.CurrentPasswordIncorrectException;
 import com.ituseful.backend.exception.PasswordRejectedException;
 import com.ituseful.backend.exception.PasswordResetInvalidException;
+import com.ituseful.backend.mail.LinkDelivery;
+import com.ituseful.backend.mail.LinkEmails;
 import com.ituseful.backend.repository.AccountRepository;
 import com.ituseful.backend.repository.PasswordResetRepository;
 import com.ituseful.backend.security.InvitationTokens;
@@ -43,6 +45,7 @@ public class AccountPasswordService {
 	private final InvitationTokens tokens;
 	private final ServerSecurityProperties properties;
 	private final Clock clock;
+	private final LinkDelivery linkDelivery;
 
 	public AccountPasswordService(
 			AccountRepository accountRepository,
@@ -51,7 +54,8 @@ public class AccountPasswordService {
 			PasswordEncoder passwordEncoder,
 			InvitationTokens tokens,
 			ServerSecurityProperties properties,
-			Clock clock
+			Clock clock,
+			LinkDelivery linkDelivery
 	) {
 		this.accountRepository = accountRepository;
 		this.resetRepository = resetRepository;
@@ -60,6 +64,7 @@ public class AccountPasswordService {
 		this.tokens = tokens;
 		this.properties = properties;
 		this.clock = clock;
+		this.linkDelivery = linkDelivery;
 	}
 
 	@Transactional
@@ -87,8 +92,11 @@ public class AccountPasswordService {
 		PasswordReset reset = resetRepository.saveAndFlush(
 				PasswordReset.create(account.getId(), InvitationTokens.hash(token), adminId, now));
 		log.info("Admin {} created password reset {} for account {}", adminId, reset.getId(), account.getId());
-		return new PasswordResetResponse(reset.getId(), reset.getExpiresAt(),
-				properties.publicOrigin() + "/reset-password#" + token);
+		String link = properties.publicOrigin() + "/reset-password#" + token;
+		boolean emailSent = linkDelivery.trySend(
+				LinkEmails.passwordReset(account.getEmail(), link, reset.getExpiresAt()),
+				"password reset", reset.getId());
+		return new PasswordResetResponse(reset.getId(), reset.getExpiresAt(), link, emailSent);
 	}
 
 	@Transactional
