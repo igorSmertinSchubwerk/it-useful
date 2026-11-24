@@ -58,8 +58,8 @@ for key in "${required[@]}"; do
 done
 
 public_url="${values[APP_PUBLIC_BASE_URL]}"
-[[ "$public_url" =~ ^https://[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+\.ts\.net$ ]] || \
-  fail "APP_PUBLIC_BASE_URL must be an exact https:// device.tailnet.ts.net origin"
+[[ "$public_url" =~ ^https://[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$ ]] || \
+  fail "APP_PUBLIC_BASE_URL must be an exact https:// origin with a full host name and no port or path"
 [[ "$public_url" != *tailnet-name* && "$public_url" != *example* ]] || \
   fail "APP_PUBLIC_BASE_URL still contains a placeholder"
 
