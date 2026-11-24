@@ -1,15 +1,15 @@
-# Assembled private-server security verification
+# Assembled server security verification
 
 ## Result
 
-The repository-level security verification for the private server variant is
+The repository-level security verification for the public server variant is
 complete. The automated suites exercise the assembled Compose stack with dummy
 settings and prove the controls that can be tested without a real server.
 
-**Deployment status: blocked.** A disposable local stack cannot prove the
-selected host, real accounts, Tailscale policy, private HTTPS edge,
-firewall, or off-host recovery path. Those checks remain deployment prerequisites
-and must be completed after a Linux host is selected.
+**Go-live status: open.** A disposable local stack cannot prove the host's
+firewall, the public certificate and headers, real accounts, the co-hosted site,
+or the off-host recovery path. Record the external evidence below on the staging
+host before people use it.
 
 ## Automated evidence
 
@@ -23,6 +23,8 @@ and must be completed after a Linux host is selected.
 | Sign-in boundary | The backend suite tries wrong passwords, unknown emails, disabled accounts, and five failures in a row. The assembled test fetches a CSRF token, signs in with unknown credentials, and sends a sign-in burst | Every failure returns the same `401 sign_in_failed`. The fifth failure locks the account. The session id changes on sign-in. The cookie is `Secure`, `HttpOnly`, `SameSite=Lax`. The proxy returns `429` for the burst |
 | Browser headers | The assembled test inspects the frontend response | CSP, HSTS, permissions, referrer, MIME-sniffing, and frame-denial headers match policy |
 | Service exposure | Compose model, published ports, proxy paths, and internal health are inspected | Only frontend has an IPv4-loopback host port; backend and PostgreSQL have none; Actuator, Swagger, and OpenAPI are not proxied |
+| Per-visitor limits | The assembled test sends a sign-in burst as one forwarded visitor, then one request as another | The first visitor gets `429`, the second does not |
+| Public origin and pages | The validator rejects plain HTTP, paths, and ports. A real browser opens the legal notice and privacy policy without signing in | The public HTTPS origin passes. Both legal pages render without a session |
 | Abuse limits | The assembled test sends an oversized body and a request burst | Nginx returns `413` above 12 MiB and `429` after the configured burst |
 | Service restart | PostgreSQL, Spring, and nginx are restarted inside the disposable project | The migration state remains present and the authenticated boundary recovers |
 | Regression | Backend, frontend, release audit, acceptance, backup/restore, and container scans run in CI | Existing local-development and release behavior remains green |
@@ -39,32 +41,27 @@ Run the repository-level evidence from WSL with Docker running:
 ```
 
 The security test uses disposable containers, volumes, generated dummy values,
-and a random loopback port. It does not contact Tailscale and removes
+and a random loopback port. It contacts no external service and removes
 its project after success or failure.
 
 ## External evidence still required
 
-Record this evidence during server operations. Do not substitute local Compose
-results for it.
+Record this evidence on the staging host. Do not substitute local Compose results
+for it.
 
-1. Select the supported Linux host, filesystem, container runtime, patch policy,
-   log retention, and recovery owner.
-2. Store real secrets outside Git with owner-only permissions.
-3. Show that the Tailscale policy permits only the owner, `tailscale serve status`
-   has the intended private HTTPS route, and Funnel is absent.
-4. Inspect host sockets and firewall rules, then attempt access from one permitted
-   tailnet device and one denied network path.
-5. Inspect the final HTTPS response for HSTS, cookie flags, CSP, and the other
-   required headers. Sign in as a confirmed `USER` and confirm that every write is
-   refused.
-6. Restart the host and confirm definition and image persistence, then restore a
-   fresh encrypted backup in isolation and copy it to the trusted local computer.
+1. The host matches the baseline in the runbook, and the secrets file is outside
+   Git with mode `600`.
+2. Only ports 22, 80, and 443 answer from the internet, and the frontend port
+   listens only on `127.0.0.1`.
+3. HTTP redirects to HTTPS. The HTTPS response carries a valid certificate, HSTS,
+   the CSP, and the other required headers, and `certbot renew --dry-run` passes.
+4. The co-hosted site still answers as before, with its own certificate.
+5. The first admin can sign in, and a confirmed `USER` cannot write.
+6. After a host restart, definitions and images persist. A fresh encrypted
+   backup restores in isolation and reaches the trusted local computer.
 
 ## Residual risk review
 
-The private design still depends on the security of the admins' devices and
-passwords, the tailnet account, server root account, and backup encryption. Rate
-limiting is intentionally simple and keyed to the proxy peer because this is a
-single-user service; it is not a public abuse-control design. The automated
-checks are regression evidence, not a penetration test or security
-certification. A public or multi-user deployment requires a new threat model.
+The accepted residual risks are listed in [`security.md`](security.md). The
+automated checks are regression evidence, not a penetration test or a security
+certification.

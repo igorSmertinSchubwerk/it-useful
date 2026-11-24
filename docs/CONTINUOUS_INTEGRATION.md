@@ -17,7 +17,7 @@ The `CI` workflow runs independent jobs so failures are easy to locate:
 - **Compose acceptance** builds a clean archived checkout and verifies startup,
   the real three-language workflow, uploads, outages, recovery, restart
   persistence, editing, and deletion through the production-style containers.
-  It also validates the private server variant's authorization matrix, secret
+  It also validates the server variant's authorization matrix, secret
   guards, socket isolation, proxy routes, headers, abuse limits, service restart,
   and anonymous browser boundary. Finally, it validates combined
   database-and-upload backup and restore, including rejection guards, a safety
