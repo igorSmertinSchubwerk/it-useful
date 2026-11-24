@@ -11,6 +11,8 @@ import com.ituseful.backend.exception.AccountExistsException;
 import com.ituseful.backend.exception.InvitationInvalidException;
 import com.ituseful.backend.exception.InvitationNotFoundException;
 import com.ituseful.backend.exception.PasswordRejectedException;
+import com.ituseful.backend.mail.LinkDelivery;
+import com.ituseful.backend.mail.LinkEmails;
 import com.ituseful.backend.repository.AccountRepository;
 import com.ituseful.backend.repository.InvitationRepository;
 import com.ituseful.backend.security.InvitationTokens;
@@ -46,6 +48,7 @@ public class InvitationService {
 	private final PasswordEncoder passwordEncoder;
 	private final ServerSecurityProperties properties;
 	private final Clock clock;
+	private final LinkDelivery linkDelivery;
 
 	public InvitationService(
 			InvitationRepository invitationRepository,
@@ -54,7 +57,8 @@ public class InvitationService {
 			PasswordPolicy passwordPolicy,
 			PasswordEncoder passwordEncoder,
 			ServerSecurityProperties properties,
-			Clock clock
+			Clock clock,
+			LinkDelivery linkDelivery
 	) {
 		this.invitationRepository = invitationRepository;
 		this.accountRepository = accountRepository;
@@ -63,6 +67,7 @@ public class InvitationService {
 		this.passwordEncoder = passwordEncoder;
 		this.properties = properties;
 		this.clock = clock;
+		this.linkDelivery = linkDelivery;
 	}
 
 	@Transactional
@@ -76,8 +81,12 @@ public class InvitationService {
 		Invitation invitation = invitationRepository.saveAndFlush(
 				Invitation.create(email, request.role(), InvitationTokens.hash(token), adminId, clock.instant()));
 		log.info("Admin {} created invitation {} for role {}", adminId, invitation.getId(), invitation.getRole());
+		String link = properties.publicOrigin() + "/accept-invitation#" + token;
+		boolean emailSent = linkDelivery.trySend(
+				LinkEmails.invitation(invitation.getEmail(), link, invitation.getExpiresAt()),
+				"invitation", invitation.getId());
 		return new InvitationResponse(invitation.getId(), invitation.getEmail(), invitation.getRole(),
-				invitation.getExpiresAt(), properties.publicOrigin() + "/accept-invitation#" + token);
+				invitation.getExpiresAt(), link, emailSent);
 	}
 
 	@Transactional(readOnly = true)
