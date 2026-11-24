@@ -68,6 +68,7 @@ Run `./scripts/project.sh help` to see the current command list.
 | `./scripts/project.sh server-start /absolute/path/server.env` | Start the loopback-only authenticated server variant |
 | `./scripts/project.sh server-stop /absolute/path/server.env` | Stop the server variant without deleting data |
 | `./scripts/project.sh server-status /absolute/path/server.env` | Show server-variant status |
+| `./scripts/project.sh server-create-first-admin /absolute/path/server.env email` | Print the first admin's one-time invitation link while no account exists |
 | `./scripts/project.sh test` | Run backend and frontend checks |
 | `./scripts/project.sh test-full-stack` | Test the real local application workflow |
 | `./scripts/project.sh test-compose` | Test the production-style images |

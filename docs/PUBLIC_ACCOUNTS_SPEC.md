@@ -139,6 +139,11 @@ The flow follows Bitwarden's organization members: invited, accepted, confirmed.
   cookie, and CSRF settings.
 - **D6:** The owner and the developer write the Impressum and privacy policy
   together. Staging starts from a typical template that names the real operator.
+- **D7:** Invitation and reset links carry their token in the URL fragment, so
+  browsers never send it to a server and proxies never log it. Only its SHA-256
+  hash is stored.
+- **D8:** Each request recomputes a signed-in account's authorities from the
+  database, so confirmations and role changes reach open sessions at once.
 
 ## Delivery phases
 
@@ -149,8 +154,8 @@ public before phase 5.
 | --- | --- | --- |
 | 1 | Accounts table, password rules, and password hashing | AC-11, AC-12 |
 | 2 | Form login replaces the GitHub login, role checks, lockout, security logging | AC-1 to AC-4, AC-13, AC-14, AC-20 |
-| 3 | Invitations, acceptance page, waiting page, confirmation, and the first-admin command | AC-5 to AC-10, AC-19 |
-| 4 | Account administration page, password change, reset links, and role-aware controls | AC-15 to AC-18, AC-27 |
+| 3 | Invitations, acceptance page, waiting page, confirmation, a minimal accounts page (invite and confirm), and the first-admin command | AC-5 to AC-10, AC-19 |
+| 4 | Full account administration (role changes, disabling, reset links, invitation list and revoking), password change, and role-aware controls | AC-15 to AC-18, AC-27 |
 | 5 | Public origin, nginx site and certificate, legal pages, runbook and security docs | AC-21 to AC-24 |
 | 6 | Optional SMTP delivery of invitation and reset links | AC-25, AC-26 |
 

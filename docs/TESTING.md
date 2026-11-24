@@ -102,12 +102,13 @@ The suite creates a mode-`600` environment file with dummy values, checks
 unsafe permissions, missing secrets, and placeholders, validates the merged
 Compose model, then builds and starts isolated server containers. It checks
 loopback-only publication, forged proxy and identity headers, the sign-in route
-and its rate limit, session cookie attributes, CSP/HSTS and related headers, hidden management and
+and its rate limit, the first-admin command through invitation, sign-in, and
+refusal of a second run, session cookie attributes, CSP/HSTS and related headers, hidden management and
 documentation endpoints, request size and rate limits, and recovery after each
 service restarts. A real Chromium browser confirms that the server build loads
 session state and hides private routes from an anonymous user. Backend integration tests separately exercise every private route
-as anonymous, `USER`, `ADMIN`, accepted, and disabled accounts, the lockout, and
-every mutation with missing and invalid CSRF tokens.
+as anonymous, `USER`, `ADMIN`, accepted, and disabled accounts, the lockout, the
+invitation lifecycle, and every mutation with missing and invalid CSRF tokens.
 
 The suite does not validate a real public edge. Its
 containers, volumes, dummy environment file, and locally built images are removed

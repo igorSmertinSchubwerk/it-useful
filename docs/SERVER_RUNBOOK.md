@@ -197,7 +197,21 @@ Stop the application without deleting database or upload volumes:
 sudo ./scripts/project.sh server-stop /etc/it-useful/server.env
 ```
 
-## 5. Pre-deployment evidence
+## 5. Create the first admin
+
+With the stack running and no account in the database, print the first admin's
+invitation link:
+
+```bash
+sudo ./scripts/project.sh server-create-first-admin /etc/it-useful/server.env admin@example.com
+```
+
+Open the link and choose a password. This first account is confirmed at once.
+The command refuses to run once any account exists. Every later person gets an
+invitation from the Accounts page, and an admin confirms the account after the
+person has set a password.
+
+## 6. Pre-deployment evidence
 
 Run the repository's automated topology test on a trusted development machine:
 
