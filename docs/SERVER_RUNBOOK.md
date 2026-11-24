@@ -195,6 +195,44 @@ invitation from the Accounts page, and an admin confirms the account after the
 person has set a password. The same page changes roles, disables and enables
 accounts, and creates one-time password reset links, which the admin passes on.
 
+## 5a. Optional: email links through Microsoft 365
+
+Without SMTP settings, admins copy every invitation and reset link by hand. To
+email them as well, a Microsoft 365 admin first creates a relay connector, so the
+application needs no mailbox password:
+
+1. In the Exchange admin center, add a connector from "Your organization's email
+   server" to Office 365 that recognizes mail by the server's public IPv4 address.
+2. Add that address to the SPF record of the sender's domain, for example
+   `ip4:<server address>` in the `schubwerk.de` TXT record.
+3. Choose a sender address in an accepted domain of the tenant, for example
+   `it-useful@schubwerk.de`.
+
+Then add the settings to the server environment file:
+
+```bash
+sudoedit /etc/it-useful/server.env
+```
+
+```text
+SMTP_HOST=schubwerk-de.mail.protection.outlook.com
+SMTP_PORT=25
+SMTP_FROM=it-useful@schubwerk.de
+SMTP_STARTTLS=true
+```
+
+`SMTP_USERNAME` and `SMTP_PASSWORD` stay unset for a relay connector. Another
+provider with a mailbox login uses its submission port, usually `587`, with both
+set. Validate and restart:
+
+```bash
+sudo ./scripts/project.sh server-validate /etc/it-useful/server.env
+sudo ./scripts/project.sh server-start /etc/it-useful/server.env
+```
+
+The Accounts page then reports for each link whether the email went out. A failed
+send still shows the link and logs a warning with the invitation or reset id.
+
 ## 6. Update a running deployment
 
 Pull the reviewed version and rebuild. Flyway applies new migrations at startup:
