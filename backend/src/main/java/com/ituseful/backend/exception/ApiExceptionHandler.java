@@ -13,6 +13,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -69,6 +70,11 @@ public class ApiExceptionHandler {
 	@ExceptionHandler(ImageNotFoundException.class)
 	ResponseEntity<ProblemDetail> handleImageNotFound(ImageNotFoundException exception, HttpServletRequest request) {
 		return response(HttpStatus.NOT_FOUND, exception.getMessage(), "image_not_found", request);
+	}
+
+	@ExceptionHandler(NoResourceFoundException.class)
+	ResponseEntity<ProblemDetail> handleUnknownRoute(NoResourceFoundException exception, HttpServletRequest request) {
+		return response(HttpStatus.NOT_FOUND, "The requested route does not exist", "route_not_found", request);
 	}
 
 	@ExceptionHandler(InvalidImageException.class)

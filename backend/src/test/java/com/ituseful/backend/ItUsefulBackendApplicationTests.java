@@ -27,7 +27,7 @@ class ItUsefulBackendApplicationTests {
 		assertThat(jdbcTemplate.queryForObject("select current_database()", String.class))
 				.isEqualTo("it_useful_test");
 		assertThat(jdbcTemplate.queryForObject(
-				"select count(*) from flyway_schema_history where success = true", Integer.class)).isEqualTo(2);
+				"select count(*) from flyway_schema_history where success = true", Integer.class)).isEqualTo(3);
 	}
 
 	@Test

@@ -6,22 +6,27 @@ through its same-origin `/api` proxy. There is no authentication in the local MV
 
 ## Server-profile authentication contract
 
-The future `server` profile adds a private, single-owner security boundary. It is
-not enabled by the local or current Compose workflows.
+The `server` profile requires an account for every API request
+([`PUBLIC_ACCOUNTS_SPEC.md`](PUBLIC_ACCOUNTS_SPEC.md)). It is not enabled by the
+local Compose workflow.
 
-- Start GitHub sign-in with `GET /oauth2/authorization/github`. GitHub returns to
-  the exact configured `/login/oauth2/code/github` callback.
-- Spring accepts the login only when GitHub's numeric account ID equals the
-  configured owner ID. The backend grants that session `ROLE_OWNER` and requires
-  it for every `/api/**` request, including image bytes.
-- `GET /api/session` requires an owner session and returns only the display login,
-  application role, and CSRF header/token pair. It never returns the GitHub access
-  token, OAuth client secret, or owner allowlist value.
-- Send the returned CSRF token in the named header for every `POST`, `PUT`,
-  `PATCH`, `DELETE`, and logout request. `POST /logout` invalidates the session and
+- `GET /api/session/csrf` is open to anonymous browsers and returns the CSRF
+  header name and token for the sign-in request.
+- `POST /api/session/login` takes the form fields `email` and `password` and the
+  CSRF header. Success returns `204 No Content` and a new session id. Every
+  failure returns `401` with code `sign_in_failed` and the same detail, whether
+  the email address is unknown, the password is wrong, or the account is locked
+  or disabled. Five failures within 15 minutes lock the account for 15 minutes.
+- `GET /api/session` returns `email`, `role` (`USER` or `ADMIN`), `status`
+  (`ACCEPTED`, `CONFIRMED`, or `DISABLED`), and a fresh CSRF header/token pair.
+- Confirmed `USER` and `ADMIN` accounts may read with `GET`. Every other method
+  on `/api/**`, and every `/api/admin/**` route, requires `ADMIN`. An accepted
+  account can sign in but receives `403` for content.
+- Send the CSRF token in the named header for every `POST`, `PUT`, `PATCH`,
+  `DELETE`, and logout request. `POST /logout` invalidates the session and
   returns `204 No Content`.
 - An anonymous API request returns `401` with code `authentication_required`.
-  An authenticated identity without owner authority returns `403` with code
+  A signed-in account without the required role returns `403` with code
   `forbidden`. A missing or invalid CSRF token returns `403` with code
   `csrf_invalid`.
 - The server session cookie is named `IT_USEFUL_SESSION`, lasts 30 minutes, and is
@@ -247,8 +252,10 @@ Stable codes currently include:
 | 400 | `validation_failed` | A validated field or parameter is invalid |
 | 400 | `malformed_request` | JSON, multipart data, a UUID, or a required part is malformed |
 | 400 | `invalid_image` | Image type, content, name, or signature is invalid |
-| 401 | `authentication_required` | The server profile requires an owner session |
-| 403 | `forbidden` | The authenticated identity does not have owner authority |
+| 401 | `authentication_required` | The server profile requires a signed-in account |
+| 401 | `sign_in_failed` | The email address, password, or account state did not allow sign-in |
+| 403 | `forbidden` | The signed-in account does not have the required role |
+| 404 | `route_not_found` | No API route matches the path |
 | 403 | `csrf_invalid` | A state-changing server request lacks a valid CSRF token |
 | 404 | `element_not_found` | The element UUID does not exist |
 | 404 | `image_not_found` | The image UUID does not exist |

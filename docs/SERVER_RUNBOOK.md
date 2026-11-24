@@ -1,8 +1,9 @@
 # Private server preparation runbook
 
-This runbook prepares the approved private, single-user topology. It does not
-authorize a deployment yet. The target Linux host, operating-system baseline,
-real OAuth configuration, Tailscale policy, firewall, and assembled security
+This runbook prepares the server topology. It does not authorize a deployment
+yet. The public-hosting changes in
+[`PUBLIC_ACCOUNTS_SPEC.md`](PUBLIC_ACCOUNTS_SPEC.md) (phase 5) replace the
+Tailscale steps below. Until then, the host, firewall, and assembled security
 checks still need to pass the deployment gate in
 [`SERVER_SECURITY_PLAN.md`](SERVER_SECURITY_PLAN.md).
 
@@ -25,8 +26,8 @@ processes the replacement headers only in the `server` profile and trusts only a
 private Docker bridge peer.
 
 Do not add router forwarding, a LAN bind, a public reverse proxy, or Tailscale
-Funnel. The application uses GitHub OAuth as its application identity; it does
-not authorize from Tailscale identity headers.
+Funnel. The application authorizes from its own email and password accounts and
+never from Tailscale identity headers.
 
 The server Compose file caps memory at 768 MiB for Spring, 256 MiB for
 PostgreSQL, and 64 MiB for nginx. Spring sizes its heap to 75% of its cap, so
@@ -68,7 +69,7 @@ the containers after an engine upgrade because every service uses
 
 On a host shared with another application, leave its web server sites, SSH
 policy, and firewall rules unchanged. This stack needs no public port. If a host
-web server already listens on `0.0.0.0:443`, confirm after step 5 that the
+web server already listens on `0.0.0.0:443`, confirm after step 4 that the
 `ts.net` origin serves this application and not the other site.
 
 ## 1. Prepare the external environment file
@@ -94,9 +95,6 @@ The settings are:
 | Name | Required value |
 | --- | --- |
 | `APP_PUBLIC_BASE_URL` | Exact Tailscale HTTPS origin, with no path or trailing slash |
-| `APP_OWNER_GITHUB_ID` | Positive numeric ID for the only authorized GitHub account |
-| `GITHUB_CLIENT_ID` | Client ID from the dedicated GitHub OAuth App |
-| `GITHUB_CLIENT_SECRET` | Secret from the dedicated GitHub OAuth App |
 | `DB_NAME` | PostgreSQL database name |
 | `DB_USER` | PostgreSQL role name |
 | `DB_PASSWORD` | Random value containing at least 24 supported characters |
@@ -117,24 +115,7 @@ The server helpers remove same-named exported variables before Compose reads the
 validated file, so an old shell setting cannot silently override it. Docker
 Compose 2.24.4 or newer is required for the explicit port reset and override.
 
-## 2. Register the GitHub OAuth App
-
-Create a dedicated OAuth App for this deployment. Use the exact values below,
-substituting the chosen Tailscale device name and tailnet name:
-
-```text
-Homepage URL:
-https://server.tailnet-name.ts.net
-
-Authorization callback URL:
-https://server.tailnet-name.ts.net/login/oauth2/code/github
-```
-
-The callback must exactly match `APP_PUBLIC_BASE_URL` plus
-`/login/oauth2/code/github`. Do not use a wildcard. Verify the owner's numeric
-GitHub user ID separately; the login name is not the authorization key.
-
-## 3. Configure the tailnet boundary
+## 2. Configure the tailnet boundary
 
 Install Tailscale on the future Linux server and the owner's approved client
 devices. Tag the non-human server as `tag:it-useful-server`. Replace the example
@@ -163,7 +144,7 @@ owner device and from a second, unapproved tailnet identity.
 For administration, prefer Tailscale SSH with a separately reviewed SSH rule.
 Do not include TCP port 22 in the application grant merely for convenience.
 
-## 4. Configure the host firewall
+## 3. Configure the host firewall
 
 Choose the firewall tool supported by the selected Linux distribution in the
 server-operations group. Apply deny-by-default inbound policy before deployment.
@@ -183,7 +164,7 @@ docker compose --env-file /etc/it-useful/server.env \
 Only the chosen frontend port may appear, and it must be bound to `127.0.0.1`.
 Spring and PostgreSQL must not appear as published host sockets.
 
-## 5. Start the loopback stack and private HTTPS edge
+## 4. Start the loopback stack and private HTTPS edge
 
 Start the application:
 
@@ -216,7 +197,7 @@ Stop the application without deleting database or upload volumes:
 sudo ./scripts/project.sh server-stop /etc/it-useful/server.env
 ```
 
-## 6. Pre-deployment evidence
+## 5. Pre-deployment evidence
 
 Run the repository's automated topology test on a trusted development machine:
 
@@ -229,8 +210,8 @@ validator fails closed, only nginx publishes a loopback socket, authentication
 routes reach Spring, forged forwarding headers are replaced, and the server-mode
 frontend does not mount private routes for an anonymous browser.
 
-This test cannot prove the future host's firewall, tailnet membership, OAuth App,
-public callback, HTTPS headers, cookies, restart behavior, or access from approved
+This test cannot prove the future host's firewall, tailnet membership, real
+accounts, HTTPS headers, cookies, restart behavior, or access from approved
 and denied devices. Those checks belong to the assembled security verification
 group and must be recorded before the deployment gate can close.
 

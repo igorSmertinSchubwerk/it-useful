@@ -1,27 +1,87 @@
+import { useState, type FormEvent } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
+import { ApiError } from '../api/errors'
 import { useAuthentication } from '../features/auth/context'
 import { rememberReturnPath } from '../features/auth/returnPath'
 import { useI18n } from '../i18n/context'
 
+const inputClass =
+  'mt-1 w-full rounded border border-line bg-surface px-3 py-2 focus:outline focus:outline-2 focus:outline-offset-2'
+
 export function SignInPage() {
-  const { state } = useAuthentication()
+  const { state, signIn } = useAuthentication()
   const { t } = useI18n()
   const location = useLocation()
   const from = (location.state as { from?: unknown } | null)?.from
-  if (state.status === 'owner') return <Navigate to="/" replace />
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  if (state.status === 'signedIn') return <Navigate to="/" replace />
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (typeof from === 'string') rememberReturnPath(from)
+    setSubmitting(true)
+    setError(null)
+    try {
+      await signIn(email, password)
+    } catch (failure) {
+      const status = failure instanceof ApiError ? failure.status : null
+      setError(
+        status === 401
+          ? t.signInFailed
+          : status === 429
+            ? t.signInThrottled
+            : t.authUnavailableText,
+      )
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   return (
     <section className="rounded-xl border border-line bg-surface p-6 sm:p-8">
       <h1 className="text-3xl font-bold">{t.signIn}</h1>
       <p className="mt-4 text-muted">{t.signInText}</p>
-      <a
-        href="/oauth2/authorization/github"
-        onClick={() => {
-          if (typeof from === 'string') rememberReturnPath(from)
-        }}
-        className="mt-6 inline-block rounded bg-brand px-4 py-3 font-semibold text-white hover:opacity-90 focus:outline focus:outline-2 focus:outline-offset-2"
-      >
-        {t.signInWithGitHub}
-      </a>
+      <form onSubmit={submit} className="mt-6 grid max-w-md gap-4">
+        <label className="font-semibold">
+          {t.emailAddress}
+          <input
+            type="email"
+            name="email"
+            autoComplete="username"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            className={inputClass}
+          />
+        </label>
+        <label className="font-semibold">
+          {t.password}
+          <input
+            type="password"
+            name="password"
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            className={inputClass}
+          />
+        </label>
+        {error && (
+          <p role="alert" className="text-red-800">
+            {error}
+          </p>
+        )}
+        <button
+          type="submit"
+          disabled={submitting}
+          className="justify-self-start rounded bg-brand px-4 py-3 font-semibold text-white hover:opacity-90 focus:outline focus:outline-2 focus:outline-offset-2 disabled:opacity-60"
+        >
+          {submitting ? t.signingIn : t.signIn}
+        </button>
+      </form>
     </section>
   )
 }

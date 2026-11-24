@@ -1,15 +1,36 @@
 import AxeBuilder from '@axe-core/playwright'
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 import { elementFixture } from '../src/test/elementFixture'
 
 const session = {
-  authenticated: true,
-  role: 'OWNER',
-  login: 'approved-owner',
+  email: 'admin@example.com',
+  role: 'ADMIN',
+  status: 'CONFIRMED',
   csrf: { headerName: 'X-CSRF-TOKEN', token: 'browser-csrf-token' },
 }
 
-test('anonymous user gets the accessible GitHub sign-in screen', async ({
+async function routeAnonymousUntilSignedIn(page: Page) {
+  let signedIn = false
+  await page.route('**/api/session', (route) =>
+    signedIn
+      ? route.fulfill({ json: session })
+      : route.fulfill({
+          status: 401,
+          json: { code: 'authentication_required' },
+        }),
+  )
+  await page.route('**/api/session/csrf', (route) =>
+    route.fulfill({
+      json: { headerName: 'X-CSRF-TOKEN', token: 'anonymous-csrf-token' },
+    }),
+  )
+  await page.route('**/api/session/login', (route) => {
+    signedIn = true
+    return route.fulfill({ status: 204 })
+  })
+}
+
+test('anonymous user gets the accessible email sign-in screen', async ({
   page,
 }) => {
   await page.route('**/api/session', (route) =>
@@ -18,13 +39,31 @@ test('anonymous user gets the accessible GitHub sign-in screen', async ({
   await page.goto('/elements/new')
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
   await expect(page.getByRole('navigation')).toHaveCount(0)
-  await expect(
-    page.getByRole('link', { name: 'Sign in with GitHub' }),
-  ).toHaveAttribute('href', '/oauth2/authorization/github')
+  await expect(page.getByLabel('Email address')).toBeVisible()
+  await expect(page.getByLabel('Password')).toHaveAttribute('type', 'password')
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
 })
 
-test('owner can sign out and the CSRF token never enters browser storage', async ({
+test('signing in returns to the page that required it', async ({ page }) => {
+  await routeAnonymousUntilSignedIn(page)
+  await page.route('**/api/elements/example-id', (route) =>
+    route.fulfill({ json: elementFixture }),
+  )
+  await page.goto('/elements/example-id?language=DE')
+  await expect(page).toHaveURL(/\/sign-in$/)
+
+  await page.getByLabel('Email address').fill('admin@example.com')
+  await page.getByLabel('Password').fill('correct horse battery staple')
+  await page.getByRole('button', { name: 'Sign in' }).click()
+
+  await expect(page).toHaveURL(/\/elements\/example-id\?language=DE$/)
+  await expect(
+    page.getByRole('heading', { name: 'Definition details' }),
+  ).toBeVisible()
+  expect(await page.evaluate(() => sessionStorage.length)).toBe(0)
+})
+
+test('signed-in user can sign out and the CSRF token never enters browser storage', async ({
   page,
 }) => {
   let csrf: string | null = null
@@ -37,7 +76,7 @@ test('owner can sign out and the CSRF token never enters browser storage', async
     return route.fulfill({ status: 204 })
   })
   await page.goto('/')
-  await expect(page.getByText('Signed in as approved-owner')).toBeVisible()
+  await expect(page.getByText('Signed in as admin@example.com')).toBeVisible()
   const storedValues = await page.evaluate(() => [
     ...Object.values(localStorage),
     ...Object.values(sessionStorage),
@@ -48,34 +87,11 @@ test('owner can sign out and the CSRF token never enters browser storage', async
   expect(csrf).toBe('browser-csrf-token')
 })
 
-test('successful authentication returns to the remembered internal page', async ({
-  page,
-}) => {
-  await page.addInitScript(() =>
-    sessionStorage.setItem(
-      'it-useful.auth-return',
-      '/elements/example-id?language=DE',
-    ),
-  )
-  await page.route('**/api/session', (route) =>
-    route.fulfill({ json: session }),
-  )
-  await page.route('**/api/elements/example-id', (route) =>
-    route.fulfill({ json: elementFixture }),
-  )
-  await page.goto('/')
-  await expect(page).toHaveURL(/\/elements\/example-id\?language=DE$/)
-  await expect(
-    page.getByRole('heading', { name: 'Definition details' }),
-  ).toBeVisible()
-  expect(await page.evaluate(() => sessionStorage.length)).toBe(0)
-})
-
 test('denied and expired sessions have different recovery screens', async ({
   page,
 }) => {
   await page.route('**/api/session', (route) =>
-    route.fulfill({ status: 403, json: { code: 'forbidden' } }),
+    route.fulfill({ json: { ...session, status: 'ACCEPTED' } }),
   )
   await page.goto('/')
   await expect(

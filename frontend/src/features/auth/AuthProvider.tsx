@@ -6,7 +6,7 @@ import {
   onAuthenticationRequired,
   setCsrfToken,
 } from '../../api/authSession'
-import { createSessionApi, type OwnerSession } from '../../api/session'
+import { createSessionApi, type AccountSession } from '../../api/session'
 import { AuthenticationContext, type AuthenticationState } from './context'
 
 const api = createSessionApi()
@@ -31,7 +31,7 @@ export function AuthProvider({
   const [state, setState] = useState<AuthenticationState>(
     enabled
       ? { status: 'loading' }
-      : { status: 'owner', login: 'local', local: true },
+      : { status: 'signedIn', email: 'local', role: 'ADMIN', local: true },
   )
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export function AuthProvider({
     return onAuthenticationRequired(() => {
       queryClient.clear()
       setState((current) =>
-        current.status === 'owner'
+        current.status === 'signedIn'
           ? { status: 'expired' }
           : { status: 'anonymous' },
       )
@@ -51,9 +51,20 @@ export function AuthProvider({
     const controller = new AbortController()
     void api
       .get(controller.signal)
-      .then((session: OwnerSession) => {
+      .then((session: AccountSession) => {
         setCsrfToken(session.csrf.headerName, session.csrf.token)
-        setState({ status: 'owner', login: session.login, local: false })
+        // Accepted and disabled accounts may hold a session but no access.
+        if (session.status !== 'CONFIRMED') {
+          queryClient.clear()
+          setState({ status: 'denied' })
+          return
+        }
+        setState({
+          status: 'signedIn',
+          email: session.email,
+          role: session.role,
+          local: false,
+        })
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return
@@ -76,8 +87,15 @@ export function AuthProvider({
         setState({ status: 'loading' })
         setAttempt((current) => current + 1)
       },
+      signIn: async (email: string, password: string) => {
+        const csrf = await api.csrf()
+        setCsrfToken(csrf.headerName, csrf.token)
+        await api.signIn(email, password)
+        setState({ status: 'loading' })
+        setAttempt((current) => current + 1)
+      },
       logout: async () => {
-        if (!enabled || state.status !== 'owner') return
+        if (!enabled || state.status !== 'signedIn') return
         setLoggingOut(true)
         try {
           await api.logout()

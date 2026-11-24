@@ -22,6 +22,3 @@ springdoc:
 app:
   security:
     public-base-url: ${APP_PUBLIC_BASE_URL}
-    owner-github-id: ${APP_OWNER_GITHUB_ID}
-    github-client-id: ${GITHUB_CLIENT_ID}
-    github-client-secret: ${GITHUB_CLIENT_SECRET}
