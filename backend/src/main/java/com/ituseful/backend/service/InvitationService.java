@@ -6,6 +6,7 @@ import com.ituseful.backend.domain.Invitation;
 import com.ituseful.backend.dto.AcceptInvitationRequest;
 import com.ituseful.backend.dto.InvitationRequest;
 import com.ituseful.backend.dto.InvitationResponse;
+import com.ituseful.backend.dto.OpenInvitationResponse;
 import com.ituseful.backend.exception.AccountExistsException;
 import com.ituseful.backend.exception.InvitationInvalidException;
 import com.ituseful.backend.exception.InvitationNotFoundException;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -76,6 +78,16 @@ public class InvitationService {
 		log.info("Admin {} created invitation {} for role {}", adminId, invitation.getId(), invitation.getRole());
 		return new InvitationResponse(invitation.getId(), invitation.getEmail(), invitation.getRole(),
 				invitation.getExpiresAt(), properties.publicOrigin() + "/accept-invitation#" + token);
+	}
+
+	@Transactional(readOnly = true)
+	public List<OpenInvitationResponse> listOpen() {
+		return invitationRepository
+				.findAllByAcceptedAtIsNullAndRevokedAtIsNullAndExpiresAtAfterOrderByExpiresAtAsc(clock.instant())
+				.stream()
+				.map(invitation -> new OpenInvitationResponse(invitation.getId(), invitation.getEmail(),
+						invitation.getRole(), invitation.getExpiresAt()))
+				.toList();
 	}
 
 	@Transactional

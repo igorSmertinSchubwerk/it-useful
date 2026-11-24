@@ -56,6 +56,41 @@ class AccountTests {
 		assertThatThrownBy(pending::confirm).isInstanceOf(IllegalStateException.class);
 	}
 
+	@Test
+	void ac15ChangingThePasswordEndsOtherSessionsAndClearsTheLockout() {
+		failAtMinutes(0, 1, 2, 3, 4);
+		int before = account.getSessionVersion();
+
+		account.changePassword("{bcrypt}new-hash");
+
+		assertThat(account.getPasswordHash()).isEqualTo("{bcrypt}new-hash");
+		assertThat(account.getSessionVersion()).isEqualTo(before + 1);
+		assertThat(account.isLockedAt(minutes(5))).isFalse();
+	}
+
+	@Test
+	void ac17ChangesTheRoleAndDisablingEndsEverySession() {
+		int before = account.getSessionVersion();
+
+		account.changeRole(AccountRole.ADMIN);
+		account.disable();
+
+		assertThat(account.getRole()).isEqualTo(AccountRole.ADMIN);
+		assertThat(account.getStatus()).isEqualTo(AccountStatus.DISABLED);
+		assertThat(account.getSessionVersion()).isEqualTo(before + 1);
+	}
+
+	@Test
+	void ac28EnablesOnlyADisabledAccount() {
+		assertThatThrownBy(account::enable).isInstanceOf(IllegalStateException.class);
+
+		account.disable();
+		account.enable();
+
+		assertThat(account.getStatus()).isEqualTo(AccountStatus.CONFIRMED);
+		assertThat(account.getRole()).isEqualTo(AccountRole.USER);
+	}
+
 	private void failAtMinutes(int... offsets) {
 		for (int offset : offsets) {
 			account.recordFailedSignIn(minutes(offset));

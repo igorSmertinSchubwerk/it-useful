@@ -58,6 +58,9 @@ public class Account {
 	@Column(name = "locked_until")
 	private Instant lockedUntil;
 
+	@Column(name = "session_version", nullable = false)
+	private int sessionVersion;
+
 	protected Account() {
 	}
 
@@ -95,6 +98,35 @@ public class Account {
 			throw new IllegalStateException("Only an accepted account can be confirmed");
 		}
 		status = AccountStatus.CONFIRMED;
+	}
+
+	/**
+	 * Replaces the password, ends every other session, and lifts a lockout.
+	 */
+	public void changePassword(String newPasswordHash) {
+		passwordHash = Element.requireText(newPasswordHash, "newPasswordHash");
+		sessionVersion++;
+		recordSuccessfulSignIn();
+	}
+
+	public void changeRole(AccountRole newRole) {
+		role = Objects.requireNonNull(newRole, "newRole");
+	}
+
+	public void disable() {
+		status = AccountStatus.DISABLED;
+		sessionVersion++;
+	}
+
+	public void enable() {
+		if (status != AccountStatus.DISABLED) {
+			throw new IllegalStateException("Only a disabled account can be enabled");
+		}
+		status = AccountStatus.CONFIRMED;
+	}
+
+	public int getSessionVersion() {
+		return sessionVersion;
 	}
 
 	public void recordSuccessfulSignIn() {
