@@ -25,8 +25,8 @@ inertness are verified in Chromium, not simulated as browser behavior in jsdom.
 
 `test:e2e` first runs the local-mode mocked Chromium suite on port 4174, then a
 server-authentication build on port 4175. The authentication suite covers
-anonymous, denied, owner, expired, CSRF logout, safe post-login return, private
-cache removal, and accessibility states without contacting GitHub or a backend.
+anonymous sign-in, denied, signed-in, expired, CSRF logout, safe post-login
+return, private cache removal, and accessibility states without a backend.
 
 ## Full-stack browser test
 
@@ -98,18 +98,18 @@ Run the disposable server-profile topology suite with:
 ./scripts/project.sh test-server-security
 ```
 
-The suite creates a mode-`600` environment file with dummy OAuth values, checks
+The suite creates a mode-`600` environment file with dummy values, checks
 unsafe permissions, missing secrets, and placeholders, validates the merged
 Compose model, then builds and starts isolated server containers. It checks
-loopback-only publication, forged proxy and identity headers, the exact callback,
-session cookie attributes, CSP/HSTS and related headers, hidden management and
+loopback-only publication, forged proxy and identity headers, the sign-in route
+and its rate limit, session cookie attributes, CSP/HSTS and related headers, hidden management and
 documentation endpoints, request size and rate limits, and recovery after each
 service restarts. A real Chromium browser confirms that the server build loads
-session state and hides private routes from an anonymous user. Backend integration
-tests separately exercise every private route as anonymous, owner, and non-owner
-and every mutation with missing and invalid CSRF tokens.
+session state and hides private routes from an anonymous user. Backend integration tests separately exercise every private route
+as anonymous, `USER`, `ADMIN`, accepted, and disabled accounts, the lockout, and
+every mutation with missing and invalid CSRF tokens.
 
-The suite never contacts GitHub and does not validate a real Tailscale edge. Its
+The suite does not validate a real public edge. Its
 containers, volumes, dummy environment file, and locally built images are removed
 after the run, including on failure.
 

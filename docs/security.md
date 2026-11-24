@@ -87,8 +87,12 @@ reviewed. Creating Docker images in later worksheet steps does not change that.
 
 ## Approved future target: private single-user server
 
+**Being replaced.** [`PUBLIC_ACCOUNTS_SPEC.md`](PUBLIC_ACCOUNTS_SPEC.md) moves the
+server variant to invited email and password accounts on a public domain. Its
+phase 5 replaces this section with a new threat model.
+
 The selected non-loopback target is a private Tailscale-only Linux server for one
-owner, with a second application-level GitHub login check. It does not authorize
+owner, with a second application-level login check. It does not authorize
 deployment yet. The architecture, implementation groups, secrets, tests, and
 pass/fail deployment gate are defined in
 [`SERVER_SECURITY_PLAN.md`](SERVER_SECURITY_PLAN.md), with task-level progress in
@@ -100,16 +104,16 @@ If access becomes public or multi-user, stop and replace the plan with a new
 threat model rather than widening this one informally.
 
 The Spring identity foundation and frontend authentication experience are
-implemented. The server profile validates its required settings, maps the exact
-numeric GitHub owner ID, protects all API data with backend authorization and
-CSRF, and exposes a minimal session contract. A server-mode frontend loads that
+implemented. The server profile validates its required settings, signs in email
+and password accounts with `USER` and `ADMIN` roles and a lockout, protects all
+API data with backend authorization and CSRF, and exposes a minimal session contract. A server-mode frontend loads that
 contract before mounting private routes, stores the CSRF token only in memory,
 adds it to state-changing requests, clears cached records after logout or session
 expiry, and presents separate anonymous, denied, expired, and unavailable states.
 
 Ordinary local builds use `VITE_AUTHENTICATION=local` and remain unchanged. The
 private topology is now implemented as a separate Compose override: only nginx
-publishes a loopback socket, the server frontend enables authentication, OAuth
+publishes a loopback socket, the server frontend enables authentication, sign-in
 and logout routes reach Spring before SPA fallback, and forwarded headers are
 scrubbed and rebuilt at that sole proxy boundary. Real server settings remain in
 an external mode-`400` or mode-`600` environment file checked by a fail-closed
@@ -120,8 +124,8 @@ matrix, CSRF and origin failures, cookie and response policy, hidden services,
 proxy-header forgery, request limits, and service restarts. The exact evidence is
 in [`SERVER_SECURITY_VERIFICATION.md`](SERVER_SECURITY_VERIFICATION.md).
 
-This remains preparation, not deployment approval. The real OAuth callback and
-owner identity, Tailscale grant, Funnel absence, host firewall, final HTTPS edge,
+This remains preparation, not deployment approval. Real accounts, the
+Tailscale grant, Funnel absence, host firewall, final HTTPS edge,
 host restart, denied-device path, and off-host recovery remain unverified. Server
 deployment stays blocked until those external items close the documented gate.
 

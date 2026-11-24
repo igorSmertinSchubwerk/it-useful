@@ -56,6 +56,8 @@ The flow follows Bitwarden's organization members: invited, accepted, confirmed.
   SYSTEM SHALL perform them as it does today.
 - **AC-4:** WHEN a `USER` calls an account-management endpoint, THE SYSTEM SHALL
   answer `403`.
+- **AC-27:** WHILE a `USER` is signed in, THE SYSTEM SHALL hide the create, edit,
+  delete, and image-management controls and the editor routes.
 
 ### Invitation and confirmation
 
@@ -148,7 +150,7 @@ public before phase 5.
 | 1 | Accounts table, password rules, and password hashing | AC-11, AC-12 |
 | 2 | Form login replaces the GitHub login, role checks, lockout, security logging | AC-1 to AC-4, AC-13, AC-14, AC-20 |
 | 3 | Invitations, acceptance page, waiting page, confirmation, and the first-admin command | AC-5 to AC-10, AC-19 |
-| 4 | Account administration page, password change, and reset links | AC-15 to AC-18 |
+| 4 | Account administration page, password change, reset links, and role-aware controls | AC-15 to AC-18, AC-27 |
 | 5 | Public origin, nginx site and certificate, legal pages, runbook and security docs | AC-21 to AC-24 |
 | 6 | Optional SMTP delivery of invitation and reset links | AC-25, AC-26 |
 
