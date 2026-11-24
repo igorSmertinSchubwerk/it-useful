@@ -208,6 +208,11 @@ application needs no mailbox password:
 3. Choose a sender address in an accepted domain of the tenant, for example
    `it-useful@schubwerk.de`.
 
+The connector matches IPv4 addresses only. The stack sends over IPv4 because
+Docker on the host runs without IPv6. Keep it that way, or Microsoft refuses the
+relay and every link email falls back to "not sent". A test from the host shell
+must therefore force IPv4, for example with `openssl s_client -4`.
+
 Then add the settings to the server environment file:
 
 ```bash
