@@ -8,13 +8,13 @@ export function AuthenticationGate() {
   const { state, retry, logout, loggingOut } = useAuthentication()
   const { t } = useI18n()
   const location = useLocation()
-  const [returnPath] = useState(takeReturnPath)
+  const [returnPath, setReturnPath] = useState(takeReturnPath)
+  const currentPath = `${location.pathname}${location.search}`
+  // The gate stays mounted while the user navigates, so forget the return
+  // path once it is reached. Otherwise every later link would bounce back.
+  if (returnPath && returnPath === currentPath) setReturnPath(null)
   if (state.status === 'signedIn') {
-    if (
-      !state.local &&
-      returnPath &&
-      returnPath !== `${location.pathname}${location.search}`
-    )
+    if (!state.local && returnPath && returnPath !== currentPath)
       return <Navigate to={returnPath} replace />
     return <Outlet />
   }
