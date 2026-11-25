@@ -15,7 +15,7 @@ import { elementFixture } from './elementFixture'
 import type { ElementWriteRequest } from '../api/contracts'
 
 beforeEach(() => localStorage.clear())
-function mount(path = '/') {
+function mount(path = '/elements') {
   const router = createMemoryRouter([{ path: '*', element: <App /> }], {
     initialEntries: [path],
   })

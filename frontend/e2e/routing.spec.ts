@@ -10,7 +10,9 @@ test.beforeEach(async ({ page }) => {
 })
 
 const routes = [
-  ['/', 'A home for your IT knowledge'],
+  ['/elements', 'A home for your IT knowledge'],
+  ['/', 'Dashboard'],
+  ['/settings', 'Settings'],
   ['/elements/new', 'New definition'],
   ['/elements/example-id', 'Definition details'],
   ['/elements/example-id/edit', 'Edit definition'],
@@ -35,15 +37,19 @@ for (const [path, title] of routes) {
 }
 
 test('navigation, active links, history, and route focus', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/elements')
   const navigation = page.getByRole('navigation', { name: 'Main navigation' })
+  const section = page.getByRole('navigation', { name: 'Section navigation' })
   await expect(
-    navigation.getByRole('link', { name: 'Definitions', exact: true }),
+    navigation.getByRole('link', { name: 'IT definitions', exact: true }),
   ).toHaveAttribute('aria-current', 'page')
-  await navigation.getByRole('link', { name: 'New definition' }).click()
+  await expect(
+    section.getByRole('link', { name: 'All definitions', exact: true }),
+  ).toHaveAttribute('aria-current', 'page')
+  await section.getByRole('link', { name: 'New definition' }).click()
   await expect(page.getByRole('heading', { level: 1 })).toBeFocused()
   await expect(
-    navigation.getByRole('link', { name: 'New definition' }),
+    section.getByRole('link', { name: 'New definition' }),
   ).toHaveAttribute('aria-current', 'page')
   await page.goBack()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(routes[0][1])
@@ -69,7 +75,7 @@ test('navigation, active links, history, and route focus', async ({ page }) => {
     'Definition details',
   )
   await page.getByRole('link', { name: 'Back to definitions' }).click()
-  await expect(page).toHaveURL(/\/$/)
+  await expect(page).toHaveURL(/\/elements$/)
 
   await page.goto('/unknown/page')
   await page.getByRole('link', { name: 'Back to definitions' }).click()

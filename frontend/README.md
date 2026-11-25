@@ -51,8 +51,11 @@ use real OAuth credentials.
 - `npm run test:e2e`: Chromium smoke test against a fresh production preview.
 - `npm run preview`: serve the production build at http://localhost:4173.
 
-The start page now loads definitions from the backend and supports confirmed
-deletion. Start Spring and PostgreSQL using the root project instructions to
+The dashboard at `/` shows one card per section: the definition count with the
+three most recently changed definitions, and the Settings summary with the
+interface language, the account, and for admins on the server variant the
+accounts waiting for confirmation and the open invitations. The definition list at `/elements` loads
+definitions from the backend and supports confirmed deletion. Start Spring and PostgreSQL using the root project instructions to
 see your saved definitions. Without the backend, a localized error and Retry
 button are shown. Detail, create, and edit pages are connected to the same API.
 
@@ -288,7 +291,10 @@ The list, detail, editor, and deletion dialog use this helper. Render these
 messages as text and handle cancellation separately.
 
 The shell includes active navigation, a keyboard skip link, page titles, and
-heading focus after client-side navigation. See [source structure](src/README.md)
+heading focus after client-side navigation. The main navigation has the tabs
+Dashboard, IT definitions, and Settings. Inside a section, a second row named
+"Section navigation" shows its sub-tabs and hides those the current account
+cannot use. See [source structure](src/README.md)
 for folder ownership and state-management conventions.
 
 Vite supports direct links and refresh locally. A future production host must

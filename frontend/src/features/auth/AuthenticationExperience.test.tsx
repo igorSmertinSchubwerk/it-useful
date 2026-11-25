@@ -189,7 +189,7 @@ test('clears private UI and reports expiry when an authenticated request gets 40
         : HttpResponse.json([]),
     ),
   )
-  renderServerApp()
+  renderServerApp('/elements')
   expect(
     await screen.findByRole('heading', {
       name: 'A home for your IT knowledge',

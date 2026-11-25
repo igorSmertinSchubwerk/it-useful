@@ -237,9 +237,9 @@ test('dirty navigation guards Cancel, header links, browser Back, and reload wit
   page,
 }) => {
   await mockApi(page)
-  await page.goto('/')
+  await page.goto('/elements')
   await page
-    .getByRole('navigation')
+    .getByRole('navigation', { name: 'Section navigation' })
     .getByRole('link', { name: 'New definition' })
     .click()
   await page.locator('#slug').fill('draft')
@@ -249,8 +249,8 @@ test('dirty navigation guards Cancel, header links, browser Back, and reload wit
   await page.keyboard.press('Escape')
   await expect(page.locator('#slug')).toHaveValue('draft')
   await page
-    .getByRole('navigation')
-    .getByRole('link', { name: 'Definitions', exact: true })
+    .getByRole('navigation', { name: 'Main navigation' })
+    .getByRole('link', { name: 'IT definitions', exact: true })
     .click()
   await page.getByRole('button', { name: 'Keep editing' }).click()
   await page.goBack()
@@ -267,7 +267,7 @@ test('dirty navigation guards Cancel, header links, browser Back, and reload wit
   await expect(page.locator('#slug')).toHaveValue('draft')
   await page.getByRole('link', { name: 'Cancel', exact: true }).click()
   await page.getByRole('button', { name: 'Discard and leave' }).click()
-  await expect(page).toHaveURL(/\/$/)
+  await expect(page).toHaveURL(/\/elements$/)
 })
 
 test('successful pending save closes a blocked navigation and opens the saved detail', async ({

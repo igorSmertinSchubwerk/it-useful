@@ -5,6 +5,12 @@ a searchable table and detail cards with Markdown explanations, examples, and
 images in English, German, and Russian. Definitions and images can be created,
 changed, and deleted from the browser.
 
+The app is organized in sections. After sign-in, the dashboard shows one card
+per section with its key figures. The header has three tabs: Dashboard, IT
+definitions, and Settings. IT definitions holds the definition list and the
+form for a new definition. Settings holds the interface language, the password
+change, and, for admins on the server variant, account administration.
+
 The application uses Java 21 with Spring Boot, React with TypeScript and
 Tailwind CSS, PostgreSQL with Flyway, and Docker Compose.
 
@@ -220,7 +226,10 @@ and image contracts are in [`docs/api.md`](docs/api.md). In development mode:
 - OpenAPI JSON: <http://127.0.0.1:8080/v3/api-docs>
 
 Swagger and OpenAPI are disabled in the container profile. Browser routes are
-`/`, `/elements/new`, `/elements/{id}`, and `/elements/{id}/edit`.
+`/` (dashboard), `/elements`, `/elements/new`, `/elements/{id}`,
+`/elements/{id}/edit`, `/settings`, `/settings/accounts`, and
+`/settings/password`. The former addresses `/admin/accounts` and
+`/account/password` redirect to their Settings pages.
 
 ## Safe data reset
 

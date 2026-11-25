@@ -322,7 +322,11 @@ export function ElementForm({ element }: { element?: ElementDetail }) {
           {isSubmitting ? t.saving : isDirty ? t.unsavedStatus : ''}
         </p>
         <Link
-          to={element ? `${elementPath(element.id)}${suffix}` : `/${suffix}`}
+          to={
+            element
+              ? `${elementPath(element.id)}${suffix}`
+              : `/elements${suffix}`
+          }
           className="inline-block text-brand underline"
         >
           {t.cancel}

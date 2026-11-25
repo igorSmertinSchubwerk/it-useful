@@ -4,6 +4,7 @@ import { editorMessages } from './editorMessages'
 import { imageMessages } from './imageMessages'
 import { authMessages } from './authMessages'
 import { accountMessages } from './accountMessages'
+import { dashboardMessages } from './dashboardMessages'
 export type UiLanguage = 'en' | 'de' | 'ru'
 
 const en = {
@@ -13,6 +14,7 @@ const en = {
   ...imageMessages.en,
   ...authMessages.en,
   ...accountMessages.en,
+  ...dashboardMessages.en,
   skip: 'Skip to content',
   nav: 'Main navigation',
   definitions: 'Definitions',
@@ -71,6 +73,7 @@ export const messages: Record<UiLanguage, Messages> = {
     ...imageMessages.de,
     ...authMessages.de,
     ...accountMessages.de,
+    ...dashboardMessages.de,
     skip: 'Zum Inhalt springen',
     nav: 'Hauptnavigation',
     definitions: 'Begriffe',
@@ -129,6 +132,7 @@ export const messages: Record<UiLanguage, Messages> = {
     ...imageMessages.ru,
     ...authMessages.ru,
     ...accountMessages.ru,
+    ...dashboardMessages.ru,
     skip: 'Перейти к содержимому',
     nav: 'Основная навигация',
     definitions: 'Термины',

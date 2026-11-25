@@ -1,5 +1,7 @@
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from '../components/AppLayout'
+import { DashboardPage } from '../pages/DashboardPage'
+import { SettingsPage } from '../pages/SettingsPage'
 import ElementListPage from '../pages/ElementListPage'
 import { ElementEditorPage } from '../pages/ElementEditorPage'
 import { ElementDetailPage } from '../pages/ElementDetailPage'
@@ -23,8 +25,17 @@ export function AppRoutes() {
         <Route path="reset-password" element={<ResetPasswordPage />} />
         <Route path="legal-notice" element={<LegalNoticePage />} />
         <Route path="privacy" element={<PrivacyPage />} />
+        <Route
+          path="admin/accounts"
+          element={<Navigate to="/settings/accounts" replace />}
+        />
+        <Route
+          path="account/password"
+          element={<Navigate to="/settings/password" replace />}
+        />
         <Route element={<AuthenticationGate />}>
-          <Route index element={<ElementListPage />} />
+          <Route index element={<DashboardPage />} />
+          <Route path="elements" element={<ElementListPage />} />
           <Route
             path="elements/new"
             element={
@@ -34,8 +45,9 @@ export function AppRoutes() {
             }
           />
           <Route path="elements/:id" element={<ElementDetailPage />} />
-          <Route path="admin/accounts" element={<AccountsPage />} />
-          <Route path="account/password" element={<ChangePasswordPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="settings/accounts" element={<AccountsPage />} />
+          <Route path="settings/password" element={<ChangePasswordPage />} />
           <Route
             path="elements/:id/edit"
             element={

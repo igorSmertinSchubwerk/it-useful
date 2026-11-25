@@ -170,7 +170,7 @@ test('lets an admin invite a person and copy the one-time link', async () => {
           ),
     ),
   )
-  renderServerApp('/admin/accounts')
+  renderServerApp('/settings/accounts')
 
   await user.type(
     await screen.findByLabelText('Email address'),
@@ -221,7 +221,7 @@ test('lets an admin confirm a pending account', async () => {
       },
     ),
   )
-  renderServerApp('/admin/accounts')
+  renderServerApp('/settings/accounts')
 
   const row = (await screen.findByText('pending@example.com')).closest('tr')!
   expect(within(row).getByText('Waiting for confirmation')).toBeVisible()
@@ -242,9 +242,11 @@ test('shows the Accounts link only to admins', async () => {
     ),
     http.get('http://localhost/api/elements', () => HttpResponse.json([])),
   )
-  renderServerApp('/')
+  renderServerApp('/settings')
 
-  expect(await screen.findByRole('navigation')).toBeVisible()
+  expect(
+    await screen.findByRole('navigation', { name: 'Section navigation' }),
+  ).toBeVisible()
   expect(
     screen.queryByRole('link', { name: 'Accounts' }),
   ).not.toBeInTheDocument()

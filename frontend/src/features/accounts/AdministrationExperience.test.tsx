@@ -85,7 +85,7 @@ test('an admin changes a role, disables, enables, and sees the last-admin refusa
       return new HttpResponse(null, { status: 204 })
     }),
   )
-  renderServerApp('/admin/accounts')
+  renderServerApp('/settings/accounts')
   const row = (await screen.findByText('reader@example.com')).closest('tr')!
 
   await user.click(
@@ -133,7 +133,7 @@ test('an admin creates a one-time password reset link and copies it', async () =
       ),
     ),
   )
-  renderServerApp('/admin/accounts')
+  renderServerApp('/settings/accounts')
 
   await user.click(
     await screen.findByRole('button', {
@@ -183,7 +183,7 @@ test('an admin revokes an open invitation', async () => {
       return new HttpResponse(null, { status: 204 })
     }),
   )
-  renderServerApp('/admin/accounts')
+  renderServerApp('/settings/accounts')
 
   await user.click(
     await screen.findByRole('button', {
@@ -243,7 +243,7 @@ test('a signed-in person changes the password after proving the current one', as
           )
     }),
   )
-  renderServerApp('/account/password')
+  renderServerApp('/settings/password')
 
   await user.type(
     await screen.findByLabelText('Current password'),
@@ -284,7 +284,7 @@ test('a user sees no create, edit, or delete controls and cannot open the editor
       HttpResponse.json(elementFixture),
     ),
   )
-  renderServerApp('/')
+  renderServerApp('/elements')
 
   expect(await screen.findByText('HTTP')).toBeVisible()
   expect(
@@ -294,7 +294,12 @@ test('a user sees no create, edit, or delete controls and cannot open the editor
   expect(
     screen.queryByRole('button', { name: /^Delete/ }),
   ).not.toBeInTheDocument()
-  expect(screen.getByRole('link', { name: 'Change password' })).toBeVisible()
+  await userEvent.click(screen.getByRole('link', { name: 'Settings' }))
+  expect(
+    within(screen.getByRole('navigation', { name: 'Section navigation' }))
+      .getAllByRole('link')
+      .map((link) => link.textContent),
+  ).toEqual(['General', 'Change password'])
 })
 
 test('a user who opens an editor route sees that only admins can edit', async () => {

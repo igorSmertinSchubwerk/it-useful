@@ -1,19 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type FormEvent } from 'react'
-import {
-  createAccountsApi,
-  type AccountRole,
-  type AccountSummary,
-  type CreatedInvitation,
+import type {
+  AccountRole,
+  AccountSummary,
+  CreatedInvitation,
 } from '../api/accounts'
 import { ApiError } from '../api/errors'
+import {
+  accountsApi as api,
+  accountsKey,
+  adminKey,
+  invitationsKey,
+} from '../features/accounts/queries'
 import { useAuthentication } from '../features/auth/context'
 import { useI18n } from '../i18n/context'
 
-const api = createAccountsApi()
-const adminKey = ['admin'] as const
-const accountsKey = ['admin', 'accounts'] as const
-const invitationsKey = ['admin', 'invitations'] as const
 const inputClass =
   'mt-1 w-full rounded border border-line bg-surface px-3 py-2 focus:outline focus:outline-2 focus:outline-offset-2'
 

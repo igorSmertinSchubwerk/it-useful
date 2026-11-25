@@ -19,7 +19,7 @@ test.each(['en', 'de', 'ru'] as const)(
   (language) => {
     localStorage.setItem(UI_LANGUAGE_KEY, language)
     render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={['/elements']}>
         <App />
       </MemoryRouter>,
     )
@@ -50,7 +50,7 @@ test.each([null, 'fr', 'DE', '<script>', ''])(
 test('switches the interface without changing content selection or unrelated storage', async () => {
   localStorage.setItem('content-language', 'RU')
   const { unmount } = render(
-    <MemoryRouter initialEntries={['/?language=RU']}>
+    <MemoryRouter initialEntries={['/elements?language=RU']}>
       <App />
     </MemoryRouter>,
   )
@@ -84,7 +84,7 @@ test('keeps language switching usable when storage access is denied', async () =
     throw new DOMException('Blocked', 'SecurityError')
   })
   render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={['/elements']}>
       <App />
     </MemoryRouter>,
   )
