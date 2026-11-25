@@ -1,15 +1,61 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { matchPath, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useRouteAccessibility } from '../hooks/useRouteAccessibility'
 import { useI18n } from '../i18n/context'
 import { LanguageSelector } from './LanguageSelector'
 import { useAuthentication, useCanEdit } from '../features/auth/context'
 import { useState } from 'react'
 
+const linkClass =
+  'text-brand underline-offset-4 hover:underline aria-[current=page]:font-bold aria-[current=page]:underline'
+
+function SectionNavigation() {
+  const { t } = useI18n()
+  const { pathname } = useLocation()
+  const { state } = useAuthentication()
+  const canEdit = useCanEdit()
+  if (state.status !== 'signedIn') return null
+  const links = matchPath({ path: '/elements', end: false }, pathname)
+    ? [
+        { to: '/elements', label: t.allDefinitions, show: true },
+        { to: '/elements/new', label: t.create, show: canEdit },
+      ]
+    : matchPath({ path: '/settings', end: false }, pathname)
+      ? [
+          { to: '/settings', label: t.general, show: true },
+          {
+            to: '/settings/accounts',
+            label: t.accounts,
+            show: state.role === 'ADMIN' && !state.local,
+          },
+          {
+            to: '/settings/password',
+            label: t.changePassword,
+            show: !state.local,
+          },
+        ]
+      : []
+  if (links.length === 0) return null
+  return (
+    <nav
+      aria-label={t.sectionNav}
+      className="mx-auto flex max-w-5xl flex-wrap gap-5 border-t border-line px-6 py-3 text-sm"
+    >
+      {links
+        .filter((link) => link.show)
+        .map((link) => (
+          <NavLink key={link.to} to={link.to} end className={linkClass}>
+            {link.label}
+          </NavLink>
+        ))}
+    </nav>
+  )
+}
+
 export function AppLayout() {
   useRouteAccessibility()
   const { t } = useI18n()
+  const { pathname } = useLocation()
   const { state, logout, loggingOut } = useAuthentication()
-  const canEdit = useCanEdit()
   const [logoutFailed, setLogoutFailed] = useState(false)
   return (
     <>
@@ -26,45 +72,25 @@ export function AppLayout() {
           </NavLink>
           {state.status === 'signedIn' && (
             <nav aria-label={t.nav} className="flex flex-wrap gap-5">
-              <NavLink
-                to="/"
-                end
-                className="text-brand underline-offset-4 hover:underline aria-[current=page]:font-bold aria-[current=page]:underline"
-              >
-                {t.definitions}
+              <NavLink to="/" end className={linkClass}>
+                {t.dashboard}
               </NavLink>
-              {canEdit && (
-                <NavLink
-                  to="/elements/new"
-                  className="text-brand underline-offset-4 hover:underline aria-[current=page]:font-bold aria-[current=page]:underline"
-                >
-                  {t.create}
-                </NavLink>
-              )}
-              {state.role === 'ADMIN' && !state.local && (
-                <NavLink
-                  to="/admin/accounts"
-                  className="text-brand underline-offset-4 hover:underline aria-[current=page]:font-bold aria-[current=page]:underline"
-                >
-                  {t.accounts}
-                </NavLink>
-              )}
+              <NavLink to="/elements" className={linkClass}>
+                {t.itDefinitions}
+              </NavLink>
+              <NavLink to="/settings" className={linkClass}>
+                {t.settings}
+              </NavLink>
             </nav>
           )}
-          <LanguageSelector />
+          {!(
+            state.status === 'signedIn' && matchPath('/settings', pathname)
+          ) && <LanguageSelector />}
           {state.status === 'signedIn' && (
             <div className="flex flex-wrap items-center gap-3 text-sm">
               <span>
                 {state.local ? t.localMode : `${t.signedInAs} ${state.email}`}
               </span>
-              {!state.local && (
-                <NavLink
-                  to="/account/password"
-                  className="text-brand underline"
-                >
-                  {t.changePassword}
-                </NavLink>
-              )}
               {!state.local && (
                 <button
                   type="button"
@@ -81,6 +107,7 @@ export function AppLayout() {
             </div>
           )}
         </div>
+        <SectionNavigation />
         {logoutFailed && (
           <p
             role="alert"

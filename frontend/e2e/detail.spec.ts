@@ -20,7 +20,7 @@ test('list opens selected translation and preserves search through detail, edit,
   await page.route('**/api/elements/example-id', (route) =>
     route.fulfill({ json: elementFixture }),
   )
-  await page.goto('/?language=DE&q=http&sort=newest')
+  await page.goto('/elements?language=DE&q=http&sort=newest')
   await page
     .getByRole('link', { name: 'HTTP auf Deutsch', exact: true })
     .click()

@@ -57,7 +57,7 @@ export function ElementDetailPage() {
             </option>
           </select>
         </div>
-        <Link to={`/${suffix}`} className="text-brand underline">
+        <Link to={`/elements${suffix}`} className="text-brand underline">
           {t.back}
         </Link>
         {element && canEdit && (

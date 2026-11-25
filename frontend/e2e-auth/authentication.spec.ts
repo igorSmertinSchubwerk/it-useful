@@ -161,7 +161,7 @@ test('the admin accounts page is accessible', async ({ page }) => {
       ],
     }),
   )
-  await page.goto('/admin/accounts')
+  await page.goto('/settings/accounts')
   await expect(
     page.getByRole('heading', { name: 'Accounts', exact: true }),
   ).toBeVisible()
@@ -185,7 +185,7 @@ test('the password reset and password change pages are accessible', async ({
   await page.route('**/api/session', (route) =>
     route.fulfill({ json: { ...session, role: 'USER' } }),
   )
-  await page.goto('/account/password')
+  await page.goto('/settings/password')
   await expect(
     page.getByRole('heading', { name: 'Change password' }),
   ).toBeVisible()

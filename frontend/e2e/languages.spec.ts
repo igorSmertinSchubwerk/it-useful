@@ -20,7 +20,7 @@ for (const language of ['en', 'de', 'ru'] as const) {
       if (message.type() === 'error') errors.push(message.text())
     })
     await page.setViewportSize({ width: 375, height: 812 })
-    await page.goto('/')
+    await page.goto('/elements')
     const selector = page.locator('#ui-language')
     await selector.focus()
     // Exercise the native select with the keyboard rather than a mouse-only control.
@@ -41,7 +41,9 @@ for (const language of ['en', 'de', 'ru'] as const) {
       page.getByRole('combobox', { name: t.uiLanguage, exact: true }),
     ).toHaveValue(language)
     for (const [path, heading] of [
-      ['/', t.homeTitle],
+      ['/', t.dashboard],
+      ['/elements', t.homeTitle],
+      ['/settings', t.settings],
       ['/elements/new', t.create],
       ['/elements/example-id', t.detail],
       ['/elements/example-id/edit', t.edit],

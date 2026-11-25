@@ -74,6 +74,8 @@ for (const language of ['en', 'de', 'ru']) {
       )
       for (const path of [
         '/',
+        '/elements',
+        '/settings',
         '/elements/example-id',
         '/elements/new',
         '/elements/example-id/edit',
@@ -82,7 +84,8 @@ for (const language of ['en', 'de', 'ru']) {
         await expect(page.locator('h1')).toBeVisible()
         if (path.endsWith('/edit'))
           await expect(page.locator('#image-manager-heading')).toBeVisible()
-        if (path === '/') await expect(page.locator('table')).toBeVisible()
+        if (path === '/elements')
+          await expect(page.locator('table')).toBeVisible()
         if (path === '/elements/example-id')
           await expect(page.locator('figure')).toBeVisible()
         expect(
@@ -123,7 +126,7 @@ test('keyboard reaches table actions, traps dialog focus, edits and returns with
   page,
 }) => {
   await page.setViewportSize({ width: 320, height: 700 })
-  await page.goto('/')
+  await page.goto('/elements')
   await page.keyboard.press('Tab')
   await expect(
     page.getByRole('link', { name: 'Skip to content' }),

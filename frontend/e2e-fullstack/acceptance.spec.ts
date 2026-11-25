@@ -146,7 +146,7 @@ test('shows a recoverable error while the backend is unavailable', async ({
 }) => {
   test.skip(phase !== 'outage')
   test.setTimeout(75_000)
-  await page.goto('/')
+  await page.goto('/elements')
   await expect(page.getByRole('alert')).toBeVisible({ timeout: 70_000 })
   await expect(
     page.getByRole('button', { name: 'Retry', exact: true }),

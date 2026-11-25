@@ -29,7 +29,7 @@ function EditLoader({ id }: { id: string }) {
         >
           {t.retry}
         </button>
-        <Link to="/" className="ml-4 text-brand underline">
+        <Link to="/elements" className="ml-4 text-brand underline">
           {t.back}
         </Link>
       </div>

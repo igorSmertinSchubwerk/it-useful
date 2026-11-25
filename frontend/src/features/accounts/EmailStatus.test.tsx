@@ -37,7 +37,7 @@ function adminAccountsPage() {
     <RouterProvider
       router={createMemoryRouter(
         [{ path: '*', element: <App authenticationEnabled /> }],
-        { initialEntries: ['/admin/accounts'] },
+        { initialEntries: ['/settings/accounts'] },
       )}
     />,
   )
