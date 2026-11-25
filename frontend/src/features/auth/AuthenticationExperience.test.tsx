@@ -99,6 +99,28 @@ test('signs in with a fresh CSRF token and opens the signed-in shell', async () 
   })
 })
 
+test('returns to the remembered page once after sign-in, then follows the menu', async () => {
+  anonymousUntilSignedIn()
+  server.use(
+    http.get('http://localhost/api/admin/*', () => HttpResponse.json([])),
+  )
+  renderServerApp('/elements')
+  await screen.findByRole('heading', { name: 'Sign in' })
+
+  await submitSignIn('admin@example.com', 'correct horse battery staple')
+  expect(
+    await screen.findByRole('heading', {
+      level: 1,
+      name: 'A home for your IT knowledge',
+    }),
+  ).toBeVisible()
+
+  await userEvent.click(screen.getByRole('link', { name: 'Dashboard' }))
+  expect(
+    await screen.findByRole('heading', { level: 1, name: 'Dashboard' }),
+  ).toBeVisible()
+})
+
 test('shows one generic message for rejected credentials and a throttling message', async () => {
   let status = 401
   server.use(
