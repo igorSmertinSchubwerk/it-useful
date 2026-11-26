@@ -226,10 +226,11 @@ and image contracts are in [`docs/api.md`](docs/api.md). In development mode:
 - OpenAPI JSON: <http://127.0.0.1:8080/v3/api-docs>
 
 Swagger and OpenAPI are disabled in the container profile. Browser routes are
-`/` (dashboard), `/elements`, `/elements/new`, `/elements/{id}`,
-`/elements/{id}/edit`, `/settings`, `/settings/accounts`, and
-`/settings/password`. The former addresses `/admin/accounts` and
-`/account/password` redirect to their Settings pages.
+`/` (dashboard), `/it-definitions`, `/it-definitions/new`,
+`/it-definitions/{id}`, `/it-definitions/{id}/edit`, `/settings`,
+`/settings/accounts`, and `/settings/password`. The former addresses
+`/elements/...`, `/admin/accounts`, and `/account/password` redirect to their
+new pages.
 
 ## Safe data reset
 
