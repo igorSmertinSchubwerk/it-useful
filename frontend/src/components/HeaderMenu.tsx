@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 
 export const iconButtonClass =
-  'grid h-10 w-10 place-items-center rounded-full border border-control text-ink hover:bg-canvas'
+  'grid h-10 w-10 place-items-center rounded-full hover:bg-dock-ink/15'
 
 /**
  * An icon button in the header that opens a small panel below it. Any button
@@ -45,7 +45,7 @@ export function HeaderMenu({
   return (
     <div
       ref={container}
-      className="relative"
+      className="sm:relative"
       onBlur={(event) => {
         if (!container.current?.contains(event.relatedTarget)) setOpen(false)
       }}
@@ -68,7 +68,7 @@ export function HeaderMenu({
           role="region"
           tabIndex={-1}
           aria-label={label}
-          className="absolute right-0 top-full z-20 mt-2 w-56 max-w-[calc(100vw-2rem)] rounded-lg border border-line bg-surface p-4 text-sm shadow-lg"
+          className="absolute right-3 top-full z-20 mt-2 w-56 sm:right-0 max-w-[calc(100vw-2rem)] rounded-2xl border border-line bg-surface p-4 text-sm text-ink shadow-lg"
           onClick={(event) => {
             if ((event.target as Element).closest('button')) closeAndRefocus()
           }}

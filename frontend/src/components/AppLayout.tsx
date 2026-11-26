@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useRouteAccessibility } from '../hooks/useRouteAccessibility'
 import { useI18n } from '../i18n/context'
 import { LanguageMenu } from './LanguageSelector'
@@ -6,43 +6,49 @@ import { ThemeToggle } from './ThemeToggle'
 import { useAuthentication } from '../features/auth/context'
 import { useState } from 'react'
 import { definitionsPath } from '../utils/paths'
+import { sectionOf } from '../utils/sections'
 import { HeaderMenu, iconButtonClass } from './HeaderMenu'
 import { AccountIcon, SettingsIcon } from './icons'
 
-const linkClass =
-  'text-brand underline-offset-4 hover:underline aria-[current=page]:font-bold aria-[current=page]:underline'
+const dockLinkClass =
+  'rounded-full px-4 py-2 font-semibold hover:bg-dock-ink/15 aria-[current=page]:bg-dock-active aria-[current=page]:text-dock-active-ink'
 
 export function AppLayout() {
   useRouteAccessibility()
   const { t } = useI18n()
+  const { pathname } = useLocation()
   const { state, logout, loggingOut } = useAuthentication()
   const [logoutFailed, setLogoutFailed] = useState(false)
   return (
-    <>
+    <div
+      data-section={sectionOf(pathname)}
+      className="min-h-screen bg-canvas text-ink"
+    >
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-10 focus:rounded focus:bg-surface focus:p-3"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-40 focus:rounded focus:bg-surface focus:p-3"
       >
         {t.skip}
       </a>
-      <header className="border-b border-line bg-surface">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-5">
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-            <NavLink to="/" className="text-xl font-bold text-ink">
-              IT Useful
-            </NavLink>
-            {state.status === 'signedIn' && (
-              <nav aria-label={t.nav} className="flex flex-wrap gap-5">
-                <NavLink to="/" end className={linkClass}>
-                  {t.dashboard}
-                </NavLink>
-                <NavLink to={definitionsPath} className={linkClass}>
-                  {t.itDefinitions}
-                </NavLink>
-              </nav>
-            )}
-          </div>
-          <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+      <header className="relative z-30 px-3 pt-3 sm:sticky sm:top-4 sm:px-6">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-2 rounded-3xl bg-dock p-2 text-dock-ink shadow-lg shadow-black/10 sm:rounded-full">
+          <NavLink
+            to="/"
+            className="rounded-full px-3 py-2 text-lg font-extrabold tracking-tight"
+          >
+            IT Useful
+          </NavLink>
+          {state.status === 'signedIn' && (
+            <nav aria-label={t.nav} className="flex flex-wrap gap-1">
+              <NavLink to="/" end className={dockLinkClass}>
+                {t.dashboard}
+              </NavLink>
+              <NavLink to={definitionsPath} className={dockLinkClass}>
+                {t.itDefinitions}
+              </NavLink>
+            </nav>
+          )}
+          <div className="ml-auto flex flex-wrap items-center justify-end gap-1">
             <ThemeToggle />
             <LanguageMenu />
             {state.status === 'signedIn' && (
@@ -51,7 +57,7 @@ export function AppLayout() {
                   to="/settings"
                   aria-label={t.settings}
                   title={t.settings}
-                  className={`${iconButtonClass} aria-[current=page]:bg-canvas aria-[current=page]:text-brand`}
+                  className={`${iconButtonClass} aria-[current=page]:bg-dock-active aria-[current=page]:text-dock-active-ink`}
                 >
                   <SettingsIcon />
                 </NavLink>
@@ -83,7 +89,7 @@ export function AppLayout() {
         {logoutFailed && (
           <p
             role="alert"
-            className="mx-auto max-w-5xl px-6 pb-4 text-sm text-red-800"
+            className="mx-auto mt-2 max-w-5xl rounded-xl bg-surface px-4 py-2 text-sm text-red-800"
           >
             {t.logoutFailed}
           </p>
@@ -105,6 +111,6 @@ export function AppLayout() {
           {t.privacyPolicy}
         </NavLink>
       </footer>
-    </>
+    </div>
   )
 }

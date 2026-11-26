@@ -127,3 +127,17 @@ test('the settings icon marks itself as the current page on Settings', async () 
     within(screen.getByRole('banner')).getByRole('link', { name: 'Settings' }),
   ).toHaveAttribute('aria-current', 'page')
 })
+
+test.each([
+  ['/', 'dashboard'],
+  ['/it-definitions', 'definitions'],
+  ['/it-definitions/new', 'definitions'],
+  ['/settings', 'settings'],
+  ['/legal-notice', 'neutral'],
+])('%s uses the %s colors for the page and the dock', async (path, section) => {
+  renderApp(path)
+  await screen.findByRole('heading', { level: 1 })
+  const themed = screen.getByRole('banner').closest('[data-section]')
+  expect(themed).toHaveAttribute('data-section', section)
+  expect(themed).toContainElement(screen.getByRole('main'))
+})
