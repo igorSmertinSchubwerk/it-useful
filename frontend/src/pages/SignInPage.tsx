@@ -91,7 +91,7 @@ export function SignInPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="justify-self-start rounded bg-brand px-4 py-3 font-semibold text-white hover:opacity-90 focus:outline focus:outline-2 focus:outline-offset-2 disabled:opacity-60"
+          className="justify-self-start rounded bg-brand px-4 py-3 font-semibold text-on-brand hover:opacity-90 focus:outline focus:outline-2 focus:outline-offset-2 disabled:opacity-60"
         >
           {submitting ? t.signingIn : t.signIn}
         </button>

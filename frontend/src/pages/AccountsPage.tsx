@@ -79,7 +79,7 @@ function InviteForm() {
         <button
           type="submit"
           disabled={invite.isPending}
-          className="justify-self-start rounded bg-brand px-4 py-2 font-semibold text-white hover:opacity-90 disabled:opacity-60"
+          className="justify-self-start rounded bg-brand px-4 py-2 font-semibold text-on-brand hover:opacity-90 disabled:opacity-60"
         >
           {t.createInvitation}
         </button>

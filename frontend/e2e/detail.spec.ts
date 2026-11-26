@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { elementFixture } from '../src/test/elementFixture'
+import { chooseInterfaceLanguage } from './header'
 
 test('list opens selected translation and preserves search through detail, edit, and back', async ({
   page,
@@ -57,7 +58,7 @@ test('language changes are independent, survive reload, and support browser hist
   await expect(
     page.getByRole('heading', { name: 'HTTP по-русски' }),
   ).toBeVisible()
-  await page.locator('#ui-language').selectOption('de')
+  await chooseInterfaceLanguage(page, 'de')
   await expect(page.getByRole('heading', { name: 'Beispiele' })).toBeVisible()
   await expect(
     page.getByRole('heading', { name: 'HTTP по-русски' }),
@@ -207,7 +208,7 @@ test('ordered images, retry, safe Markdown, and Russian mobile accessibility', a
   )
   await page.setViewportSize({ width: 375, height: 812 })
   await page.goto('/it-definitions/example-id?language=RU')
-  await page.locator('#ui-language').selectOption('ru')
+  await chooseInterfaceLanguage(page, 'ru')
   await page.locator('figure').first().scrollIntoViewIfNeeded()
   await expect(page.locator('figure').first()).toContainText('Diagram')
   await expect(

@@ -5,6 +5,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { expect, test } from 'vitest'
 import App from '../../App'
 import { server } from '../../test/server'
+import { openAccountMenu } from '../../test/header'
 
 const csrf = { headerName: 'X-CSRF-TOKEN', token: 'session-csrf-token' }
 const adminSession = {
@@ -140,7 +141,7 @@ test('shows an accepted account the waiting page until an admin confirms it', as
   confirmed = true
   await user.click(screen.getByRole('button', { name: 'Check again' }))
   expect(
-    await screen.findByText('Signed in as pending@example.com'),
+    (await openAccountMenu()).getByText('pending@example.com'),
   ).toBeVisible()
 })
 

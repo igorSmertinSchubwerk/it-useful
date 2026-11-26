@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import App from '../App'
@@ -7,6 +6,7 @@ import { ApiError } from '../api/errors'
 import { localizeApiError } from './errors'
 import { messages } from './messages'
 import { readUiLanguage, UI_LANGUAGE_KEY } from './preference'
+import { chooseInterfaceLanguage } from '../test/header'
 
 beforeEach(() => localStorage.clear())
 afterEach(() => {
@@ -57,8 +57,7 @@ test('switches the interface without changing content selection or unrelated sto
   expect(
     screen.getByRole('combobox', { name: 'Definition language' }),
   ).toHaveValue('RU')
-  const selector = screen.getByRole('combobox', { name: 'Interface language' })
-  await userEvent.setup().selectOptions(selector, 'de')
+  await chooseInterfaceLanguage('Interface language', 'Deutsch')
   expect(document.title).toBe('Ein Ort für dein IT-Wissen | IT Useful')
   expect(
     screen.getByRole('combobox', { name: 'Sprache der Begriffe' }),
@@ -72,8 +71,8 @@ test('switches the interface without changing content selection or unrelated sto
     </MemoryRouter>,
   )
   expect(
-    screen.getByRole('combobox', { name: 'Sprache der Oberfläche' }),
-  ).toHaveValue('de')
+    screen.getByRole('button', { name: 'Sprache der Oberfläche' }),
+  ).toBeVisible()
 })
 
 test('keeps language switching usable when storage access is denied', async () => {
@@ -88,12 +87,7 @@ test('keeps language switching usable when storage access is denied', async () =
       <App />
     </MemoryRouter>,
   )
-  await userEvent
-    .setup()
-    .selectOptions(
-      screen.getByRole('combobox', { name: 'Interface language' }),
-      'ru',
-    )
+  await chooseInterfaceLanguage('Interface language', 'Русский')
   expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
     messages.ru.homeTitle,
   )

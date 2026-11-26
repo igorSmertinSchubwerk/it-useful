@@ -76,13 +76,15 @@ test('signed-in user can sign out and the CSRF token never enters browser storag
     return route.fulfill({ status: 204 })
   })
   await page.goto('/')
-  await expect(page.getByText('Signed in as admin@example.com')).toBeVisible()
+  await page.getByRole('button', { name: 'Account' }).click()
+  const account = page.getByRole('region', { name: 'Account' })
+  await expect(account.getByText('admin@example.com')).toBeVisible()
   const storedValues = await page.evaluate(() => [
     ...Object.values(localStorage),
     ...Object.values(sessionStorage),
   ])
   expect(storedValues).not.toContain('browser-csrf-token')
-  await page.getByRole('button', { name: 'Sign out' }).click()
+  await account.getByRole('button', { name: 'Sign out' }).click()
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
   expect(csrf).toBe('browser-csrf-token')
 })

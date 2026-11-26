@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test'
 import type { Page } from '@playwright/test'
 import type { ElementWriteRequest } from '../src/api/contracts'
 import { elementFixture } from '../src/test/elementFixture'
+import { chooseInterfaceLanguage } from './header'
 
 async function mockApi(page: Page) {
   let record = structuredClone(elementFixture)
@@ -143,7 +144,7 @@ test('edit loads all translations, preserves images and draft on UI change, and 
   await page.goto('/it-definitions/example-id/edit?language=DE')
   await expect(page.locator('#DE-title')).toHaveValue('HTTP auf Deutsch')
   await page.locator('#DE-title').fill('Geändert')
-  await page.locator('#ui-language').selectOption('ru')
+  await chooseInterfaceLanguage(page, 'ru')
   await expect(page.locator('#DE-title')).toHaveValue('Geändert')
   await page.getByRole('button', { name: 'Сохранить определение' }).click()
   await expect(page.getByRole('heading', { name: 'Geändert' })).toBeVisible()
@@ -324,7 +325,7 @@ test('Russian mobile form and preview are accessible and cannot execute Markdown
   await mockApi(page)
   await page.setViewportSize({ width: 375, height: 812 })
   await page.goto('/it-definitions/new?language=RU')
-  await page.locator('#ui-language').selectOption('ru')
+  await chooseInterfaceLanguage(page, 'ru')
   await page
     .locator('#RU-content')
     .fill(

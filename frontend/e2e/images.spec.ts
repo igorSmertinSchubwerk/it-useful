@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test'
 import type { Page } from '@playwright/test'
 import type { ElementImage } from '../src/api/contracts'
 import { elementFixture } from '../src/test/elementFixture'
+import { chooseInterfaceLanguage } from './header'
 
 const png = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a7XcAAAAASUVORK5CYII=',
@@ -301,7 +302,7 @@ test('image drafts trigger navigation warning; Russian mobile manager is accessi
   await page.getByRole('link', { name: 'Cancel', exact: true }).click()
   await page.getByRole('button', { name: 'Keep editing' }).click()
   await expect(page.locator('#alt-first')).toHaveValue('Draft alt')
-  await page.locator('#ui-language').selectOption('ru')
+  await chooseInterfaceLanguage(page, 'ru')
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
   expect(
     await page.evaluate(

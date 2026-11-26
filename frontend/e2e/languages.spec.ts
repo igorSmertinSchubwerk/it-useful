@@ -21,25 +21,30 @@ for (const language of ['en', 'de', 'ru'] as const) {
     })
     await page.setViewportSize({ width: 375, height: 812 })
     await page.goto('/it-definitions')
-    const selector = page.locator('#ui-language')
-    await selector.focus()
-    // Exercise the native select with the keyboard rather than a mouse-only control.
-    await page.keyboard.press('Home')
-    for (let i = 0; i < ['en', 'de', 'ru'].indexOf(language); i++)
-      await page.keyboard.press('ArrowDown')
-    await page.keyboard.press('Enter')
-    await expect(selector).toHaveValue(language)
-    await expect(selector).toBeFocused()
-    await expect(page.locator('html')).toHaveAttribute('lang', language)
     const t = messages[language]
+    const menu = page.getByRole('button', {
+      name: messages.en.uiLanguage,
+      exact: true,
+    })
+    await menu.focus()
+    // Drive the header menu with the keyboard rather than a mouse-only control.
+    await page.keyboard.press('Enter')
+    for (let i = 0; i <= ['en', 'de', 'ru'].indexOf(language); i++)
+      await page.keyboard.press('Tab')
+    await page.keyboard.press('Enter')
+    const changed = page.getByRole('button', {
+      name: t.uiLanguage,
+      exact: true,
+    })
+    await expect(changed).toBeFocused()
+    await expect(changed).toHaveAttribute('aria-expanded', 'false')
+    await expect(page.locator('html')).toHaveAttribute('lang', language)
     await expect(page).toHaveTitle(`${t.homeTitle} | IT Useful`)
     await expect(
       page.getByRole('combobox', { name: t.contentLanguage, exact: true }),
     ).toHaveValue('EN')
     await page.reload()
-    await expect(
-      page.getByRole('combobox', { name: t.uiLanguage, exact: true }),
-    ).toHaveValue(language)
+    await expect(page.locator('html')).toHaveAttribute('lang', language)
     for (const [path, heading] of [
       ['/', t.dashboard],
       ['/it-definitions', t.homeTitle],
