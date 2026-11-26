@@ -9,7 +9,7 @@ test('server frontend keeps private routes behind the email sign-in screen', asy
       response.request().method() === 'GET',
   )
 
-  await page.goto('/elements/private-definition?language=DE')
+  await page.goto('/it-definitions/private-definition?language=DE')
 
   expect((await sessionResponse).status()).toBe(401)
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()

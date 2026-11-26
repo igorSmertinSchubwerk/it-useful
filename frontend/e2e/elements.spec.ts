@@ -32,7 +32,7 @@ test('table, language independence, search, sorting, history, and links', async 
   await page.route('**/api/elements/beta-id', (route) =>
     route.fulfill({ status: 404, json: { code: 'element_not_found' } }),
   )
-  await page.goto('/elements')
+  await page.goto('/it-definitions')
   const rows = page.locator('tbody tr')
   await expect(rows).toHaveCount(3)
   await expect(rows.first()).toContainText('Alpha')
@@ -56,7 +56,7 @@ test('table, language independence, search, sorting, history, and links', async 
   )
   await expect(rows.first()).toContainText('Apfel')
   await page.getByRole('link', { name: 'Apfel', exact: true }).click()
-  await expect(page).toHaveURL(/\/elements\/beta-id\?language=DE$/)
+  await expect(page).toHaveURL(/\/it-definitions\/beta-id\?language=DE$/)
   await page.goBack()
   await expect(page.getByLabel('Язык терминов', { exact: true })).toHaveValue(
     'DE',
@@ -66,7 +66,7 @@ test('table, language independence, search, sorting, history, and links', async 
   await page
     .getByRole('link', { name: 'Редактировать термин: Apfel', exact: true })
     .click()
-  await expect(page).toHaveURL(/\/elements\/beta-id\/edit\?language=DE$/)
+  await expect(page).toHaveURL(/\/it-definitions\/beta-id\/edit\?language=DE$/)
 })
 
 test('loading, failed request, retry, empty, and no search matches', async ({
@@ -79,7 +79,7 @@ test('loading, failed request, retry, empty, and no search matches', async ({
   await page.route('**/api/elements', (route) => {
     resolveRequest(route)
   })
-  await page.goto('/elements')
+  await page.goto('/it-definitions')
   await expect(page.getByRole('status')).toContainText('Loading definitions')
   await (
     await requested
@@ -118,7 +118,7 @@ test('cancel and Escape preserve data and return focus to the delete button', as
     deletes++
     return route.fulfill({ status: 204 })
   })
-  await page.goto('/elements')
+  await page.goto('/it-definitions')
   const trigger = page.getByRole('button', {
     name: 'Delete: Alpha',
     exact: true,
@@ -159,7 +159,7 @@ test('confirmation sends one DELETE, locks dismissal, and refreshes cached data'
     deletes++
     resolveRequest(route)
   })
-  await page.goto('/elements')
+  await page.goto('/it-definitions')
   await page.getByRole('button', { name: 'Delete: Alpha', exact: true }).click()
   const dialog = page.getByRole('dialog')
   await dialog
@@ -204,7 +204,7 @@ test('delete error keeps the record and allows an explicit retry', async ({
     data = data.filter((item) => item.id !== 'alpha-id')
     return route.fulfill({ status: 204 })
   })
-  await page.goto('/elements')
+  await page.goto('/it-definitions')
   await page.getByRole('button', { name: 'Delete: Alpha', exact: true }).click()
   const dialog = page.getByRole('dialog')
   await dialog.getByRole('button', { name: 'Delete', exact: true }).click()
@@ -227,7 +227,7 @@ test('refresh failure retains data and offers recovery', async ({ page }) => {
       ? route.fulfill({ json: records })
       : route.fulfill({ status: 503, body: 'Unavailable' })
   })
-  await page.goto('/elements')
+  await page.goto('/it-definitions')
   await expect(page.locator('tbody tr')).toHaveCount(3)
   await page.getByRole('button', { name: 'Refresh', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText(
@@ -243,7 +243,7 @@ test('populated table and dialog fit mobile and remain accessible in Russian', a
     route.fulfill({ json: records }),
   )
   await page.setViewportSize({ width: 375, height: 812 })
-  await page.goto('/elements?language=RU')
+  await page.goto('/it-definitions?language=RU')
   await page
     .getByLabel('Interface language', { exact: true })
     .selectOption('ru')

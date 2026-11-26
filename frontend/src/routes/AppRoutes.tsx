@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AppLayout } from '../components/AppLayout'
 import { DashboardPage } from '../pages/DashboardPage'
 import { SettingsPage } from '../pages/SettingsPage'
@@ -15,6 +15,14 @@ import { LegalNoticePage } from '../pages/LegalNoticePage'
 import { PrivacyPage } from '../pages/PrivacyPage'
 import { AdminOnly } from '../features/auth/AdminOnly'
 import { AuthenticationGate } from '../features/auth/AuthenticationGate'
+import { definitionsPath } from '../utils/paths'
+
+// Keeps links shared before the move from /elements working, query and anchor included.
+function LegacyDefinitionsRedirect() {
+  const { pathname, search, hash } = useLocation()
+  const rest = pathname.slice('/elements'.length)
+  return <Navigate to={`${definitionsPath}${rest}${search}${hash}`} replace />
+}
 
 export function AppRoutes() {
   return (
@@ -33,23 +41,24 @@ export function AppRoutes() {
           path="account/password"
           element={<Navigate to="/settings/password" replace />}
         />
+        <Route path="elements/*" element={<LegacyDefinitionsRedirect />} />
         <Route element={<AuthenticationGate />}>
           <Route index element={<DashboardPage />} />
-          <Route path="elements" element={<ElementListPage />} />
+          <Route path="it-definitions" element={<ElementListPage />} />
           <Route
-            path="elements/new"
+            path="it-definitions/new"
             element={
               <AdminOnly>
                 <ElementEditorPage mode="create" />
               </AdminOnly>
             }
           />
-          <Route path="elements/:id" element={<ElementDetailPage />} />
+          <Route path="it-definitions/:id" element={<ElementDetailPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="settings/accounts" element={<AccountsPage />} />
           <Route path="settings/password" element={<ChangePasswordPage />} />
           <Route
-            path="elements/:id/edit"
+            path="it-definitions/:id/edit"
             element={
               <AdminOnly>
                 <ElementEditorPage mode="edit" />

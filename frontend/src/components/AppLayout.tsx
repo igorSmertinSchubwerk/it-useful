@@ -4,6 +4,7 @@ import { useI18n } from '../i18n/context'
 import { LanguageSelector } from './LanguageSelector'
 import { useAuthentication, useCanEdit } from '../features/auth/context'
 import { useState } from 'react'
+import { definitionsPath } from '../utils/paths'
 
 const linkClass =
   'text-brand underline-offset-4 hover:underline aria-[current=page]:font-bold aria-[current=page]:underline'
@@ -14,10 +15,10 @@ function SectionNavigation() {
   const { state } = useAuthentication()
   const canEdit = useCanEdit()
   if (state.status !== 'signedIn') return null
-  const links = matchPath({ path: '/elements', end: false }, pathname)
+  const links = matchPath({ path: definitionsPath, end: false }, pathname)
     ? [
-        { to: '/elements', label: t.allDefinitions, show: true },
-        { to: '/elements/new', label: t.create, show: canEdit },
+        { to: definitionsPath, label: t.allDefinitions, show: true },
+        { to: `${definitionsPath}/new`, label: t.create, show: canEdit },
       ]
     : matchPath({ path: '/settings', end: false }, pathname)
       ? [
@@ -75,7 +76,7 @@ export function AppLayout() {
               <NavLink to="/" end className={linkClass}>
                 {t.dashboard}
               </NavLink>
-              <NavLink to="/elements" className={linkClass}>
+              <NavLink to={definitionsPath} className={linkClass}>
                 {t.itDefinitions}
               </NavLink>
               <NavLink to="/settings" className={linkClass}>

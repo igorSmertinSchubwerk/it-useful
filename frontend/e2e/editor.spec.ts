@@ -89,7 +89,7 @@ test('required validation reveals language errors, focuses fields, and supports 
   page,
 }) => {
   const writes = await mockApi(page)
-  await page.goto('/elements/new')
+  await page.goto('/it-definitions/new')
   await page.getByRole('button', { name: 'Save definition' }).click()
   await expect(page.locator('#slug')).toBeFocused()
   await expect(
@@ -109,7 +109,7 @@ test('creates exactly once, renders preview and saved detail, and refreshes list
   page,
 }) => {
   const writes = await mockApi(page)
-  await page.goto('/elements/new')
+  await page.goto('/it-definitions/new')
   await fillAll(page)
   await page.locator('#RU-examples').fill('~~~js\nconsole.log(1)\n~~~')
   await expect(
@@ -121,7 +121,7 @@ test('creates exactly once, renders preview and saved detail, and refreshes list
       button.click()
       button.click()
     })
-  await expect(page).toHaveURL(/\/elements\/example-id\?language=RU$/)
+  await expect(page).toHaveURL(/\/it-definitions\/example-id\?language=RU$/)
   expect(writes).toHaveLength(1)
   expect(writes[0].translations.map((item) => item.languageCode)).toEqual([
     'EN',
@@ -140,7 +140,7 @@ test('edit loads all translations, preserves images and draft on UI change, and 
   page,
 }) => {
   const writes = await mockApi(page)
-  await page.goto('/elements/example-id/edit?language=DE')
+  await page.goto('/it-definitions/example-id/edit?language=DE')
   await expect(page.locator('#DE-title')).toHaveValue('HTTP auf Deutsch')
   await page.locator('#DE-title').fill('Geändert')
   await page.locator('#ui-language').selectOption('ru')
@@ -177,7 +177,7 @@ test('server validation selects hidden tab and duplicate slug preserves entered 
           : { code: 'duplicate_slug' },
     })
   })
-  await page.goto('/elements/new')
+  await page.goto('/it-definitions/new')
   await fillAll(page)
   await page.getByRole('button', { name: 'Save definition' }).click()
   await expect(page.locator('#DE-title')).toBeFocused()
@@ -208,7 +208,7 @@ test('pending save disables editing and duplicate submissions, then recovers aft
     await gate
     await route.fulfill({ status: 503, json: { code: 'internal_error' } })
   })
-  await page.goto('/elements/new')
+  await page.goto('/it-definitions/new')
   await fillAll(page)
   await page
     .getByRole('button', { name: 'Save definition' })
@@ -237,7 +237,7 @@ test('dirty navigation guards Cancel, header links, browser Back, and reload wit
   page,
 }) => {
   await mockApi(page)
-  await page.goto('/elements')
+  await page.goto('/it-definitions')
   await page
     .getByRole('navigation', { name: 'Section navigation' })
     .getByRole('link', { name: 'New definition' })
@@ -267,7 +267,7 @@ test('dirty navigation guards Cancel, header links, browser Back, and reload wit
   await expect(page.locator('#slug')).toHaveValue('draft')
   await page.getByRole('link', { name: 'Cancel', exact: true }).click()
   await page.getByRole('button', { name: 'Discard and leave' }).click()
-  await expect(page).toHaveURL(/\/elements$/)
+  await expect(page).toHaveURL(/\/it-definitions$/)
 })
 
 test('successful pending save closes a blocked navigation and opens the saved detail', async ({
@@ -283,7 +283,7 @@ test('successful pending save closes a blocked navigation and opens the saved de
     const body = route.request().postDataJSON() as ElementWriteRequest
     await route.fulfill({ status: 201, json: { ...elementFixture, ...body } })
   })
-  await page.goto('/elements/new')
+  await page.goto('/it-definitions/new')
   await fillAll(page)
   await page.getByRole('button', { name: 'Save definition' }).click()
   await expect(page.locator('#slug')).toBeDisabled()
@@ -298,7 +298,7 @@ test('clean cancel navigates without warning and edit missing/error states can r
   page,
 }) => {
   await mockApi(page)
-  await page.goto('/elements/new')
+  await page.goto('/it-definitions/new')
   await page.getByRole('link', { name: 'Cancel', exact: true }).click()
   await expect(page.getByRole('dialog')).toHaveCount(0)
   let fail = true
@@ -308,7 +308,7 @@ test('clean cancel navigates without warning and edit missing/error states can r
       json: fail ? { code: 'element_not_found' } : elementFixture,
     }),
   )
-  await page.goto('/elements/example-id/edit')
+  await page.goto('/it-definitions/example-id/edit')
   await expect(page.getByRole('alert')).toBeVisible()
   await expect(
     page.getByRole('button', { name: 'Save definition' }),
@@ -323,7 +323,7 @@ test('Russian mobile form and preview are accessible and cannot execute Markdown
 }) => {
   await mockApi(page)
   await page.setViewportSize({ width: 375, height: 812 })
-  await page.goto('/elements/new?language=RU')
+  await page.goto('/it-definitions/new?language=RU')
   await page.locator('#ui-language').selectOption('ru')
   await page
     .locator('#RU-content')

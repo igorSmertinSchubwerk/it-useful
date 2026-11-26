@@ -24,7 +24,7 @@ import type {
   EditableField,
   ElementFormValues,
 } from '../../schemas/elementSchema'
-import { elementPath } from '../../utils/paths'
+import { definitionsPath, elementPath } from '../../utils/paths'
 import { elementsApi, elementKeys } from './queries'
 import { parseContentLanguage } from './list'
 import { MarkdownPreview } from './MarkdownPreview'
@@ -325,7 +325,7 @@ export function ElementForm({ element }: { element?: ElementDetail }) {
           to={
             element
               ? `${elementPath(element.id)}${suffix}`
-              : `/elements${suffix}`
+              : `${definitionsPath}${suffix}`
           }
           className="inline-block text-brand underline"
         >

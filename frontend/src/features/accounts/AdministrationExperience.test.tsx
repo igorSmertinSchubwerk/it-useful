@@ -284,7 +284,7 @@ test('a user sees no create, edit, or delete controls and cannot open the editor
       HttpResponse.json(elementFixture),
     ),
   )
-  renderServerApp('/elements')
+  renderServerApp('/it-definitions')
 
   expect(await screen.findByText('HTTP')).toBeVisible()
   expect(
@@ -308,7 +308,7 @@ test('a user who opens an editor route sees that only admins can edit', async ()
       HttpResponse.json(userSession),
     ),
   )
-  renderServerApp('/elements/new')
+  renderServerApp('/it-definitions/new')
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
     'Only admins can create or change definitions.',

@@ -20,7 +20,7 @@ for (const language of ['en', 'de', 'ru'] as const) {
       if (message.type() === 'error') errors.push(message.text())
     })
     await page.setViewportSize({ width: 375, height: 812 })
-    await page.goto('/elements')
+    await page.goto('/it-definitions')
     const selector = page.locator('#ui-language')
     await selector.focus()
     // Exercise the native select with the keyboard rather than a mouse-only control.
@@ -42,11 +42,11 @@ for (const language of ['en', 'de', 'ru'] as const) {
     ).toHaveValue(language)
     for (const [path, heading] of [
       ['/', t.dashboard],
-      ['/elements', t.homeTitle],
+      ['/it-definitions', t.homeTitle],
       ['/settings', t.settings],
-      ['/elements/new', t.create],
-      ['/elements/example-id', t.detail],
-      ['/elements/example-id/edit', t.edit],
+      ['/it-definitions/new', t.create],
+      ['/it-definitions/example-id', t.detail],
+      ['/it-definitions/example-id/edit', t.edit],
       ['/unknown', t.notFound],
     ]) {
       await page.goto(path)
@@ -75,7 +75,7 @@ test('invalid saved language falls back to English', async ({ page }) => {
   await page.addInitScript(() =>
     localStorage.setItem('it-useful.ui-language', 'invalid'),
   )
-  await page.goto('/elements/new')
+  await page.goto('/it-definitions/new')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
     'New definition',
   )

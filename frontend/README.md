@@ -54,7 +54,7 @@ use real OAuth credentials.
 The dashboard at `/` shows one card per section: the definition count with the
 three most recently changed definitions, and the Settings summary with the
 interface language, the account, and for admins on the server variant the
-accounts waiting for confirmation and the open invitations. The definition list at `/elements` loads
+accounts waiting for confirmation and the open invitations. The definition list at `/it-definitions` loads
 definitions from the backend and supports confirmed deletion. Start Spring and PostgreSQL using the root project instructions to
 see your saved definitions. Without the backend, a localized error and Retry
 button are shown. Detail, create, and edit pages are connected to the same API.
@@ -253,9 +253,11 @@ not a live backend integration test.
 
 ## Navigation
 
-Routes: `/`, `/elements/new`, `/elements/:id`, `/elements/:id/edit`, and a
-not-found page for other paths. Open a definition from the list to get its real
-ID; `/elements/example-id` is not a seeded record and will show an API error.
+Routes: `/`, `/it-definitions`, `/it-definitions/new`, `/it-definitions/:id`,
+`/it-definitions/:id/edit`, the Settings pages, and a not-found page for other
+paths. Old `/elements/...` links redirect to the same page under
+`/it-definitions`. Open a definition from the list to get its real ID.
+`/it-definitions/example-id` is not a seeded record and will show an API error.
 The list, detail, create, and edit routes are connected.
 Use the interface-language selector in the header to switch between English,
 German, and Russian. Navigation, forms, page titles, and accessibility

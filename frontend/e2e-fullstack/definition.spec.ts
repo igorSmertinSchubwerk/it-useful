@@ -8,7 +8,7 @@ test('create, translate, edit, upload, reload and delete through the real API', 
   const initial = await request.get('/api/elements')
   expect(initial.ok()).toBe(true)
   expect(await initial.json()).toEqual([])
-  await page.goto('/elements/new')
+  await page.goto('/it-definitions/new')
   await page.locator('#slug').fill('full-stack-definition')
   for (const [code, label] of [
     ['EN', 'English'],
@@ -27,7 +27,7 @@ test('create, translate, edit, upload, reload and delete through the real API', 
   await page
     .getByRole('button', { name: 'Save definition', exact: true })
     .click()
-  await expect(page).toHaveURL(/\/elements\/[0-9a-f-]+\?/)
+  await expect(page).toHaveURL(/\/it-definitions\/[0-9a-f-]+\?/)
   const id = new URL(page.url()).pathname.split('/').at(-1)!
   await page.reload()
   for (const code of ['EN', 'DE', 'RU']) {

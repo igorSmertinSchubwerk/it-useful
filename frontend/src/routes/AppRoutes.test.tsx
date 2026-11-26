@@ -4,9 +4,9 @@ import { expect, test } from 'vitest'
 import App from '../App'
 
 test.each([
-  ['/elements/new', 'New definition'],
-  ['/elements/123', 'Definition details'],
-  ['/elements/123/edit', 'Edit definition'],
+  ['/it-definitions/new', 'New definition'],
+  ['/it-definitions/123', 'Definition details'],
+  ['/it-definitions/123/edit', 'Edit definition'],
   ['/does-not-exist', 'Page not found'],
 ])('renders %s with a shared shell', (path, heading) => {
   render(

@@ -10,12 +10,12 @@ test.beforeEach(async ({ page }) => {
 })
 
 const routes = [
-  ['/elements', 'A home for your IT knowledge'],
+  ['/it-definitions', 'A home for your IT knowledge'],
   ['/', 'Dashboard'],
   ['/settings', 'Settings'],
-  ['/elements/new', 'New definition'],
-  ['/elements/example-id', 'Definition details'],
-  ['/elements/example-id/edit', 'Edit definition'],
+  ['/it-definitions/new', 'New definition'],
+  ['/it-definitions/example-id', 'Definition details'],
+  ['/it-definitions/example-id/edit', 'Edit definition'],
   ['/unknown/page', 'Page not found'],
 ] as const
 
@@ -37,7 +37,7 @@ for (const [path, title] of routes) {
 }
 
 test('navigation, active links, history, and route focus', async ({ page }) => {
-  await page.goto('/elements')
+  await page.goto('/it-definitions')
   const navigation = page.getByRole('navigation', { name: 'Main navigation' })
   const section = page.getByRole('navigation', { name: 'Section navigation' })
   await expect(
@@ -58,9 +58,9 @@ test('navigation, active links, history, and route focus', async ({ page }) => {
     'New definition',
   )
 
-  await page.goto('/elements/example-id')
+  await page.goto('/it-definitions/example-id')
   await page.getByRole('link', { name: 'Edit definition', exact: true }).click()
-  await expect(page).toHaveURL(/\/elements\/example-id\/edit$/)
+  await expect(page).toHaveURL(/\/it-definitions\/example-id\/edit$/)
   await expect(page.getByRole('heading', { level: 1 })).toBeFocused()
   await page.goBack()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
@@ -75,7 +75,7 @@ test('navigation, active links, history, and route focus', async ({ page }) => {
     'Definition details',
   )
   await page.getByRole('link', { name: 'Back to definitions' }).click()
-  await expect(page).toHaveURL(/\/elements$/)
+  await expect(page).toHaveURL(/\/it-definitions$/)
 
   await page.goto('/unknown/page')
   await page.getByRole('link', { name: 'Back to definitions' }).click()
