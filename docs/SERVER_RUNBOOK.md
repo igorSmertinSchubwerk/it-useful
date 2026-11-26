@@ -250,6 +250,26 @@ sudo ./scripts/project.sh server-start /etc/it-useful/server.env
 Back up first with `./scripts/project.sh backup` when the update contains a
 database migration.
 
+### Automatic deployment
+
+Install a systemd timer once. It deploys the checkout now, then checks `main`
+every two minutes. A new commit is deployed after every GitHub check on it has
+passed:
+
+```bash
+sudo ./scripts/project.sh server-auto-deploy /etc/it-useful/server.env
+```
+
+A commit with a failed check stays undeployed, and the journal records a
+warning with its hash. The next commit that passes is deployed. A failed start
+is retried on the next run. A checkout with local commits that `main` lacks
+stays as it is, with a warning. Follow the runs with
+`journalctl -u it-useful-auto-deploy -f`.
+
+The timer runs the checkout's scripts as root. Anyone who can merge into `main`
+or write to the checkout therefore controls the host. Back up manually before
+merging a database migration, because the timer does not back up.
+
 ## 7. Pre-deployment evidence
 
 Run the repository's assembled security test on a trusted development machine:

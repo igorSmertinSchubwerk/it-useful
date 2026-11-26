@@ -24,6 +24,8 @@ Application commands:
                     Show private-server service status
   server-create-first-admin <absolute-env-file> <email>
                     Print the first admin's invitation link while no account exists
+  server-auto-deploy <absolute-env-file>
+                    Deploy now, then deploy each new main commit once its CI passed
 
 Verification commands:
   test              Run backend and frontend checks
@@ -33,6 +35,7 @@ Verification commands:
   test-compose      Run the real browser workflow against built images
   test-acceptance   Run release acceptance from a clean archived checkout
   test-backup       Validate backup and restore against isolated Compose data
+  test-auto-deploy  Verify that automatic deployment waits for passed CI
   test-server-topology
                     Compatibility alias for test-server-security
   test-server-security
@@ -121,6 +124,9 @@ case "${command_name}" in
   server-create-first-admin)
     "${project_root}/scripts/create-first-admin.sh" "$@"
     ;;
+  server-auto-deploy)
+    "${project_root}/scripts/install-auto-deploy.sh" "$@"
+    ;;
   test)
     "${project_root}/scripts/test-backend.sh"
     select_node
@@ -157,6 +163,9 @@ case "${command_name}" in
     ;;
   test-backup)
     "${project_root}/scripts/test-backup.sh" "$@"
+    ;;
+  test-auto-deploy)
+    "${project_root}/scripts/test-auto-deploy.sh"
     ;;
   test-server-topology)
     select_node
