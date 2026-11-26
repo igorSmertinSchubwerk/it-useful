@@ -259,8 +259,9 @@ paths. Old `/elements/...` links redirect to the same page under
 `/it-definitions`. Open a definition from the list to get its real ID.
 `/it-definitions/example-id` is not a seeded record and will show an API error.
 The list, detail, create, and edit routes are connected.
-Use the interface-language selector in the header to switch between English,
-German, and Russian. Navigation, forms, page titles, and accessibility
+Use the language icon in the header to switch between English, German, and
+Russian. The moon icon next to it switches dark mode, and the choice is stored
+in the browser. Navigation, forms, page titles, and accessibility
 labels follow the selected interface language.
 
 ## Interface and content languages

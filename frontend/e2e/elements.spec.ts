@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import type { Route } from '@playwright/test'
+import { chooseInterfaceLanguage } from './header'
 
 const records = [
   {
@@ -48,9 +49,7 @@ test('table, language independence, search, sorting, history, and links', async 
   await expect(rows).toHaveCount(3)
   await expect(rows.first()).toContainText('Apfel')
   await expect(rows.last()).toContainText('Translation missing (missing)')
-  await page
-    .getByLabel('Interface language', { exact: true })
-    .selectOption('ru')
+  await chooseInterfaceLanguage(page, 'ru')
   await expect(page.getByLabel('Язык терминов', { exact: true })).toHaveValue(
     'DE',
   )
@@ -244,9 +243,7 @@ test('populated table and dialog fit mobile and remain accessible in Russian', a
   )
   await page.setViewportSize({ width: 375, height: 812 })
   await page.goto('/it-definitions?language=RU')
-  await page
-    .getByLabel('Interface language', { exact: true })
-    .selectOption('ru')
+  await chooseInterfaceLanguage(page, 'ru')
   await expect(page.locator('tbody tr')).toHaveCount(3)
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
   expect(

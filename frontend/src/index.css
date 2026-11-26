@@ -10,6 +10,46 @@
   --color-brand: #1d4ed8;
   --color-line: #cbd5e1;
   --color-control: #64748b;
+  --color-on-brand: #ffffff;
+}
+
+/*
+ * Dark palette. The toggle sets data-theme. Until the script runs, the system
+ * preference decides, so a dark system does not flash light. Error messages use
+ * Tailwind's red scale directly, so those steps are remapped to stay readable.
+ */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-canvas: #0f172a;
+  --color-surface: #1e293b;
+  --color-ink: #e2e8f0;
+  --color-muted: #94a3b8;
+  --color-brand: #93c5fd;
+  --color-line: #334155;
+  --color-control: #94a3b8;
+  --color-on-brand: #0f172a;
+  --color-red-50: #450a0a;
+  --color-red-300: #991b1b;
+  --color-red-800: #fca5a5;
+  --color-red-900: #fecaca;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --color-canvas: #0f172a;
+    --color-surface: #1e293b;
+    --color-ink: #e2e8f0;
+    --color-muted: #94a3b8;
+    --color-brand: #93c5fd;
+    --color-line: #334155;
+    --color-control: #94a3b8;
+    --color-on-brand: #0f172a;
+    --color-red-50: #450a0a;
+    --color-red-300: #991b1b;
+    --color-red-800: #fca5a5;
+    --color-red-900: #fecaca;
+  }
 }
 
 /* Input/button boundaries need stronger contrast than decorative card borders. */

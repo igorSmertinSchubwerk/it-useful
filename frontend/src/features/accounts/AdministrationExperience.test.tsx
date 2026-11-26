@@ -294,7 +294,11 @@ test('a user sees no create, edit, or delete controls and cannot open the editor
   expect(
     screen.queryByRole('button', { name: /^Delete/ }),
   ).not.toBeInTheDocument()
-  await userEvent.click(screen.getByRole('link', { name: 'Settings' }))
+  await userEvent.click(
+    within(
+      screen.getByRole('navigation', { name: 'Main navigation' }),
+    ).getByRole('link', { name: 'Settings' }),
+  )
   expect(
     within(screen.getByRole('navigation', { name: 'Section navigation' }))
       .getAllByRole('link')

@@ -36,7 +36,7 @@ export function AuthenticationGate() {
           <button
             type="button"
             onClick={retry}
-            className="rounded bg-brand px-4 py-2 font-semibold text-white hover:opacity-90"
+            className="rounded bg-brand px-4 py-2 font-semibold text-on-brand hover:opacity-90"
           >
             {t.checkAgain}
           </button>

@@ -333,7 +333,7 @@ test.each(['/settings', '/settings/'])(
       await screen.findByRole('heading', { name: 'Waiting for confirmation' }),
     ).toBeVisible()
     expect(
-      screen.getAllByRole('combobox', { name: 'Interface language' }),
+      screen.getAllByRole('button', { name: 'Interface language' }),
     ).toHaveLength(1)
   },
 )

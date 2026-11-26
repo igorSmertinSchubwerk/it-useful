@@ -11,6 +11,11 @@ definitions, and Settings. IT definitions holds the definition list and the
 form for a new definition. Settings holds the interface language, the password
 change, and, for admins on the server variant, account administration.
 
+Icons at the top right switch between light and dark mode, change the interface
+language, open Settings, and show the signed-in account with the sign-out
+button. Without a saved choice, the app opens in the operating system's color
+scheme.
+
 The application uses Java 21 with Spring Boot, React with TypeScript and
 Tailwind CSS, PostgreSQL with Flyway, and Docker Compose.
 

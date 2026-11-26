@@ -5,6 +5,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { expect, test } from 'vitest'
 import App from '../../App'
 import { server } from '../../test/server'
+import { openAccountMenu } from '../../test/header'
 
 const adminSession = {
   email: 'admin@example.com',
@@ -91,8 +92,9 @@ test('signs in with a fresh CSRF token and opens the signed-in shell', async () 
   await submitSignIn('admin@example.com', 'correct horse battery staple')
 
   expect(
-    await screen.findByText('Signed in as admin@example.com'),
-  ).toBeVisible()
+    await screen.findByRole('heading', { level: 1, name: 'Dashboard' }),
+  ).toHaveFocus()
+  expect((await openAccountMenu()).getByText('admin@example.com')).toBeVisible()
   expect(signInRequest()).toEqual({
     csrf: 'anonymous-csrf-token',
     body: 'email=admin%40example.com&password=correct+horse+battery+staple',
@@ -187,11 +189,10 @@ test('renders the signed-in shell and signs out with its in-memory CSRF token', 
     }),
   )
   renderServerApp()
-  expect(
-    await screen.findByText('Signed in as admin@example.com'),
-  ).toBeVisible()
+  const account = await openAccountMenu()
+  expect(account.getByText('admin@example.com')).toBeVisible()
   expect(screen.getByRole('navigation')).toBeVisible()
-  await userEvent.click(screen.getByRole('button', { name: 'Sign out' }))
+  await userEvent.click(account.getByRole('button', { name: 'Sign out' }))
   expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeVisible()
   expect(logoutHeader).toBe('session-csrf-token')
 })

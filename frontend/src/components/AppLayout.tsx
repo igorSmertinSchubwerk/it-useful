@@ -1,10 +1,13 @@
-import { matchPath, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { Link, matchPath, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useRouteAccessibility } from '../hooks/useRouteAccessibility'
 import { useI18n } from '../i18n/context'
-import { LanguageSelector } from './LanguageSelector'
+import { LanguageMenu } from './LanguageSelector'
+import { ThemeToggle } from './ThemeToggle'
 import { useAuthentication, useCanEdit } from '../features/auth/context'
 import { useState } from 'react'
 import { definitionsPath } from '../utils/paths'
+import { HeaderMenu, iconButtonClass } from './HeaderMenu'
+import { AccountIcon, SettingsIcon } from './icons'
 
 const linkClass =
   'text-brand underline-offset-4 hover:underline aria-[current=page]:font-bold aria-[current=page]:underline'
@@ -55,7 +58,6 @@ function SectionNavigation() {
 export function AppLayout() {
   useRouteAccessibility()
   const { t } = useI18n()
-  const { pathname } = useLocation()
   const { state, logout, loggingOut } = useAuthentication()
   const [logoutFailed, setLogoutFailed] = useState(false)
   return (
@@ -68,45 +70,61 @@ export function AppLayout() {
       </a>
       <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-5">
-          <NavLink to="/" className="text-xl font-bold text-ink">
-            IT Useful
-          </NavLink>
-          {state.status === 'signedIn' && (
-            <nav aria-label={t.nav} className="flex flex-wrap gap-5">
-              <NavLink to="/" end className={linkClass}>
-                {t.dashboard}
-              </NavLink>
-              <NavLink to={definitionsPath} className={linkClass}>
-                {t.itDefinitions}
-              </NavLink>
-              <NavLink to="/settings" className={linkClass}>
-                {t.settings}
-              </NavLink>
-            </nav>
-          )}
-          {!(
-            state.status === 'signedIn' && matchPath('/settings', pathname)
-          ) && <LanguageSelector />}
-          {state.status === 'signedIn' && (
-            <div className="flex flex-wrap items-center gap-3 text-sm">
-              <span>
-                {state.local ? t.localMode : `${t.signedInAs} ${state.email}`}
-              </span>
-              {!state.local && (
-                <button
-                  type="button"
-                  disabled={loggingOut}
-                  className="text-brand underline disabled:opacity-50"
-                  onClick={() => {
-                    setLogoutFailed(false)
-                    void logout().catch(() => setLogoutFailed(true))
-                  }}
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+            <NavLink to="/" className="text-xl font-bold text-ink">
+              IT Useful
+            </NavLink>
+            {state.status === 'signedIn' && (
+              <nav aria-label={t.nav} className="flex flex-wrap gap-5">
+                <NavLink to="/" end className={linkClass}>
+                  {t.dashboard}
+                </NavLink>
+                <NavLink to={definitionsPath} className={linkClass}>
+                  {t.itDefinitions}
+                </NavLink>
+                <NavLink to="/settings" className={linkClass}>
+                  {t.settings}
+                </NavLink>
+              </nav>
+            )}
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <ThemeToggle />
+            <LanguageMenu />
+            {state.status === 'signedIn' && (
+              <>
+                <Link
+                  to="/settings"
+                  aria-label={t.settings}
+                  title={t.settings}
+                  className={iconButtonClass}
                 >
-                  {loggingOut ? t.loggingOut : t.logout}
-                </button>
-              )}
-            </div>
-          )}
+                  <SettingsIcon />
+                </Link>
+                <HeaderMenu label={t.account} icon={<AccountIcon />}>
+                  {state.local ? (
+                    <p>{t.localMode}</p>
+                  ) : (
+                    <>
+                      <p className="text-muted">{t.signedInAs}</p>
+                      <p className="font-semibold">{state.email}</p>
+                      <button
+                        type="button"
+                        disabled={loggingOut}
+                        className="mt-3 text-brand underline disabled:opacity-50"
+                        onClick={() => {
+                          setLogoutFailed(false)
+                          void logout().catch(() => setLogoutFailed(true))
+                        }}
+                      >
+                        {loggingOut ? t.loggingOut : t.logout}
+                      </button>
+                    </>
+                  )}
+                </HeaderMenu>
+              </>
+            )}
+          </div>
         </div>
         <SectionNavigation />
         {logoutFailed && (

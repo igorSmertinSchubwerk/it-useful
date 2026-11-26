@@ -239,7 +239,7 @@ export function ElementForm({ element }: { element?: ElementDetail }) {
                 aria-selected={active === index}
                 aria-controls={`panel-${code}`}
                 tabIndex={active === index ? 0 : -1}
-                className="rounded border border-line px-3 py-2 aria-selected:bg-brand aria-selected:text-white"
+                className="rounded border border-line px-3 py-2 aria-selected:bg-brand aria-selected:text-on-brand"
                 onClick={() => setActive(index)}
                 onKeyDown={(event) => {
                   const target =
@@ -313,7 +313,7 @@ export function ElementForm({ element }: { element?: ElementDetail }) {
           <button
             type="submit"
             disabled={imageState.dirty || imageState.busy}
-            className="rounded bg-brand px-4 py-2 font-semibold text-white disabled:opacity-50"
+            className="rounded bg-brand px-4 py-2 font-semibold text-on-brand disabled:opacity-50"
           >
             {isSubmitting ? t.saving : t.save}
           </button>
