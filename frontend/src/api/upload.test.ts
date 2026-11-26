@@ -120,3 +120,52 @@ test('already aborted signals never send', async () => {
   await expect(promise).rejects.toMatchObject({ name: 'AbortError' })
   expect(xhr.send).not.toHaveBeenCalled()
 })
+
+test('upload retries once with a fresh CSRF token after a 30-day login restored the session', async () => {
+  setCsrfToken('X-CSRF-TOKEN', 'stale-token')
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () =>
+      Response.json({
+        csrf: { headerName: 'X-CSRF-TOKEN', token: 'fresh-token' },
+      }),
+    ),
+  )
+  const { promise, xhr } = start()
+  xhr.status = 401
+  xhr.responseText = '{"code":"authentication_required"}'
+  xhr.onload?.()
+
+  await vi.waitFor(() => expect(FakeXhr.latest).not.toBe(xhr))
+  const retry = FakeXhr.latest
+  expect(retry.setRequestHeader).toHaveBeenCalledWith(
+    'x-csrf-token',
+    'fresh-token',
+  )
+  retry.onload?.()
+  await expect(promise).resolves.toEqual({ id: 'image' })
+})
+
+test('aborting an upload while the session is restored reports the abort', async () => {
+  setCsrfToken('X-CSRF-TOKEN', 'stale-token')
+  const controller = new AbortController()
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(
+      (_url: string, init: RequestInit) =>
+        new Promise((_resolve, reject) =>
+          init.signal?.addEventListener('abort', () =>
+            reject(new DOMException('Aborted', 'AbortError')),
+          ),
+        ),
+    ),
+  )
+  const { promise, xhr } = start(controller.signal)
+  xhr.status = 401
+  xhr.responseText = '{"code":"authentication_required"}'
+  xhr.onload?.()
+
+  controller.abort()
+
+  await expect(promise).rejects.toMatchObject({ name: 'AbortError' })
+})

@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,8 +24,9 @@ import java.util.Set;
  * Checks a signed-in session against the account on every request. A session
  * whose account is gone or whose session version is outdated ends at once.
  * Otherwise the authorities are recomputed, so a confirmation or role change
- * applies to open sessions. Registered only inside the security filter chain,
- * never as a bean.
+ * applies to open sessions. A session that a remember-me cookie just restored
+ * records the current version on its first request. Registered only inside the
+ * security filter chain, never as a bean.
  */
 public class AccountAuthorityRefreshFilter extends OncePerRequestFilter {
 
@@ -41,9 +43,15 @@ public class AccountAuthorityRefreshFilter extends OncePerRequestFilter {
 			FilterChain filterChain
 	) throws ServletException, IOException {
 		Authentication current = SecurityContextHolder.getContext().getAuthentication();
-		if (current instanceof UsernamePasswordAuthenticationToken && current.isAuthenticated()) {
+		boolean signedIn = current instanceof UsernamePasswordAuthenticationToken
+				|| current instanceof RememberMeAuthenticationToken;
+		if (signedIn && current.isAuthenticated()) {
 			Optional<Account> account = accountRepository.findByEmailIgnoreCase(current.getName());
 			HttpSession session = request.getSession(false);
+			if (current instanceof RememberMeAuthenticationToken && account.isPresent()
+					&& session != null && !SessionVersion.isRecorded(session)) {
+				SessionVersion.remember(session, account.get().getSessionVersion());
+			}
 			if (account.isEmpty() || !SessionVersion.matches(session, account.get().getSessionVersion())) {
 				if (session != null) {
 					session.invalidate();

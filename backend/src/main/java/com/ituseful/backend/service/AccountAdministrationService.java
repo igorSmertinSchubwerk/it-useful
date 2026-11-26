@@ -12,6 +12,7 @@ import com.ituseful.backend.repository.AccountRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,9 +26,14 @@ public class AccountAdministrationService {
 	private static final Logger log = LoggerFactory.getLogger(AccountAdministrationService.class);
 
 	private final AccountRepository accountRepository;
+	private final PersistentTokenRepository rememberMeTokens;
 
-	public AccountAdministrationService(AccountRepository accountRepository) {
+	public AccountAdministrationService(
+			AccountRepository accountRepository,
+			PersistentTokenRepository rememberMeTokens
+	) {
 		this.accountRepository = accountRepository;
+		this.rememberMeTokens = rememberMeTokens;
 	}
 
 	@Transactional(readOnly = true)
@@ -68,6 +74,7 @@ public class AccountAdministrationService {
 			throw new LastAdminException();
 		}
 		account.disable();
+		rememberMeTokens.removeUserTokens(account.getEmail());
 		log.info("Admin {} disabled account {}", adminId, account.getId());
 	}
 

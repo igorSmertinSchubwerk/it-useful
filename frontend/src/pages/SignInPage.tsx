@@ -19,6 +19,7 @@ export function SignInPage() {
   const from = navigation?.from
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [remember, setRemember] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   if (state.status === 'signedIn') return <Navigate to="/" replace />
@@ -29,7 +30,7 @@ export function SignInPage() {
     setSubmitting(true)
     setError(null)
     try {
-      await signIn(email, password)
+      await signIn(email, password, remember)
     } catch (failure) {
       const status = failure instanceof ApiError ? failure.status : null
       setError(
@@ -82,6 +83,16 @@ export function SignInPage() {
             onChange={(event) => setPassword(event.target.value)}
             className={inputClass}
           />
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            name="remember-me"
+            checked={remember}
+            onChange={(event) => setRemember(event.target.checked)}
+            className="h-4 w-4"
+          />
+          {t.keepSignedIn}
         </label>
         {error && (
           <p role="alert" className="text-red-800">

@@ -56,8 +56,13 @@ local Compose workflow.
 - `POST /api/password-resets/complete` is open to anonymous browsers and takes
   `{"token", "password"}` with the CSRF header. It sets the password, ends every
   session of the account, and lifts a lockout.
-- The server session cookie is named `IT_USEFUL_SESSION`, lasts 30 minutes, and is
-  configured as `Secure`, `HttpOnly`, and `SameSite=Lax`.
+- The server session cookie is named `IT_USEFUL_SESSION`, ends after 60 idle
+  minutes, and is configured as `Secure`, `HttpOnly`, and `SameSite=Lax`.
+- A sign-in with `remember-me=on` also sets `IT_USEFUL_REMEMBER_ME`, with the
+  same flags, for 30 days. It signs the browser in again after the session
+  ends, also across restarts. The database stores only a SHA-256 hash of its
+  token. Sign-out ends the account's 30-day sign-ins on every browser. A
+  password change or reset and disabling the account end them too.
 
 Swagger and OpenAPI are disabled in the server profile. Actuator health is the
 only unauthenticated operational route and must remain inside the private backend

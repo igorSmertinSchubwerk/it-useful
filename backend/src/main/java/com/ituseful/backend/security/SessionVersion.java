@@ -17,6 +17,10 @@ public final class SessionVersion {
 		session.setAttribute(ATTRIBUTE, version);
 	}
 
+	public static boolean isRecorded(HttpSession session) {
+		return session != null && session.getAttribute(ATTRIBUTE) != null;
+	}
+
 	public static boolean matches(HttpSession session, int version) {
 		return session != null && Integer.valueOf(version).equals(session.getAttribute(ATTRIBUTE));
 	}

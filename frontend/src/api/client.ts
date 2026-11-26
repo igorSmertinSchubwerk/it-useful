@@ -1,6 +1,14 @@
 import { z } from 'zod'
 import { ApiError, httpError } from './errors'
-import { applyCsrfToken, notifyAuthenticationRequired } from './authSession'
+import {
+  applyCsrfToken,
+  notifyAuthenticationRequired,
+  setCsrfToken,
+} from './authSession'
+
+const sessionCsrfSchema = z.object({
+  csrf: z.object({ headerName: z.string().min(1), token: z.string().min(1) }),
+})
 
 function decodeResponse<T>(
   status: number,
@@ -30,6 +38,31 @@ function decodeResponse<T>(
       'invalid_response',
     )
   return parsed.data
+}
+
+const restoring = new Map<string, Promise<boolean>>()
+
+async function fetchSessionCsrf(sessionUrl: string) {
+  try {
+    const response = await fetch(sessionUrl, {
+      headers: { Accept: 'application/json' },
+    })
+    if (!response.ok) return false
+    const csrf = sessionCsrfSchema.safeParse(await response.json())
+    if (!csrf.success) return false
+    setCsrfToken(csrf.data.csrf.headerName, csrf.data.csrf.token)
+    return true
+  } catch {
+    return false
+  }
+}
+
+function untilAborted(signal?: AbortSignal | null) {
+  return new Promise<never>((_resolve, reject) => {
+    const abort = () => reject(new DOMException('Aborted', 'AbortError'))
+    if (signal?.aborted) abort()
+    else signal?.addEventListener('abort', abort, { once: true })
+  })
 }
 
 export function normalizeBaseUrl(value: string): string {
@@ -82,6 +115,20 @@ export function createApiClient(
     return new URL(path, window.location.origin).href
   }
 
+  // Writes that fail together share one restore, so they all end up with the
+  // token of the same new session. Each caller can still abort its own wait.
+  function restoreCsrfToken(signal?: AbortSignal | null): Promise<boolean> {
+    const sessionUrl = url('/session')
+    let shared = restoring.get(sessionUrl)
+    if (!shared) {
+      shared = fetchSessionCsrf(sessionUrl).finally(() =>
+        restoring.delete(sessionUrl),
+      )
+      restoring.set(sessionUrl, shared)
+    }
+    return Promise.race([shared, untilAborted(signal)])
+  }
+
   async function request<T>(
     path: string,
     schema: z.ZodType<T>,
@@ -98,16 +145,26 @@ export function createApiClient(
       headers.delete('Content-Type')
     else if (options.body != null)
       headers.set('Content-Type', 'application/json')
-    if (
-      options.method &&
+    const csrfProtected =
+      options.method != null &&
       !['GET', 'HEAD', 'OPTIONS'].includes(options.method.toUpperCase()) &&
       new URL(endpoint).origin === window.location.origin
-    )
-      applyCsrfToken(headers)
+    if (csrfProtected) applyCsrfToken(headers)
     let response: Response
     let text: string
     try {
       response = await fetch(endpoint, { ...options, headers })
+      // A 30-day login restores a new server session, so the CSRF token held
+      // in memory no longer matches. Fetch the current one and retry once.
+      if (
+        response.status === 401 &&
+        csrfProtected &&
+        !path.startsWith('/session') &&
+        (await restoreCsrfToken(options.signal))
+      ) {
+        applyCsrfToken(headers)
+        response = await fetch(endpoint, { ...options, headers })
+      }
       text = await response.text()
     } catch (error) {
       if (
@@ -131,8 +188,10 @@ export function createApiClient(
     body: FormData,
     onProgress: (percent: number | null) => void,
     signal?: AbortSignal,
+    retried = false,
   ): Promise<T> {
     const endpoint = url(path)
+    const sameOrigin = new URL(endpoint).origin === window.location.origin
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest()
       const cleanup = () => signal?.removeEventListener('abort', abort)
@@ -154,13 +213,24 @@ export function createApiClient(
             ? Math.min(100, Math.round((event.loaded / event.total) * 100))
             : null,
         )
-      xhr.onload = () => {
-        cleanup()
+      const settle = () => {
         try {
           resolve(decodeResponse(xhr.status, xhr.responseText, schema))
         } catch (error) {
           reject(error)
         }
+      }
+      xhr.onload = () => {
+        cleanup()
+        // Same stale-token case as request(): retry once after a 30-day login.
+        if (xhr.status !== 401 || retried || !sameOrigin) return settle()
+        restoreCsrfToken(signal).then(
+          (restored) =>
+            restored
+              ? resolve(upload(path, schema, body, onProgress, signal, true))
+              : settle(),
+          (error: unknown) => (signal?.aborted ? reject(error) : settle()),
+        )
       }
       xhr.onerror = xhr.ontimeout = () =>
         fail(
@@ -179,7 +249,7 @@ export function createApiClient(
           'Accept',
           'application/json, application/problem+json',
         )
-        if (new URL(endpoint).origin === window.location.origin) {
+        if (sameOrigin) {
           const csrfHeaders = new Headers()
           applyCsrfToken(csrfHeaders)
           csrfHeaders.forEach((value, name) =>

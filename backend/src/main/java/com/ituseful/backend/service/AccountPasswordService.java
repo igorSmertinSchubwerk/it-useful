@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +47,7 @@ public class AccountPasswordService {
 	private final ServerSecurityProperties properties;
 	private final Clock clock;
 	private final LinkDelivery linkDelivery;
+	private final PersistentTokenRepository rememberMeTokens;
 
 	public AccountPasswordService(
 			AccountRepository accountRepository,
@@ -55,7 +57,8 @@ public class AccountPasswordService {
 			InvitationTokens tokens,
 			ServerSecurityProperties properties,
 			Clock clock,
-			LinkDelivery linkDelivery
+			LinkDelivery linkDelivery,
+			PersistentTokenRepository rememberMeTokens
 	) {
 		this.accountRepository = accountRepository;
 		this.resetRepository = resetRepository;
@@ -65,6 +68,7 @@ public class AccountPasswordService {
 		this.properties = properties;
 		this.clock = clock;
 		this.linkDelivery = linkDelivery;
+		this.rememberMeTokens = rememberMeTokens;
 	}
 
 	@Transactional
@@ -117,5 +121,6 @@ public class AccountPasswordService {
 			throw new PasswordRejectedException(violation);
 		});
 		account.changePassword(passwordEncoder.encode(newPassword));
+		rememberMeTokens.removeUserTokens(account.getEmail());
 	}
 }

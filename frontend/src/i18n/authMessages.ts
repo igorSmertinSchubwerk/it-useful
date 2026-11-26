@@ -6,6 +6,7 @@ export const authMessages = {
       'Sign in with the email address and password of your invited account.',
     emailAddress: 'Email address',
     password: 'Password',
+    keepSignedIn: 'Keep me signed in for 30 days',
     signingIn: 'Signing in…',
     signInFailed: 'The email address or password is incorrect.',
     signInThrottled:
@@ -30,6 +31,7 @@ export const authMessages = {
       'Melde dich mit der E-Mail-Adresse und dem Passwort deines eingeladenen Kontos an.',
     emailAddress: 'E-Mail-Adresse',
     password: 'Passwort',
+    keepSignedIn: '30 Tage angemeldet bleiben',
     signingIn: 'Anmeldung läuft…',
     signInFailed: 'E-Mail-Adresse oder Passwort ist falsch.',
     signInThrottled:
@@ -57,6 +59,7 @@ export const authMessages = {
       'Войди с адресом электронной почты и паролем приглашённой учётной записи.',
     emailAddress: 'Адрес электронной почты',
     password: 'Пароль',
+    keepSignedIn: 'Оставаться в системе 30 дней',
     signingIn: 'Вход…',
     signInFailed: 'Неверный адрес электронной почты или пароль.',
     signInThrottled:
