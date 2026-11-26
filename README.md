@@ -6,10 +6,11 @@ images in English, German, and Russian. Definitions and images can be created,
 changed, and deleted from the browser.
 
 The app is organized in sections. After sign-in, the dashboard shows one card
-per section with its key figures. The header has three tabs: Dashboard, IT
-definitions, and Settings. IT definitions holds the definition list and the
-form for a new definition. Settings holds the interface language, the password
-change, and, for admins on the server variant, account administration.
+per section with its key figures. The header has two tabs: Dashboard and IT
+definitions. The definition list has a New definition button next to its
+heading for admins. Settings shows its parts as cards on one page: General with
+the interface language, Accounts for admins on the server variant, and Change
+password on the server variant.
 
 Icons at the top right switch between light and dark mode, change the interface
 language, open Settings, and show the signed-in account with the sign-out
@@ -235,10 +236,10 @@ and image contracts are in [`docs/api.md`](docs/api.md). In development mode:
 
 Swagger and OpenAPI are disabled in the container profile. Browser routes are
 `/` (dashboard), `/it-definitions`, `/it-definitions/new`,
-`/it-definitions/{id}`, `/it-definitions/{id}/edit`, `/settings`,
-`/settings/accounts`, and `/settings/password`. The former addresses
-`/elements/...`, `/admin/accounts`, and `/account/password` redirect to their
-new pages.
+`/it-definitions/{id}`, `/it-definitions/{id}/edit`, and `/settings`. The
+former addresses `/elements/...` redirect to the same page under
+`/it-definitions`. `/admin/accounts`, `/account/password`,
+`/settings/accounts`, and `/settings/password` redirect to `/settings`.
 
 ## Safe data reset
 

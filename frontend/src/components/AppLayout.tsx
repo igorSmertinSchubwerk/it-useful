@@ -1,9 +1,9 @@
-import { Link, matchPath, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router-dom'
 import { useRouteAccessibility } from '../hooks/useRouteAccessibility'
 import { useI18n } from '../i18n/context'
 import { LanguageMenu } from './LanguageSelector'
 import { ThemeToggle } from './ThemeToggle'
-import { useAuthentication, useCanEdit } from '../features/auth/context'
+import { useAuthentication } from '../features/auth/context'
 import { useState } from 'react'
 import { definitionsPath } from '../utils/paths'
 import { HeaderMenu, iconButtonClass } from './HeaderMenu'
@@ -11,49 +11,6 @@ import { AccountIcon, SettingsIcon } from './icons'
 
 const linkClass =
   'text-brand underline-offset-4 hover:underline aria-[current=page]:font-bold aria-[current=page]:underline'
-
-function SectionNavigation() {
-  const { t } = useI18n()
-  const { pathname } = useLocation()
-  const { state } = useAuthentication()
-  const canEdit = useCanEdit()
-  if (state.status !== 'signedIn') return null
-  const links = matchPath({ path: definitionsPath, end: false }, pathname)
-    ? [
-        { to: definitionsPath, label: t.allDefinitions, show: true },
-        { to: `${definitionsPath}/new`, label: t.create, show: canEdit },
-      ]
-    : matchPath({ path: '/settings', end: false }, pathname)
-      ? [
-          { to: '/settings', label: t.general, show: true },
-          {
-            to: '/settings/accounts',
-            label: t.accounts,
-            show: state.role === 'ADMIN' && !state.local,
-          },
-          {
-            to: '/settings/password',
-            label: t.changePassword,
-            show: !state.local,
-          },
-        ]
-      : []
-  if (links.length === 0) return null
-  return (
-    <nav
-      aria-label={t.sectionNav}
-      className="mx-auto flex max-w-5xl flex-wrap gap-5 border-t border-line px-6 py-3 text-sm"
-    >
-      {links
-        .filter((link) => link.show)
-        .map((link) => (
-          <NavLink key={link.to} to={link.to} end className={linkClass}>
-            {link.label}
-          </NavLink>
-        ))}
-    </nav>
-  )
-}
 
 export function AppLayout() {
   useRouteAccessibility()
@@ -82,25 +39,22 @@ export function AppLayout() {
                 <NavLink to={definitionsPath} className={linkClass}>
                   {t.itDefinitions}
                 </NavLink>
-                <NavLink to="/settings" className={linkClass}>
-                  {t.settings}
-                </NavLink>
               </nav>
             )}
           </div>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
             <ThemeToggle />
             <LanguageMenu />
             {state.status === 'signedIn' && (
               <>
-                <Link
+                <NavLink
                   to="/settings"
                   aria-label={t.settings}
                   title={t.settings}
-                  className={iconButtonClass}
+                  className={`${iconButtonClass} aria-[current=page]:bg-canvas aria-[current=page]:text-brand`}
                 >
                   <SettingsIcon />
-                </Link>
+                </NavLink>
                 <HeaderMenu label={t.account} icon={<AccountIcon />}>
                   {state.local ? (
                     <p>{t.localMode}</p>
@@ -126,7 +80,6 @@ export function AppLayout() {
             )}
           </div>
         </div>
-        <SectionNavigation />
         {logoutFailed && (
           <p
             role="alert"

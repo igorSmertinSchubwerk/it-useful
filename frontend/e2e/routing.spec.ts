@@ -39,17 +39,13 @@ for (const [path, title] of routes) {
 test('navigation, active links, history, and route focus', async ({ page }) => {
   await page.goto('/it-definitions')
   const navigation = page.getByRole('navigation', { name: 'Main navigation' })
-  const section = page.getByRole('navigation', { name: 'Section navigation' })
   await expect(
     navigation.getByRole('link', { name: 'IT definitions', exact: true }),
   ).toHaveAttribute('aria-current', 'page')
-  await expect(
-    section.getByRole('link', { name: 'All definitions', exact: true }),
-  ).toHaveAttribute('aria-current', 'page')
-  await section.getByRole('link', { name: 'New definition' }).click()
+  await page.getByRole('link', { name: 'New definition' }).click()
   await expect(page.getByRole('heading', { level: 1 })).toBeFocused()
   await expect(
-    section.getByRole('link', { name: 'New definition' }),
+    navigation.getByRole('link', { name: 'IT definitions', exact: true }),
   ).toHaveAttribute('aria-current', 'page')
   await page.goBack()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(routes[0][1])

@@ -102,7 +102,7 @@ test('dashboard shows a card per section with definition count and latest change
   expect(document.title).toBe('Dashboard | IT Useful')
 })
 
-test('main menu has three tabs and each section shows its own sub-tabs', async () => {
+test('main menu has two tabs and the settings icon opens Settings', async () => {
   renderApp('/it-definitions')
   const main = await screen.findByRole('navigation', {
     name: 'Main navigation',
@@ -111,26 +111,17 @@ test('main menu has three tabs and each section shows its own sub-tabs', async (
     within(main)
       .getAllByRole('link')
       .map((link) => link.textContent),
-  ).toEqual(['Dashboard', 'IT definitions', 'Settings'])
+  ).toEqual(['Dashboard', 'IT definitions'])
   expect(
     within(main).getByRole('link', { name: 'IT definitions' }),
   ).toHaveAttribute('aria-current', 'page')
-  const section = screen.getByRole('navigation', { name: 'Section navigation' })
-  expect(
-    within(section)
-      .getAllByRole('link')
-      .map((link) => link.textContent),
-  ).toEqual(['All definitions', 'New definition'])
 
-  await userEvent.click(within(main).getByRole('link', { name: 'Settings' }))
+  await userEvent.click(
+    within(screen.getByRole('banner')).getByRole('link', { name: 'Settings' }),
+  )
   expect(
     await screen.findByRole('heading', { level: 1, name: 'Settings' }),
   ).toBeVisible()
-  expect(
-    within(screen.getByRole('navigation', { name: 'Section navigation' }))
-      .getAllByRole('link')
-      .map((link) => link.textContent),
-  ).toEqual(['General'])
   expect(
     within(screen.getByRole('main')).getByRole('combobox', {
       name: 'Interface language',
@@ -139,16 +130,6 @@ test('main menu has three tabs and each section shows its own sub-tabs', async (
   expect(
     screen.getAllByRole('combobox', { name: 'Interface language' }),
   ).toHaveLength(1)
-})
-
-test('the dashboard has no section sub-tabs', async () => {
-  renderApp('/')
-  expect(
-    await screen.findByRole('heading', { level: 1, name: 'Dashboard' }),
-  ).toBeVisible()
-  expect(
-    screen.queryByRole('navigation', { name: 'Section navigation' }),
-  ).not.toBeInTheDocument()
 })
 
 test('an admin sees accounts waiting for confirmation and open invitations', async () => {
@@ -201,9 +182,7 @@ test('an admin sees accounts waiting for confirmation and open invitations', asy
   ).toBeVisible()
   expect(within(settingsCard).getByText('2 open invitations')).toBeVisible()
   expect(
-    within(
-      screen.getByRole('navigation', { name: 'Main navigation' }),
-    ).getByRole('link', { name: 'Settings' }),
+    within(screen.getByRole('banner')).getByRole('link', { name: 'Settings' }),
   ).toHaveAttribute('href', '/settings')
 })
 
@@ -268,27 +247,23 @@ test('signing in opens the dashboard', async () => {
 })
 
 test.each([
-  ['/admin/accounts', '/settings/accounts', 'Accounts'],
-  ['/account/password', '/settings/password', 'Change password'],
-])('the old address %s opens %s', async (oldPath, newPath, heading) => {
-  server.use(
-    http.get('http://localhost/api/session', () =>
-      HttpResponse.json(adminSession),
-    ),
-    http.get('http://localhost/api/admin/*', () => HttpResponse.json([])),
-  )
-  const router = renderApp(oldPath, true)
+  ['/admin/accounts', 'Accounts'],
+  ['/account/password', 'Change password'],
+])(
+  'the old address %s opens Settings with the %s card',
+  async (oldPath, card) => {
+    server.use(
+      http.get('http://localhost/api/session', () =>
+        HttpResponse.json(adminSession),
+      ),
+      http.get('http://localhost/api/admin/*', () => HttpResponse.json([])),
+    )
+    const router = renderApp(oldPath, true)
 
-  expect(
-    await screen.findByRole('heading', { level: 1, name: heading }),
-  ).toBeVisible()
-  expect(router.state.location.pathname).toBe(newPath)
-  expect(
-    within(screen.getByRole('navigation', { name: 'Section navigation' }))
-      .getAllByRole('link')
-      .map((link) => link.textContent),
-  ).toEqual(['General', 'Accounts', 'Change password'])
-})
+    expect(await screen.findByRole('region', { name: card })).toBeVisible()
+    expect(router.state.location.pathname).toBe('/settings')
+  },
+)
 
 test('the latest definitions use English titles like the list, whatever the interface language', async () => {
   localStorage.setItem('it-useful.ui-language', 'de')
@@ -377,24 +352,9 @@ test('a signed-out user with an old bookmark lands on the new address after sign
   await userEvent.type(screen.getByLabelText('Password'), 'secret password')
   await userEvent.click(screen.getByRole('button', { name: 'Sign in' }))
 
-  expect(
-    await screen.findByRole('heading', { level: 1, name: 'Accounts' }),
-  ).toBeVisible()
-  expect(router.state.location.pathname).toBe('/settings/accounts')
+  expect(await screen.findByRole('region', { name: 'Accounts' })).toBeVisible()
+  expect(router.state.location.pathname).toBe('/settings')
 })
-
-test.each(['/it-definitionsx', '/settings-old'])(
-  'the unknown address %s shows no section sub-tabs',
-  async (path) => {
-    renderApp(path)
-    expect(
-      await screen.findByRole('heading', { level: 1, name: 'Page not found' }),
-    ).toBeVisible()
-    expect(
-      screen.queryByRole('navigation', { name: 'Section navigation' }),
-    ).not.toBeInTheDocument()
-  },
-)
 
 test('the definition list lives at /it-definitions under the IT definitions tab', async () => {
   serveDefinitions()

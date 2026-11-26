@@ -8,8 +8,6 @@ import { ElementDetailPage } from '../pages/ElementDetailPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { SignInPage } from '../pages/SignInPage'
 import { AcceptInvitationPage } from '../pages/AcceptInvitationPage'
-import { AccountsPage } from '../pages/AccountsPage'
-import { ChangePasswordPage } from '../pages/ChangePasswordPage'
 import { ResetPasswordPage } from '../pages/ResetPasswordPage'
 import { LegalNoticePage } from '../pages/LegalNoticePage'
 import { PrivacyPage } from '../pages/PrivacyPage'
@@ -33,14 +31,18 @@ export function AppRoutes() {
         <Route path="reset-password" element={<ResetPasswordPage />} />
         <Route path="legal-notice" element={<LegalNoticePage />} />
         <Route path="privacy" element={<PrivacyPage />} />
-        <Route
-          path="admin/accounts"
-          element={<Navigate to="/settings/accounts" replace />}
-        />
-        <Route
-          path="account/password"
-          element={<Navigate to="/settings/password" replace />}
-        />
+        {[
+          'admin/accounts',
+          'account/password',
+          'settings/accounts',
+          'settings/password',
+        ].map((path) => (
+          <Route
+            key={path}
+            path={path}
+            element={<Navigate to="/settings" replace />}
+          />
+        ))}
         <Route path="elements/*" element={<LegacyDefinitionsRedirect />} />
         <Route element={<AuthenticationGate />}>
           <Route index element={<DashboardPage />} />
@@ -55,8 +57,6 @@ export function AppRoutes() {
           />
           <Route path="it-definitions/:id" element={<ElementDetailPage />} />
           <Route path="settings" element={<SettingsPage />} />
-          <Route path="settings/accounts" element={<AccountsPage />} />
-          <Route path="settings/password" element={<ChangePasswordPage />} />
           <Route
             path="it-definitions/:id/edit"
             element={

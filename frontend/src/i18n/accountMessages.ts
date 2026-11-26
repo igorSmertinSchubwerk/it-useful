@@ -2,7 +2,6 @@ export const accountMessages = {
   en: {
     accounts: 'Accounts',
     accountList: 'All accounts',
-    adminsOnly: 'Only admins can manage accounts.',
     inviteSomeone: 'Invite someone',
     role: 'Role',
     roleUser: 'User',
@@ -78,7 +77,6 @@ export const accountMessages = {
   de: {
     accounts: 'Konten',
     accountList: 'Alle Konten',
-    adminsOnly: 'Nur Admins können Konten verwalten.',
     inviteSomeone: 'Jemanden einladen',
     role: 'Rolle',
     roleUser: 'Benutzer',
@@ -157,7 +155,6 @@ export const accountMessages = {
   ru: {
     accounts: 'Учётные записи',
     accountList: 'Все учётные записи',
-    adminsOnly: 'Управлять учётными записями могут только админы.',
     inviteSomeone: 'Пригласить',
     role: 'Роль',
     roleUser: 'Пользователь',

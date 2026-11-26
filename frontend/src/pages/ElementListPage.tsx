@@ -39,13 +39,23 @@ export default function ElementListPage() {
   const dateFormat = new Intl.DateTimeFormat(language, { dateStyle: 'medium' })
   return (
     <>
-      <h1
-        ref={heading}
-        tabIndex={-1}
-        className="text-3xl font-bold tracking-tight sm:text-4xl"
-      >
-        {t.homeTitle}
-      </h1>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <h1
+          ref={heading}
+          tabIndex={-1}
+          className="text-3xl font-bold tracking-tight sm:text-4xl"
+        >
+          {t.homeTitle}
+        </h1>
+        {canEdit && (
+          <Link
+            to={`${definitionsPath}/new${params.size ? `?${params.toString()}` : ''}`}
+            className="rounded bg-brand px-4 py-2 font-semibold text-on-brand hover:opacity-90"
+          >
+            {t.create}
+          </Link>
+        )}
+      </div>
       <p className="mt-4 text-muted">{t.editorNotice}</p>
       <div className="mt-6 flex flex-wrap items-end gap-4">
         <div>
@@ -124,14 +134,6 @@ export default function ElementListPage() {
         >
           {t.refresh}
         </button>
-        {canEdit && (
-          <Link
-            to={`${definitionsPath}/new${params.size ? `?${params.toString()}` : ''}`}
-            className="text-brand underline"
-          >
-            {t.create}
-          </Link>
-        )}
       </div>
       <p role="status" className="mt-5 text-sm text-muted">
         {deleted ? `${t.deleted} ` : ''}

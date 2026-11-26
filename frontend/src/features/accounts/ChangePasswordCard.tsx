@@ -1,13 +1,13 @@
 import { useState, type FormEvent } from 'react'
-import { createAccountsApi } from '../api/accounts'
-import { describePasswordFailure } from '../features/accounts/passwordFailure'
-import { useI18n } from '../i18n/context'
+import { createAccountsApi } from '../../api/accounts'
+import { describePasswordFailure } from './passwordFailure'
+import { useI18n } from '../../i18n/context'
 
 const api = createAccountsApi()
 const inputClass =
   'mt-1 w-full rounded border border-line bg-surface px-3 py-2 focus:outline focus:outline-2 focus:outline-offset-2'
 
-export function ChangePasswordPage() {
+export function ChangePasswordCard() {
   const { t } = useI18n()
   const [current, setCurrent] = useState('')
   const [password, setPassword] = useState('')
@@ -36,9 +36,14 @@ export function ChangePasswordPage() {
   }
 
   return (
-    <section className="rounded-xl border border-line bg-surface p-6 sm:p-8">
-      <h1 className="text-3xl font-bold">{t.changePassword}</h1>
-      <form onSubmit={submit} className="mt-6 grid max-w-md gap-4">
+    <section
+      aria-labelledby="settings-password"
+      className="rounded-xl border border-line bg-surface p-6"
+    >
+      <h2 id="settings-password" className="text-xl font-bold">
+        {t.changePassword}
+      </h2>
+      <form onSubmit={submit} className="mt-4 grid max-w-md gap-4">
         <label className="font-semibold">
           {t.currentPassword}
           <input
