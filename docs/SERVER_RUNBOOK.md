@@ -265,7 +265,12 @@ A commit with a failed check stays undeployed, and the journal records a
 warning with its hash. The next commit that passes is deployed. A failed start
 is retried on the next run. A checkout with local commits that `main` lacks
 stays as it is, with a warning. Follow the runs with
-`journalctl -u it-useful-auto-deploy -f`.
+`sudo journalctl -u it-useful-auto-deploy -f`. Without `sudo`, the deploying
+user sees no entries.
+
+The CI run on `main` takes 5 to 15 minutes, so a merge reaches the server
+within about 20 minutes. `cat /var/lib/it-useful/deployed-commit` shows the
+deployed commit without `sudo`.
 
 The timer runs the checkout's scripts as root. Anyone who can merge into `main`
 or write to the checkout therefore controls the host. Back up manually before

@@ -43,4 +43,4 @@ mkdir -p /var/lib/it-useful
 runuser -u "$(stat -c %U "$project_root")" -- git -C "$project_root" rev-parse HEAD \
   >/var/lib/it-useful/deployed-commit
 systemctl enable --now it-useful-auto-deploy.timer
-echo "Automatic deployment is active. Follow it with: journalctl -u it-useful-auto-deploy -f"
+echo "Automatic deployment is active. Follow it with: sudo journalctl -u it-useful-auto-deploy -f"
