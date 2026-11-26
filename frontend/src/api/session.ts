@@ -20,10 +20,14 @@ export function createSessionApi(client = createApiClient()) {
     get: (signal?: AbortSignal) =>
       client.request('/session', sessionSchema, { signal }),
     csrf: () => client.request('/session/csrf', csrfSchema),
-    signIn: (email: string, password: string) =>
+    signIn: (email: string, password: string, remember: boolean) =>
       client.request('/session/login', z.undefined(), {
         method: 'POST',
-        body: new URLSearchParams({ email, password }),
+        body: new URLSearchParams({
+          email,
+          password,
+          ...(remember ? { 'remember-me': 'on' } : {}),
+        }),
       }),
     logout: (signal?: AbortSignal) =>
       client.requestFromOrigin('/logout', z.undefined(), {

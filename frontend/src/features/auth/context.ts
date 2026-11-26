@@ -16,7 +16,7 @@ export type AuthenticationState =
 
 export const AuthenticationContext = createContext<{
   state: AuthenticationState
-  signIn: (email: string, password: string) => Promise<void>
+  signIn: (email: string, password: string, remember: boolean) => Promise<void>
   logout: () => Promise<void>
   retry: () => void
   loggingOut: boolean

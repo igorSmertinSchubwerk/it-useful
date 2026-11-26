@@ -91,10 +91,10 @@ export function AuthProvider({
         setState({ status: 'loading' })
         setAttempt((current) => current + 1)
       },
-      signIn: async (email: string, password: string) => {
+      signIn: async (email: string, password: string, remember: boolean) => {
         const csrf = await api.csrf()
         setCsrfToken(csrf.headerName, csrf.token)
-        await api.signIn(email, password)
+        await api.signIn(email, password, remember)
         setState({ status: 'loading' })
         setAttempt((current) => current + 1)
       },

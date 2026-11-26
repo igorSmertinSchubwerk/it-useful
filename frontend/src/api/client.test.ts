@@ -6,7 +6,11 @@ import { z } from 'zod'
 import { server } from '../test/server'
 import { createApiClient, normalizeBaseUrl } from './client'
 import { createElementsApi } from './elements'
-import { clearCsrfToken, setCsrfToken } from './authSession'
+import {
+  clearCsrfToken,
+  onAuthenticationRequired,
+  setCsrfToken,
+} from './authSession'
 
 const base = 'http://localhost/api'
 const client = createApiClient(base)
@@ -113,6 +117,77 @@ test('attaches in-memory CSRF to unsafe API and origin requests only', async () 
     ['DELETE', 'csrf-value'],
     ['POST', 'csrf-value'],
   ])
+})
+
+function serveSession(status: 200 | 401) {
+  server.use(
+    http.get(`${base}/session`, () =>
+      status === 200
+        ? HttpResponse.json({
+            email: 'reader@example.com',
+            role: 'ADMIN',
+            status: 'CONFIRMED',
+            csrf: { headerName: 'X-CSRF-TOKEN', token: 'fresh-token' },
+          })
+        : HttpResponse.json(
+            { code: 'authentication_required' },
+            { status: 401 },
+          ),
+    ),
+    http.delete(`${base}/elements/id`, ({ request }) =>
+      request.headers.get('X-CSRF-TOKEN') === 'fresh-token'
+        ? new HttpResponse(null, { status: 204 })
+        : HttpResponse.json(
+            { code: 'authentication_required' },
+            { status: 401 },
+          ),
+    ),
+  )
+}
+
+test('retries a write once with a fresh CSRF token when a 30-day login restored the session', async () => {
+  setCsrfToken('X-CSRF-TOKEN', 'stale-token')
+  serveSession(200)
+  const expired = vi.fn()
+  const stop = onAuthenticationRequired(expired)
+
+  await expect(api.remove('id')).resolves.toBeUndefined()
+
+  stop()
+  expect(expired).not.toHaveBeenCalled()
+})
+
+test('parallel writes share one session restore', async () => {
+  setCsrfToken('X-CSRF-TOKEN', 'stale-token')
+  serveSession(200)
+  let restores = 0
+  server.use(
+    http.get(`${base}/session`, () => {
+      restores++
+      return HttpResponse.json({
+        email: 'reader@example.com',
+        role: 'ADMIN',
+        status: 'CONFIRMED',
+        csrf: { headerName: 'X-CSRF-TOKEN', token: 'fresh-token' },
+      })
+    }),
+  )
+
+  await Promise.all([api.remove('id'), api.remove('id')])
+
+  expect(restores).toBe(1)
+})
+
+test('reports an expired session once when no 30-day login is left', async () => {
+  setCsrfToken('X-CSRF-TOKEN', 'stale-token')
+  serveSession(401)
+  const expired = vi.fn()
+  const stop = onAuthenticationRequired(expired)
+
+  await expect(api.remove('id')).rejects.toMatchObject({ status: 401 })
+
+  stop()
+  expect(expired).toHaveBeenCalledTimes(1)
 })
 
 test('never sends the CSRF token to a cross-origin API base', async () => {

@@ -62,6 +62,24 @@ async function submitSignIn(email: string, password: string) {
   await userEvent.click(screen.getByRole('button', { name: 'Sign in' }))
 }
 
+test('asks the server to keep a browser signed in for 30 days only when chosen', async () => {
+  const signInRequest = anonymousUntilSignedIn()
+  renderServerApp()
+  await screen.findByRole('heading', { name: 'Sign in' })
+  const keep = screen.getByRole('checkbox', {
+    name: 'Keep me signed in for 30 days',
+  })
+  expect(keep).not.toBeChecked()
+
+  await userEvent.click(keep)
+  await submitSignIn('admin@example.com', 'correct horse battery staple')
+
+  await screen.findByRole('heading', { level: 1, name: 'Dashboard' })
+  expect(signInRequest()?.body).toBe(
+    'email=admin%40example.com&password=correct+horse+battery+staple&remember-me=on',
+  )
+})
+
 test('shows an accessible email sign-in without loading private data', async () => {
   let privateReads = 0
   server.use(
