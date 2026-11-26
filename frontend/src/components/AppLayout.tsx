@@ -30,8 +30,8 @@ export function AppLayout() {
       >
         {t.skip}
       </a>
-      <header className="relative z-30 px-3 pt-3 sm:sticky sm:top-4 sm:px-6">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-2 rounded-3xl bg-dock p-2 text-dock-ink shadow-lg shadow-black/10 sm:rounded-full">
+      <header className="relative z-30 px-3 pt-4 sm:sticky sm:top-5 sm:px-6">
+        <div className="mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-1 rounded-3xl bg-dock p-2 text-dock-ink shadow-[0_22px_48px_-14px_rgb(15_23_42/0.45),0_6px_16px_-6px_rgb(15_23_42/0.25)] ring-1 ring-black/5 sm:rounded-full">
           <NavLink
             to="/"
             className="rounded-full px-3 py-2 text-lg font-extrabold tracking-tight"
@@ -48,7 +48,7 @@ export function AppLayout() {
               </NavLink>
             </nav>
           )}
-          <div className="ml-auto flex flex-wrap items-center justify-end gap-1">
+          <div className="flex flex-wrap items-center justify-center gap-1">
             <ThemeToggle />
             <LanguageMenu />
             {state.status === 'signedIn' && (
