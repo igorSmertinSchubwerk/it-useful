@@ -295,15 +295,14 @@ test('a user sees no create, edit, or delete controls and cannot open the editor
     screen.queryByRole('button', { name: /^Delete/ }),
   ).not.toBeInTheDocument()
   await userEvent.click(
-    within(
-      screen.getByRole('navigation', { name: 'Main navigation' }),
-    ).getByRole('link', { name: 'Settings' }),
+    within(screen.getByRole('banner')).getByRole('link', { name: 'Settings' }),
   )
   expect(
-    within(screen.getByRole('navigation', { name: 'Section navigation' }))
-      .getAllByRole('link')
-      .map((link) => link.textContent),
-  ).toEqual(['General', 'Change password'])
+    await screen.findByRole('region', { name: 'Change password' }),
+  ).toBeVisible()
+  expect(
+    screen.queryByRole('region', { name: 'Accounts' }),
+  ).not.toBeInTheDocument()
 })
 
 test('a user who opens an editor route sees that only admins can edit', async () => {

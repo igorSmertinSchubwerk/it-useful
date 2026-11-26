@@ -236,7 +236,7 @@ test('lets an admin confirm a pending account', async () => {
   )
 })
 
-test('shows the Accounts link only to admins', async () => {
+test('shows the Accounts card only to admins', async () => {
   server.use(
     http.get('http://localhost/api/session', () =>
       HttpResponse.json({ ...adminSession, role: 'USER' }),
@@ -246,9 +246,9 @@ test('shows the Accounts link only to admins', async () => {
   renderServerApp('/settings')
 
   expect(
-    await screen.findByRole('navigation', { name: 'Section navigation' }),
+    await screen.findByRole('region', { name: 'Change password' }),
   ).toBeVisible()
   expect(
-    screen.queryByRole('link', { name: 'Accounts' }),
+    screen.queryByRole('region', { name: 'Accounts' }),
   ).not.toBeInTheDocument()
 })

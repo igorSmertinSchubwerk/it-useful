@@ -4,16 +4,16 @@ import type {
   AccountRole,
   AccountSummary,
   CreatedInvitation,
-} from '../api/accounts'
-import { ApiError } from '../api/errors'
+} from '../../api/accounts'
+import { ApiError } from '../../api/errors'
 import {
   accountsApi as api,
   accountsKey,
   adminKey,
   invitationsKey,
-} from '../features/accounts/queries'
-import { useAuthentication } from '../features/auth/context'
-import { useI18n } from '../i18n/context'
+} from './queries'
+import { useCanEdit } from '../auth/context'
+import { useI18n } from '../../i18n/context'
 
 const inputClass =
   'mt-1 w-full rounded border border-line bg-surface px-3 py-2 focus:outline focus:outline-2 focus:outline-offset-2'
@@ -47,8 +47,8 @@ function InviteForm() {
   }
 
   return (
-    <section className="rounded-xl border border-line bg-surface p-6">
-      <h2 className="text-xl font-bold">{t.inviteSomeone}</h2>
+    <section className="border-t border-line pt-6">
+      <h3 className="text-lg font-bold">{t.inviteSomeone}</h3>
       <form onSubmit={submit} className="mt-4 grid max-w-md gap-4">
         <label className="font-semibold">
           {t.emailAddress}
@@ -210,8 +210,8 @@ function OpenInvitations() {
   })
   const open = invitations.data ?? []
   return (
-    <section className="overflow-x-auto rounded-xl border border-line bg-surface p-6">
-      <h2 className="text-xl font-bold">{t.openInvitations}</h2>
+    <section className="overflow-x-auto border-t border-line pt-6">
+      <h3 className="text-lg font-bold">{t.openInvitations}</h3>
       {invitations.isSuccess && open.length === 0 ? (
         <p className="mt-4 text-muted">{t.noOpenInvitations}</p>
       ) : (
@@ -242,24 +242,18 @@ function OpenInvitations() {
   )
 }
 
-export function AccountsPage() {
+/** Account administration. The Settings page shows it to admins only. */
+export function AccountsCard() {
   const { t } = useI18n()
-  const { state } = useAuthentication()
   const [failure, setFailure] = useState<string | null>(null)
   const [reset, setReset] = useState<CreatedReset | null>(null)
-  const isAdmin = state.status === 'signedIn' && state.role === 'ADMIN'
+  const isAdmin = useCanEdit()
   const accounts = useQuery({
     queryKey: accountsKey,
     queryFn: ({ signal }) => api.list(signal),
     enabled: isAdmin,
     retry: false,
   })
-  if (!isAdmin)
-    return (
-      <p role="alert" className="text-red-800">
-        {t.adminsOnly}
-      </p>
-    )
 
   function reportFailure(error: unknown) {
     setFailure(
@@ -272,12 +266,17 @@ export function AccountsPage() {
   }
 
   return (
-    <div className="grid gap-8">
-      <h1 className="text-3xl font-bold">{t.accounts}</h1>
+    <section
+      aria-labelledby="settings-accounts"
+      className="grid gap-6 rounded-xl border border-line bg-surface p-6"
+    >
+      <h2 id="settings-accounts" className="text-xl font-bold">
+        {t.accounts}
+      </h2>
       <InviteForm />
       <OpenInvitations />
-      <section className="overflow-x-auto rounded-xl border border-line bg-surface p-6">
-        <h2 className="text-xl font-bold">{t.accountList}</h2>
+      <section className="overflow-x-auto border-t border-line pt-6">
+        <h3 className="text-lg font-bold">{t.accountList}</h3>
         {failure && (
           <p role="alert" className="mt-4 text-red-800">
             {failure}
@@ -335,6 +334,6 @@ export function AccountsPage() {
           </div>
         )}
       </section>
-    </div>
+    </section>
   )
 }

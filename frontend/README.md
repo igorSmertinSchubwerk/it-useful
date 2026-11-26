@@ -254,7 +254,7 @@ not a live backend integration test.
 ## Navigation
 
 Routes: `/`, `/it-definitions`, `/it-definitions/new`, `/it-definitions/:id`,
-`/it-definitions/:id/edit`, the Settings pages, and a not-found page for other
+`/it-definitions/:id/edit`, `/settings`, and a not-found page for other
 paths. Old `/elements/...` links redirect to the same page under
 `/it-definitions`. Open a definition from the list to get its real ID.
 `/it-definitions/example-id` is not a seeded record and will show an API error.
@@ -295,9 +295,8 @@ messages as text and handle cancellation separately.
 
 The shell includes active navigation, a keyboard skip link, page titles, and
 heading focus after client-side navigation. The main navigation has the tabs
-Dashboard, IT definitions, and Settings. Inside a section, a second row named
-"Section navigation" shows its sub-tabs and hides those the current account
-cannot use. See [source structure](src/README.md)
+Dashboard and IT definitions. Settings opens from the gear icon in the header.
+See [source structure](src/README.md)
 for folder ownership and state-management conventions.
 
 Vite supports direct links and refresh locally. A future production host must

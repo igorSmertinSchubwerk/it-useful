@@ -190,10 +190,11 @@ sudo ./scripts/project.sh server-create-first-admin /etc/it-useful/server.env ad
 ```
 
 Open the link and choose a password. This first account is confirmed at once.
-The command refuses to run once any account exists. Every later person gets an
-invitation from Settings > Accounts, and an admin confirms the account after the
-person has set a password. The same page changes roles, disables and enables
-accounts, and creates one-time password reset links, which the admin passes on.
+The command refuses to run once any account exists. Every later person gets
+an invitation from the Accounts card in Settings, and an admin confirms the
+account after the person has set a password. The same card changes roles,
+disables and enables accounts, and creates one-time password reset links,
+which the admin passes on.
 
 ## 5a. Optional: email links through Microsoft 365
 
@@ -235,7 +236,7 @@ sudo ./scripts/project.sh server-validate /etc/it-useful/server.env
 sudo ./scripts/project.sh server-start /etc/it-useful/server.env
 ```
 
-The Accounts page then reports for each link whether the email went out. A failed
+The Accounts card then reports for each link whether the email went out. A failed
 send still shows the link and logs a warning with the invitation or reset id.
 
 ## 6. Update a running deployment

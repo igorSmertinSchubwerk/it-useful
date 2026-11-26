@@ -239,10 +239,7 @@ test('dirty navigation guards Cancel, header links, browser Back, and reload wit
 }) => {
   await mockApi(page)
   await page.goto('/it-definitions')
-  await page
-    .getByRole('navigation', { name: 'Section navigation' })
-    .getByRole('link', { name: 'New definition' })
-    .click()
+  await page.getByRole('link', { name: 'New definition' }).click()
   await page.locator('#slug').fill('draft')
   await page.getByRole('link', { name: 'Cancel', exact: true }).click()
   await expect(page.getByRole('button', { name: 'Keep editing' })).toBeFocused()

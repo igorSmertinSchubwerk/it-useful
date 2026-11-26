@@ -146,7 +146,7 @@ test('an invitee creates an account on an accessible page and lands on sign-in',
   })
 })
 
-test('the admin accounts page is accessible', async ({ page }) => {
+test('the admin accounts card is accessible', async ({ page }) => {
   await page.route('**/api/session', (route) =>
     route.fulfill({ json: session }),
   )
@@ -163,7 +163,7 @@ test('the admin accounts page is accessible', async ({ page }) => {
       ],
     }),
   )
-  await page.goto('/settings/accounts')
+  await page.goto('/settings')
   await expect(
     page.getByRole('heading', { name: 'Accounts', exact: true }),
   ).toBeVisible()
@@ -187,7 +187,7 @@ test('the password reset and password change pages are accessible', async ({
   await page.route('**/api/session', (route) =>
     route.fulfill({ json: { ...session, role: 'USER' } }),
   )
-  await page.goto('/settings/password')
+  await page.goto('/settings')
   await expect(
     page.getByRole('heading', { name: 'Change password' }),
   ).toBeVisible()

@@ -5,10 +5,8 @@ export const dashboardMessages = {
   en: {
     dashboard: 'Dashboard',
     itDefinitions: 'IT definitions',
-    allDefinitions: 'All definitions',
     settings: 'Settings',
     general: 'General',
-    sectionNav: 'Section navigation',
     openItDefinitions: 'Open IT definitions',
     openSettings: 'Open settings',
     recentlyChanged: 'Recently changed',
@@ -30,10 +28,8 @@ export const dashboardMessages = {
   de: {
     dashboard: 'Übersicht',
     itDefinitions: 'IT-Begriffe',
-    allDefinitions: 'Alle Begriffe',
     settings: 'Einstellungen',
     general: 'Allgemein',
-    sectionNav: 'Bereichsnavigation',
     openItDefinitions: 'IT-Begriffe öffnen',
     openSettings: 'Einstellungen öffnen',
     recentlyChanged: 'Zuletzt geändert',
@@ -55,10 +51,8 @@ export const dashboardMessages = {
   ru: {
     dashboard: 'Обзор',
     itDefinitions: 'ИТ-термины',
-    allDefinitions: 'Все термины',
     settings: 'Настройки',
     general: 'Общие',
-    sectionNav: 'Навигация по разделу',
     openItDefinitions: 'Открыть ИТ-термины',
     openSettings: 'Открыть настройки',
     recentlyChanged: 'Недавно изменённые',
