@@ -26,6 +26,9 @@ jobs:
       - name: Audit tracked release content
         run: ./scripts/project.sh audit-release
 
+      - name: Verify automatic deployment
+        run: ./scripts/project.sh test-auto-deploy
+
   backend:
     name: Backend tests
     runs-on: ubuntu-24.04
