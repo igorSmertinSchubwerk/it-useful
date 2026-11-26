@@ -15,7 +15,7 @@ import { elementFixture } from './elementFixture'
 import type { ElementWriteRequest } from '../api/contracts'
 
 beforeEach(() => localStorage.clear())
-function mount(path = '/elements') {
+function mount(path = '/it-definitions') {
   const router = createMemoryRouter([{ path: '*', element: <App /> }], {
     initialEntries: [path],
   })
@@ -80,7 +80,7 @@ test('edit submits three translations and renders the saved detail', async () =>
       },
     ),
   )
-  const router = mount('/elements/example-id/edit')
+  const router = mount('/it-definitions/example-id/edit')
   const user = userEvent.setup()
   const title = await screen.findByRole('textbox', {
     name: 'Title',
@@ -89,7 +89,7 @@ test('edit submits three translations and renders the saved detail', async () =>
   await user.type(title, 'Updated HTTP')
   await user.click(screen.getByRole('button', { name: 'Save definition' }))
   await waitFor(() =>
-    expect(router.state.location.pathname).toBe('/elements/example-id'),
+    expect(router.state.location.pathname).toBe('/it-definitions/example-id'),
   )
   expect(payload?.translations.map((item) => item.languageCode)).toEqual([
     'EN',
@@ -111,7 +111,7 @@ test('validation prevents writes and server field errors keep the draft', async 
       return HttpResponse.json({ code: 'duplicate_slug' }, { status: 409 })
     }),
   )
-  mount('/elements/example-id/edit')
+  mount('/it-definitions/example-id/edit')
   const user = userEvent.setup()
   const slug = await screen.findByLabelText('Slug')
   await user.clear(slug)
@@ -216,7 +216,7 @@ test('create form prevents duplicate submission while the request is pending', a
       return HttpResponse.json({ ...elementFixture, ...body }, { status: 201 })
     }),
   )
-  const router = mount('/elements/new')
+  const router = mount('/it-definitions/new')
   const user = userEvent.setup()
   await user.type(screen.getByLabelText('Slug'), 'new-http')
   for (const label of ['English', 'Deutsch', 'Русский']) {
@@ -238,7 +238,7 @@ test('create form prevents duplicate submission while the request is pending', a
   expect(screen.getByLabelText('Slug')).toBeDisabled()
   release()
   await waitFor(() =>
-    expect(router.state.location.pathname).toBe('/elements/example-id'),
+    expect(router.state.location.pathname).toBe('/it-definitions/example-id'),
   )
   expect(calls).toBe(1)
 })

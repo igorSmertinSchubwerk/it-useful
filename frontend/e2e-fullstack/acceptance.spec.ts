@@ -40,7 +40,7 @@ test('seed the complete workflow and validate rejected input', async ({
   expect(initial.ok()).toBe(true)
   expect(await initial.json()).toEqual([])
 
-  await page.goto('/elements/new')
+  await page.goto('/it-definitions/new')
   await page.getByRole('button', { name: 'Save definition' }).click()
   await expect(page.locator('#slug')).toBeFocused()
   await expect(page.getByRole('alert')).toContainText('Check the marked fields')
@@ -49,7 +49,7 @@ test('seed the complete workflow and validate rejected input', async ({
   await page
     .getByRole('button', { name: 'Save definition', exact: true })
     .click()
-  await expect(page).toHaveURL(/\/elements\/[0-9a-f-]+\?language=RU$/)
+  await expect(page).toHaveURL(/\/it-definitions\/[0-9a-f-]+\?language=RU$/)
   const id = new URL(page.url()).pathname.split('/').at(-1)!
 
   for (const code of ['EN', 'DE', 'RU'] as const) {
@@ -121,12 +121,12 @@ test('seed the complete workflow and validate rejected input', async ({
   await expect(page.locator('tbody tr')).toHaveCount(1)
   await expect(page.locator('tbody tr')).toContainText(slug!)
 
-  await page.goto('/elements/00000000-0000-0000-0000-000000000000')
+  await page.goto('/it-definitions/00000000-0000-0000-0000-000000000000')
   await expect(page.getByRole('alert')).toContainText(
     'does not exist or has been deleted',
   )
 
-  await page.goto('/elements/new')
+  await page.goto('/it-definitions/new')
   await fillDefinition(page)
   await page
     .getByRole('button', { name: 'Save definition', exact: true })
@@ -146,7 +146,7 @@ test('shows a recoverable error while the backend is unavailable', async ({
 }) => {
   test.skip(phase !== 'outage')
   test.setTimeout(75_000)
-  await page.goto('/elements')
+  await page.goto('/it-definitions')
   await expect(page.getByRole('alert')).toBeVisible({ timeout: 70_000 })
   await expect(
     page.getByRole('button', { name: 'Retry', exact: true }),
@@ -171,7 +171,7 @@ test('retains content after restart, permits editing, and deletes cleanly', asyn
   expect(saved.images).toHaveLength(1)
   const imageId = saved.images[0].id as string
 
-  await page.goto(`/elements/${record!.id}`)
+  await page.goto(`/it-definitions/${record!.id}`)
   for (const [code, expectedTitle] of [
     ['EN', titles.EN],
     ['DE', titles.DE],

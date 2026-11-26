@@ -74,19 +74,19 @@ for (const language of ['en', 'de', 'ru']) {
       )
       for (const path of [
         '/',
-        '/elements',
+        '/it-definitions',
         '/settings',
-        '/elements/example-id',
-        '/elements/new',
-        '/elements/example-id/edit',
+        '/it-definitions/example-id',
+        '/it-definitions/new',
+        '/it-definitions/example-id/edit',
       ]) {
         await page.goto(path)
         await expect(page.locator('h1')).toBeVisible()
         if (path.endsWith('/edit'))
           await expect(page.locator('#image-manager-heading')).toBeVisible()
-        if (path === '/elements')
+        if (path === '/it-definitions')
           await expect(page.locator('table')).toBeVisible()
-        if (path === '/elements/example-id')
+        if (path === '/it-definitions/example-id')
           await expect(page.locator('figure')).toBeVisible()
         expect(
           await page.evaluate(() => document.documentElement.scrollWidth),
@@ -126,7 +126,7 @@ test('keyboard reaches table actions, traps dialog focus, edits and returns with
   page,
 }) => {
   await page.setViewportSize({ width: 320, height: 700 })
-  await page.goto('/elements')
+  await page.goto('/it-definitions')
   await page.keyboard.press('Tab')
   await expect(
     page.getByRole('link', { name: 'Skip to content' }),
@@ -172,19 +172,21 @@ test('keyboard reaches table actions, traps dialog focus, edits and returns with
   await tabTo(page, '#slug')
   await page.keyboard.press('End')
   await page.keyboard.type('-draft')
-  await tabTo(page, 'a[href="/elements/example-id"]')
+  await tabTo(page, 'a[href="/it-definitions/example-id"]')
   await page.keyboard.press('Enter')
   await expect(page.getByRole('dialog')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Keep editing' })).toBeFocused()
   await page.keyboard.press('Escape')
   await expect(page.locator('#slug')).toHaveValue('long-definition-draft')
-  await expect(page.locator('a[href="/elements/example-id"]')).toBeFocused()
+  await expect(
+    page.locator('a[href="/it-definitions/example-id"]'),
+  ).toBeFocused()
 })
 
 test('form boundaries have contrast and reduced-motion suppresses transitions', async ({
   page,
 }) => {
-  await page.goto('/elements/new')
+  await page.goto('/it-definitions/new')
   const colors = await page.locator('#slug').evaluate((node) => {
     const style = getComputedStyle(node)
     return { border: style.borderTopColor, background: style.backgroundColor }

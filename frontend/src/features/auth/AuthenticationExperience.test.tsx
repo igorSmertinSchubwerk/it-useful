@@ -72,7 +72,7 @@ test('shows an accessible email sign-in without loading private data', async () 
       return HttpResponse.json([])
     }),
   )
-  renderServerApp('/elements/new')
+  renderServerApp('/it-definitions/new')
   expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeVisible()
   expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
   expect(screen.getByLabelText('Email address')).toHaveAttribute(
@@ -104,7 +104,7 @@ test('returns to the remembered page once after sign-in, then follows the menu',
   server.use(
     http.get('http://localhost/api/admin/*', () => HttpResponse.json([])),
   )
-  renderServerApp('/elements')
+  renderServerApp('/it-definitions')
   await screen.findByRole('heading', { name: 'Sign in' })
 
   await submitSignIn('admin@example.com', 'correct horse battery staple')
@@ -211,7 +211,7 @@ test('clears private UI and reports expiry when an authenticated request gets 40
         : HttpResponse.json([]),
     ),
   )
-  renderServerApp('/elements')
+  renderServerApp('/it-definitions')
   expect(
     await screen.findByRole('heading', {
       name: 'A home for your IT knowledge',

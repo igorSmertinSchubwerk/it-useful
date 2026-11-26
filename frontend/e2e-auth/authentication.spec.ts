@@ -36,7 +36,7 @@ test('anonymous user gets the accessible email sign-in screen', async ({
   await page.route('**/api/session', (route) =>
     route.fulfill({ status: 401, json: { code: 'authentication_required' } }),
   )
-  await page.goto('/elements/new')
+  await page.goto('/it-definitions/new')
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
   await expect(page.getByRole('navigation')).toHaveCount(0)
   await expect(page.getByLabel('Email address')).toBeVisible()
@@ -49,14 +49,14 @@ test('signing in returns to the page that required it', async ({ page }) => {
   await page.route('**/api/elements/example-id', (route) =>
     route.fulfill({ json: elementFixture }),
   )
-  await page.goto('/elements/example-id?language=DE')
+  await page.goto('/it-definitions/example-id?language=DE')
   await expect(page).toHaveURL(/\/sign-in$/)
 
   await page.getByLabel('Email address').fill('admin@example.com')
   await page.getByLabel('Password').fill('correct horse battery staple')
   await page.getByRole('button', { name: 'Sign in' }).click()
 
-  await expect(page).toHaveURL(/\/elements\/example-id\?language=DE$/)
+  await expect(page).toHaveURL(/\/it-definitions\/example-id\?language=DE$/)
   await expect(
     page.getByRole('heading', { name: 'Definition details' }),
   ).toBeVisible()

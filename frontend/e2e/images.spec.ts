@@ -76,7 +76,7 @@ test('new definitions explain save-first workflow without an upload request', as
   page,
 }) => {
   await mockImages(page)
-  await page.goto('/elements/new')
+  await page.goto('/it-definitions/new')
   await expect(page.getByText(/Save the definition first/)).toBeVisible()
   await expect(page.locator('#image-file')).toHaveCount(0)
 })
@@ -84,7 +84,7 @@ test('upload previews a file, sends multipart once, refreshes gallery and detail
   page,
 }) => {
   const writes = await mockImages(page)
-  await page.goto('/elements/example-id/edit')
+  await page.goto('/it-definitions/example-id/edit')
   await choose(page)
   await expect(
     page.getByRole('img', { name: 'Selected image preview' }),
@@ -120,7 +120,7 @@ test('rejects type, empty/oversized/corrupt files and invalid metadata without w
   page,
 }) => {
   const writes = await mockImages(page)
-  await page.goto('/elements/example-id/edit')
+  await page.goto('/it-definitions/example-id/edit')
   for (const file of [
     {
       name: 'bad.svg',
@@ -159,7 +159,7 @@ test('metadata update preserves alt text while reordering and keeps definition d
   page,
 }) => {
   const writes = await mockImages(page)
-  await page.goto('/elements/example-id/edit')
+  await page.goto('/it-definitions/example-id/edit')
   await page.locator('#EN-title').fill('Unsaved title')
   await page.locator('#order-first').fill('3')
   await page
@@ -190,7 +190,7 @@ test('delete Cancel/Escape preserve the image; confirm deletes once and restores
   page,
 }) => {
   const writes = await mockImages(page)
-  await page.goto('/elements/example-id/edit')
+  await page.goto('/it-definitions/example-id/edit')
   const trigger = page.getByRole('button', {
     name: 'Delete image: first.png',
     exact: true,
@@ -231,7 +231,7 @@ test('pending upload blocks competing writes/navigation and exposes progress, th
     await gate
     await route.fulfill({ status: 503, json: { code: 'internal_error' } })
   })
-  await page.goto('/elements/example-id/edit')
+  await page.goto('/it-definitions/example-id/edit')
   await choose(page)
   await page.getByRole('button', { name: 'Upload image', exact: true }).click()
   await expect(page.getByRole('progressbar')).toBeVisible()
@@ -269,7 +269,7 @@ test('server conflicts and delete failures keep images and allow explicit retry'
           json: fail ? { code: 'duplicate_image_order' } : undefined,
         }),
   )
-  await page.goto('/elements/example-id/edit')
+  await page.goto('/it-definitions/example-id/edit')
   await page.locator('#order-first').fill('5')
   await page
     .getByRole('button', { name: 'Save image details: first.png' })
@@ -296,7 +296,7 @@ test('image drafts trigger navigation warning; Russian mobile manager is accessi
 }) => {
   await mockImages(page)
   await page.setViewportSize({ width: 375, height: 812 })
-  await page.goto('/elements/example-id/edit')
+  await page.goto('/it-definitions/example-id/edit')
   await page.locator('#alt-first').fill('Draft alt')
   await page.getByRole('link', { name: 'Cancel', exact: true }).click()
   await page.getByRole('button', { name: 'Keep editing' }).click()

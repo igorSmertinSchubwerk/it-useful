@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import type { ElementListItem } from '../api/contracts'
 import { useI18n } from '../i18n/context'
 import { localizeApiError } from '../i18n/errors'
-import { elementPath } from '../utils/paths'
+import { definitionsPath, elementPath } from '../utils/paths'
 import { useElements } from '../features/elements/queries'
 import {
   parseContentLanguage,
@@ -126,7 +126,7 @@ export default function ElementListPage() {
         </button>
         {canEdit && (
           <Link
-            to={`/elements/new${params.size ? `?${params.toString()}` : ''}`}
+            to={`${definitionsPath}/new${params.size ? `?${params.toString()}` : ''}`}
             className="text-brand underline"
           >
             {t.create}

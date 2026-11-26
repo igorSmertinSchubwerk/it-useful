@@ -20,7 +20,7 @@ test('list opens selected translation and preserves search through detail, edit,
   await page.route('**/api/elements/example-id', (route) =>
     route.fulfill({ json: elementFixture }),
   )
-  await page.goto('/elements?language=DE&q=http&sort=newest')
+  await page.goto('/it-definitions?language=DE&q=http&sort=newest')
   await page
     .getByRole('link', { name: 'HTTP auf Deutsch', exact: true })
     .click()
@@ -45,7 +45,7 @@ test('language changes are independent, survive reload, and support browser hist
   await page.route('**/api/elements/example-id', (route) =>
     route.fulfill({ json: elementFixture }),
   )
-  await page.goto('/elements/example-id')
+  await page.goto('/it-definitions/example-id')
   await expect(
     page.getByRole('heading', { name: 'HTTP', exact: true }),
   ).toBeVisible()
@@ -82,7 +82,7 @@ test('missing translation, blank fields, and empty gallery have clear states wit
       },
     }),
   )
-  await page.goto('/elements/example-id?language=RU')
+  await page.goto('/it-definitions/example-id?language=RU')
   await expect(
     page.getByText(/This translation is not available/),
   ).toBeVisible()
@@ -117,7 +117,7 @@ test('loading, server error, retry, and missing definition recover safely', asyn
           : { code: status === 404 ? 'element_not_found' : 'internal_error' },
     })
   })
-  await page.goto('/elements/example-id')
+  await page.goto('/it-definitions/example-id')
   await expect(page.getByText('Loading definition…')).toBeVisible()
   release()
   await expect(page.getByRole('alert')).toBeVisible()
@@ -143,7 +143,7 @@ test('refresh failure retains content but confirmed deletion removes cached cont
   await page.route('**/api/elements/example-id', (route) =>
     route.fulfill({ status, json: status === 200 ? elementFixture : {} }),
   )
-  await page.goto('/elements/example-id')
+  await page.goto('/it-definitions/example-id')
   await expect(
     page.getByRole('heading', { name: 'HTTP', exact: true }),
   ).toBeVisible()
@@ -206,7 +206,7 @@ test('ordered images, retry, safe Markdown, and Russian mobile accessibility', a
         }),
   )
   await page.setViewportSize({ width: 375, height: 812 })
-  await page.goto('/elements/example-id?language=RU')
+  await page.goto('/it-definitions/example-id?language=RU')
   await page.locator('#ui-language').selectOption('ru')
   await page.locator('figure').first().scrollIntoViewIfNeeded()
   await expect(page.locator('figure').first()).toContainText('Diagram')

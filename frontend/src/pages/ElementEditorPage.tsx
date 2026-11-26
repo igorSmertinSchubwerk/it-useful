@@ -4,6 +4,7 @@ import { ElementForm } from '../features/elements/ElementForm'
 import { elementsApi, elementKeys } from '../features/elements/queries'
 import { useI18n } from '../i18n/context'
 import { localizeApiError } from '../i18n/errors'
+import { definitionsPath } from '../utils/paths'
 
 function EditLoader({ id }: { id: string }) {
   const { t, language } = useI18n()
@@ -29,7 +30,7 @@ function EditLoader({ id }: { id: string }) {
         >
           {t.retry}
         </button>
-        <Link to="/elements" className="ml-4 text-brand underline">
+        <Link to={definitionsPath} className="ml-4 text-brand underline">
           {t.back}
         </Link>
       </div>

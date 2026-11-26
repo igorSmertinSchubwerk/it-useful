@@ -7,7 +7,7 @@ import { DetailImage } from '../features/elements/DetailImage'
 import { useCanEdit } from '../features/auth/context'
 import { useI18n } from '../i18n/context'
 import { localizeApiError } from '../i18n/errors'
-import { elementPath } from '../utils/paths'
+import { definitionsPath, elementPath } from '../utils/paths'
 
 export function ElementDetailPage() {
   const canEdit = useCanEdit()
@@ -57,7 +57,10 @@ export function ElementDetailPage() {
             </option>
           </select>
         </div>
-        <Link to={`/elements${suffix}`} className="text-brand underline">
+        <Link
+          to={`${definitionsPath}${suffix}`}
+          className="text-brand underline"
+        >
           {t.back}
         </Link>
         {element && canEdit && (

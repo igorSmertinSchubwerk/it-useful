@@ -88,10 +88,10 @@ test('dashboard shows a card per section with definition count and latest change
   expect(latest[2]).toContain('FTP')
   expect(
     within(definitionsCard).getByRole('link', { name: 'HTTP' }),
-  ).toHaveAttribute('href', '/elements/new-id')
+  ).toHaveAttribute('href', '/it-definitions/new-id')
   expect(
     within(definitionsCard).getByRole('link', { name: 'Open IT definitions' }),
-  ).toHaveAttribute('href', '/elements')
+  ).toHaveAttribute('href', '/it-definitions')
 
   const settingsCard = card('Settings')
   expect(within(settingsCard).getByText('English')).toBeVisible()
@@ -103,7 +103,7 @@ test('dashboard shows a card per section with definition count and latest change
 })
 
 test('main menu has three tabs and each section shows its own sub-tabs', async () => {
-  renderApp('/elements')
+  renderApp('/it-definitions')
   const main = await screen.findByRole('navigation', {
     name: 'Main navigation',
   })
@@ -311,7 +311,7 @@ test('the latest definitions use English titles like the list, whatever the inte
   })
   expect(
     await within(definitionsCard).findByRole('link', { name: 'HTTP' }),
-  ).toHaveAttribute('href', '/elements/http-id')
+  ).toHaveAttribute('href', '/it-definitions/http-id')
   expect(within(definitionsCard).getByText('1 Begriff')).toBeVisible()
 })
 
@@ -383,7 +383,7 @@ test('a signed-out user with an old bookmark lands on the new address after sign
   expect(router.state.location.pathname).toBe('/settings/accounts')
 })
 
-test.each(['/elementsx', '/settings-old'])(
+test.each(['/it-definitionsx', '/settings-old'])(
   'the unknown address %s shows no section sub-tabs',
   async (path) => {
     renderApp(path)
@@ -395,3 +395,86 @@ test.each(['/elementsx', '/settings-old'])(
     ).not.toBeInTheDocument()
   },
 )
+
+test('the definition list lives at /it-definitions under the IT definitions tab', async () => {
+  serveDefinitions()
+  renderApp('/it-definitions')
+
+  expect(
+    await screen.findByRole('heading', {
+      level: 1,
+      name: 'A home for your IT knowledge',
+    }),
+  ).toBeVisible()
+  expect(
+    within(
+      screen.getByRole('navigation', { name: 'Main navigation' }),
+    ).getByRole('link', { name: 'IT definitions' }),
+  ).toHaveAttribute('aria-current', 'page')
+  expect(await screen.findByRole('link', { name: 'HTTP' })).toHaveAttribute(
+    'href',
+    '/it-definitions/new-id',
+  )
+})
+
+test.each([
+  ['/elements', '/it-definitions'],
+  ['/elements/new', '/it-definitions/new'],
+  ['/elements/new-id?language=DE', '/it-definitions/new-id?language=DE'],
+  ['/elements/new-id/edit', '/it-definitions/new-id/edit'],
+])('the old address %s opens %s', async (oldPath, newPath) => {
+  const router = renderApp(oldPath)
+
+  expect(await screen.findByRole('heading', { level: 1 })).toBeVisible()
+  expect(
+    `${router.state.location.pathname}${router.state.location.search}`,
+  ).toBe(newPath)
+})
+
+test('an old definition link keeps its section anchor', async () => {
+  const router = renderApp('/elements/new-id?language=DE#examples')
+
+  expect(await screen.findByRole('heading', { level: 1 })).toBeVisible()
+  const { pathname, search, hash } = router.state.location
+  expect(`${pathname}${search}${hash}`).toBe(
+    '/it-definitions/new-id?language=DE#examples',
+  )
+})
+
+test('a signed-out user with an old definition link lands on the new address after sign-in', async () => {
+  let signedIn = false
+  server.use(
+    http.get('http://localhost/api/session', () =>
+      signedIn
+        ? HttpResponse.json({ ...adminSession, role: 'USER' })
+        : HttpResponse.json(
+            { code: 'authentication_required' },
+            { status: 401 },
+          ),
+    ),
+    http.get('http://localhost/api/session/csrf', () =>
+      HttpResponse.json({ headerName: 'X-CSRF-TOKEN', token: 'anonymous' }),
+    ),
+    http.post('http://localhost/api/session/login', () => {
+      signedIn = true
+      return new HttpResponse(null, { status: 204 })
+    }),
+  )
+  const router = renderApp('/elements/a%2Fb?language=DE', true)
+
+  await userEvent.type(
+    await screen.findByLabelText('Email address'),
+    'user@example.com',
+  )
+  await userEvent.type(screen.getByLabelText('Password'), 'secret password')
+  await userEvent.click(screen.getByRole('button', { name: 'Sign in' }))
+
+  expect(
+    await screen.findByRole('heading', {
+      level: 1,
+      name: 'Definition details',
+    }),
+  ).toBeVisible()
+  const { pathname, search } = router.state.location
+  expect(`${pathname}${search}`).toBe('/it-definitions/a%2Fb?language=DE')
+})

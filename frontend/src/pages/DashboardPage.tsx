@@ -13,7 +13,7 @@ import { selectElements } from '../features/elements/list'
 import { useElements } from '../features/elements/queries'
 import { useI18n } from '../i18n/context'
 import { localizeApiError } from '../i18n/errors'
-import { elementPath } from '../utils/paths'
+import { definitionsPath, elementPath } from '../utils/paths'
 
 const languageNames = { en: 'English', de: 'Deutsch', ru: 'Русский' }
 
@@ -62,7 +62,7 @@ function DefinitionsCard() {
       id="dashboard-definitions"
       title={t.itDefinitions}
       linkLabel={t.openItDefinitions}
-      to="/elements"
+      to={definitionsPath}
     >
       {query.isPending && <p role="status">{t.loading}</p>}
       {query.isError && (
