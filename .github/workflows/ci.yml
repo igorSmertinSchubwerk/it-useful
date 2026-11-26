@@ -42,8 +42,14 @@ jobs:
         with:
           distribution: temurin
           java-version-file: .java-version
-          cache: maven
-          cache-dependency-path: backend/pom.xml
+
+      # Saved for the image builds below, which read it instead of Maven Central.
+      - name: Cache the Maven repository
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('backend/pom.xml') }}
+          restore-keys: maven-${{ runner.os }}-
 
       - name: Run unit and integration tests
         run: ./scripts/project.sh test-backend
@@ -126,6 +132,18 @@ jobs:
         working-directory: frontend
         run: npx playwright install --with-deps chromium
 
+      - name: Restore the Maven repository for image builds
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('backend/pom.xml') }}
+          restore-keys: maven-${{ runner.os }}-
+
+      - name: Seed backend image builds with the Maven repository
+        run: |
+          mkdir -p "$HOME/.m2/repository"
+          echo "MAVEN_REPOSITORY_SEED=$HOME/.m2/repository" >> "$GITHUB_ENV"
+
       - name: Run isolated Compose acceptance
         run: ./scripts/project.sh test-acceptance
 
@@ -162,6 +180,20 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Restore the Maven repository for image builds
+        if: matrix.component == 'backend'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('backend/pom.xml') }}
+          restore-keys: maven-${{ runner.os }}-
+
+      - name: Seed backend image builds with the Maven repository
+        if: matrix.component == 'backend'
+        run: |
+          mkdir -p "$HOME/.m2/repository"
+          echo "MAVEN_REPOSITORY_SEED=$HOME/.m2/repository" >> "$GITHUB_ENV"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
@@ -172,6 +204,7 @@ jobs:
           load: true
           pull: true
           tags: it-useful-${{ matrix.component }}:ci
+          build-contexts: ${{ matrix.component == 'backend' && format('maven-repository={0}', env.MAVEN_REPOSITORY_SEED) || '' }}
           cache-from: type=gha,scope=container-${{ matrix.component }}
           cache-to: type=gha,mode=max,scope=container-${{ matrix.component }}
 

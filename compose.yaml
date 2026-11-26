@@ -21,6 +21,9 @@ services:
   backend:
     build:
       context: ./backend
+      # CI points this at its cached Maven repository. See backend/Dockerfile.
+      additional_contexts:
+        maven-repository: ${MAVEN_REPOSITORY_SEED:-./backend/maven-seed}
     environment:
       SPRING_PROFILES_ACTIVE: container
       SPRING_DOCKER_COMPOSE_ENABLED: "false"
