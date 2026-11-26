@@ -3,6 +3,11 @@
 FROM maven:3.9-eclipse-temurin-21-alpine AS build
 WORKDIR /workspace
 
+# Maven Central answers bursts from shared CI runners with HTTP 429. Each download
+# retries 6 times, waiting 15 s more every time. Retrying stops once the next wait
+# would exceed intervalMax, so it covers the 90 s wait of the last retry.
+ENV MAVEN_ARGS="-Daether.connector.http.retryHandler.count=6 -Daether.connector.http.retryHandler.interval=15000 -Daether.connector.http.retryHandler.intervalMax=90000"
+
 COPY pom.xml ./
 RUN --mount=type=cache,target=/root/.m2 \
     mvn -B -Dmaven.test.skip=true dependency:go-offline
