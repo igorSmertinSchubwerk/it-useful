@@ -17,29 +17,40 @@ import { definitionsPath, elementPath } from '../utils/paths'
 
 const languageNames = { en: 'English', de: 'Deutsch', ru: 'Русский' }
 
+const tileColors = {
+  first: 'bg-tile-1',
+  second: 'bg-tile-2',
+}
+
+const alertChip =
+  'justify-self-start rounded-xl bg-surface px-3 py-2 text-red-800'
+
 function DashboardCard({
   id,
   title,
   linkLabel,
   to,
+  tone,
   children,
 }: {
   id: string
   title: string
   linkLabel: string
   to: string
+  tone: keyof typeof tileColors
   children: ReactNode
 }) {
   return (
     <section
       aria-labelledby={id}
-      className="flex flex-col rounded-xl border border-line bg-surface p-6 sm:p-8"
+      data-tile
+      className={`flex flex-col rounded-[28px] p-7 text-tile-ink sm:p-8 ${tileColors[tone]}`}
     >
-      <h2 id={id} className="text-2xl font-bold">
+      <h2 id={id} className="text-2xl font-extrabold tracking-tight">
         {title}
       </h2>
       <div className="mt-4 grid flex-1 content-start gap-3">{children}</div>
-      <Link to={to} className="mt-6 font-semibold text-brand underline">
+      <Link to={to} className="mt-6 font-bold underline underline-offset-4">
         {linkLabel}
       </Link>
     </section>
@@ -63,16 +74,17 @@ function DefinitionsCard() {
       title={t.itDefinitions}
       linkLabel={t.openItDefinitions}
       to={definitionsPath}
+      tone="first"
     >
       {query.isPending && <p role="status">{t.loading}</p>}
       {query.isError && (
-        <p role="alert" className="text-red-800">
+        <p role="alert" className={alertChip}>
           {localizeApiError(query.error, language).message}
         </p>
       )}
       {query.data && (
         <>
-          <p className="text-4xl font-bold">
+          <p className="text-5xl font-extrabold tracking-tight">
             {formatCount(language, query.data.length, {
               one: t.definitionsOne,
               few: t.definitionsFew,
@@ -81,16 +93,16 @@ function DefinitionsCard() {
             })}
           </p>
           {latest.length === 0 ? (
-            <p className="text-muted">{t.empty}</p>
+            <p>{t.empty}</p>
           ) : (
             <>
               <h3 className="font-semibold">{t.recentlyChanged}</h3>
-              <ul className="grid gap-1">
+              <ul className="flex flex-wrap gap-2">
                 {latest.map((item) => (
                   <li key={item.id}>
                     <Link
                       to={elementPath(item.id)}
-                      className="text-brand underline"
+                      className="inline-block rounded-full bg-white px-4 py-1.5 font-semibold text-tile-ink hover:underline"
                     >
                       {item.titles[contentLanguage]?.trim() || item.slug}
                     </Link>
@@ -119,7 +131,7 @@ function AdministrationFigures() {
   })
   if (accounts.isError || invitations.isError)
     return (
-      <p role="alert" className="text-red-800">
+      <p role="alert" className={alertChip}>
         {t.authUnavailableText}
       </p>
     )
@@ -162,11 +174,12 @@ function SettingsCard() {
       title={t.settings}
       linkLabel={t.openSettings}
       to="/settings"
+      tone="second"
     >
       <dl className="grid gap-1">
-        <dt className="text-sm text-muted">{t.uiLanguage}</dt>
+        <dt className="text-sm">{t.uiLanguage}</dt>
         <dd className="font-semibold">{languageNames[language]}</dd>
-        <dt className="mt-2 text-sm text-muted">{t.account}</dt>
+        <dt className="mt-2 text-sm">{t.account}</dt>
         <dd className="font-semibold">
           {state.local ? t.localMode : state.email}
         </dd>
@@ -180,7 +193,7 @@ export function DashboardPage() {
   const { t } = useI18n()
   return (
     <>
-      <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+      <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl">
         {t.dashboard}
       </h1>
       <div className="mt-8 grid gap-6 md:grid-cols-2">

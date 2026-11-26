@@ -11,6 +11,13 @@
   --color-line: #cbd5e1;
   --color-control: #64748b;
   --color-on-brand: #ffffff;
+  --color-dock: #ffffff;
+  --color-dock-ink: #172033;
+  --color-dock-active: #e2e8f0;
+  --color-dock-active-ink: #172033;
+  --color-tile-1: #fb923c;
+  --color-tile-2: #2dd4bf;
+  --color-tile-ink: #1b1f3b;
 }
 
 /*
@@ -32,6 +39,10 @@
   --color-red-300: #991b1b;
   --color-red-800: #fca5a5;
   --color-red-900: #fecaca;
+  --color-dock: #1e293b;
+  --color-dock-ink: #e2e8f0;
+  --color-dock-active: #e2e8f0;
+  --color-dock-active-ink: #0f172a;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -49,7 +60,117 @@
     --color-red-300: #991b1b;
     --color-red-800: #fca5a5;
     --color-red-900: #fecaca;
+    --color-dock: #1e293b;
+    --color-dock-ink: #e2e8f0;
+    --color-dock-active: #e2e8f0;
+    --color-dock-active-ink: #0f172a;
   }
+}
+
+/*
+ * Section palettes. AppLayout marks the page with data-section, and every
+ * token below, the dock's included, follows it. The dark rules repeat the whole
+ * set because a section rule sits closer to the content than the root's.
+ */
+[data-section='dashboard'] {
+  --color-canvas: #fff4ea;
+  --color-surface: #ffffff;
+  --color-ink: #1b1f3b;
+  --color-muted: #4b5068;
+  --color-brand: #c2410c;
+  --color-line: #fbd5b5;
+  --color-on-brand: #ffffff;
+  --color-dock: #fb923c;
+  --color-dock-ink: #1b1f3b;
+  --color-dock-active: #ffffff;
+  --color-dock-active-ink: #1b1f3b;
+}
+
+[data-section='definitions'] {
+  --color-canvas: #eef2ff;
+  --color-surface: #ffffff;
+  --color-ink: #1e1b4b;
+  --color-muted: #4b4f7a;
+  --color-brand: #4338ca;
+  --color-line: #c7d2fe;
+  --color-on-brand: #ffffff;
+  --color-dock: #312e81;
+  --color-dock-ink: #ffffff;
+  --color-dock-active: #ffffff;
+  --color-dock-active-ink: #312e81;
+}
+
+[data-section='settings'] {
+  --color-canvas: #f3f4f6;
+  --color-surface: #ffffff;
+  --color-ink: #111827;
+  --color-muted: #4b5563;
+  --color-brand: #374151;
+  --color-line: #d1d5db;
+  --color-on-brand: #ffffff;
+  --color-dock: #ffffff;
+  --color-dock-ink: #374151;
+  --color-dock-active: #e5e7eb;
+  --color-dock-active-ink: #111827;
+}
+
+:root[data-theme='dark'] [data-section='dashboard'] {
+  --color-canvas: #1a1411;
+  --color-surface: #2a211b;
+  --color-ink: #f5ede6;
+  --color-muted: #c4b5a8;
+  --color-brand: #fdba74;
+  --color-line: #4a3b30;
+  --color-on-brand: #1b1f3b;
+  --color-dock: #fb923c;
+  --color-dock-ink: #1b1f3b;
+  --color-dock-active: #1b1f3b;
+  --color-dock-active-ink: #ffffff;
+}
+
+:root[data-theme='dark'] [data-section='definitions'] {
+  --color-canvas: #111029;
+  --color-surface: #1c1b3a;
+  --color-ink: #e0e7ff;
+  --color-muted: #a5a9d6;
+  --color-brand: #a5b4fc;
+  --color-line: #312e81;
+  --color-on-brand: #1e1b4b;
+  --color-dock: #4338ca;
+  --color-dock-ink: #ffffff;
+  --color-dock-active: #ffffff;
+  --color-dock-active-ink: #312e81;
+}
+
+:root[data-theme='dark'] [data-section='settings'] {
+  --color-canvas: #111315;
+  --color-surface: #1c1f23;
+  --color-ink: #e5e7eb;
+  --color-muted: #9ca3af;
+  --color-brand: #d1d5db;
+  --color-line: #374151;
+  --color-on-brand: #111827;
+  --color-dock: #2a2e34;
+  --color-dock-ink: #f3f4f6;
+  --color-dock-active: #f3f4f6;
+  --color-dock-active-ink: #111827;
+}
+
+/*
+ * Focus rings need 3:1 against the surface they sit on. The dock and the
+ * dashboard tiles use their own ink, and the panels that open from the dock sit
+ * on the plain surface again.
+ */
+header :focus-visible {
+  outline-color: var(--color-dock-ink);
+}
+
+header [role='region'] :focus-visible {
+  outline-color: var(--color-brand);
+}
+
+[data-tile] :focus-visible {
+  outline-color: var(--color-tile-ink);
 }
 
 /* Input/button boundaries need stronger contrast than decorative card borders. */

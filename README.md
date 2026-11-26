@@ -12,10 +12,12 @@ heading for admins. Settings shows its parts as cards on one page: General with
 the interface language, Accounts for admins on the server variant, and Change
 password on the server variant.
 
-Icons at the top right switch between light and dark mode, change the interface
-language, open Settings, and show the signed-in account with the sign-out
-button. Without a saved choice, the app opens in the operating system's color
-scheme.
+A floating dock at the top holds the tabs and, on its right, icons that switch
+between light and dark mode, change the interface language, open Settings, and
+show the signed-in account with the sign-out button. Without a saved choice, the
+app opens in the operating system's color scheme. Each section has its own
+colors, the dock's included: mandarin and teal for the dashboard, indigo for IT
+definitions, and grey and white for Settings.
 
 The application uses Java 21 with Spring Boot, React with TypeScript and
 Tailwind CSS, PostgreSQL with Flyway, and Docker Compose.
