@@ -226,7 +226,8 @@ metadata is returned in ascending `displayOrder`:
 When `displayOrder` is omitted, the server uses the next position after the
 current maximum. Success returns `201 Created`, the image metadata, and a
 `Location` header for `/api/images/{id}`. Duplicate order returns `409` with
-code `duplicate_image_order`.
+code `duplicate_image_order`. An element holds at most 5 images. One more
+returns `409` with code `image_limit_reached`, and no file is stored.
 
 ### Read image bytes
 
@@ -304,6 +305,7 @@ Stable codes currently include:
 | 404 | `image_not_found` | The image UUID does not exist |
 | 409 | `duplicate_slug` | Another element has the slug |
 | 409 | `duplicate_image_order` | The element already has an image at that order |
+| 409 | `image_limit_reached` | The element already has 5 images |
 | 409 | `data_conflict` | A database constraint rejected the request |
 | 413 | `upload_too_large` | The multipart upload exceeds the configured limit |
 | 500 | `storage_error` | Image storage failed |

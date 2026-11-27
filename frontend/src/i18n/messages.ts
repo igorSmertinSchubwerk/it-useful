@@ -52,6 +52,7 @@ const en = {
   errorImage: 'Choose a valid JPEG, PNG, or WebP image.',
   errorSlug: 'Another definition already uses this title.',
   errorOrder: 'This image position is already in use.',
+  errorImageLimit: 'A definition holds at most 5 images.',
   errorConflict:
     'The request conflicts with existing data. Refresh and try again.',
   errorUpload:
@@ -113,6 +114,7 @@ export const messages: Record<UiLanguage, Messages> = {
     errorImage: 'Wähle ein gültiges JPEG-, PNG- oder WebP-Bild.',
     errorSlug: 'Eine andere Definition verwendet diesen Titel bereits.',
     errorOrder: 'Diese Bildposition wird bereits verwendet.',
+    errorImageLimit: 'Eine Definition fasst höchstens 5 Bilder.',
     errorConflict:
       'Die Anfrage steht im Konflikt mit vorhandenen Daten. Aktualisiere die Seite und versuche es erneut.',
     errorUpload:
@@ -170,6 +172,7 @@ export const messages: Record<UiLanguage, Messages> = {
     errorImage: 'Выбери корректное изображение JPEG, PNG или WebP.',
     errorSlug: 'Этот заголовок уже используется другим определением.',
     errorOrder: 'Эта позиция изображения уже занята.',
+    errorImageLimit: 'У определения может быть не более 5 изображений.',
     errorConflict:
       'Запрос противоречит существующим данным. Обнови страницу и попробуй ещё раз.',
     errorUpload:

@@ -145,6 +145,32 @@ class ElementImageControllerIntegrationTests {
 		assertThat(imageRepository.findAllByElementIdOrderByDisplayOrder(elementId)).isEmpty();
 	}
 
+	@Test
+	void rejectsASixthImageAndStoresNoFileForIt() throws Exception {
+		UUID elementId = elementRepository.saveAndFlush(completeElement("image-limit")).getId();
+		for (int order = 0; order < 5; order++) {
+			mockMvc.perform(multipart("/api/elements/{elementId}/images", elementId)
+					.file(new MockMultipartFile("file", "diagram.png", "image/png", PNG))
+					.param("displayOrder", String.valueOf(order)))
+					.andExpect(status().isCreated());
+		}
+		long storedFiles = countStoredFiles();
+
+		mockMvc.perform(multipart("/api/elements/{elementId}/images", elementId)
+				.file(new MockMultipartFile("file", "sixth.png", "image/png", PNG)))
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.code").value("image_limit_reached"));
+
+		assertThat(imageRepository.findAllByElementIdOrderByDisplayOrder(elementId)).hasSize(5);
+		assertThat(countStoredFiles()).isEqualTo(storedFiles);
+	}
+
+	private static long countStoredFiles() throws IOException {
+		try (var files = Files.list(STORAGE_DIRECTORY)) {
+			return files.count();
+		}
+	}
+
 	private static Element completeElement(String slug) {
 		return new Element(slug)
 				.addTranslation(LanguageCode.EN, "English", "English content", null)

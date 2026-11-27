@@ -1,12 +1,19 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ElementForm } from '../features/elements/ElementForm'
 import { cardClass } from '../features/elements/formStyles'
 import { elementsApi, elementKeys } from '../features/elements/queries'
 import { useI18n } from '../i18n/context'
 import { localizeApiError } from '../i18n/errors'
 import { definitionsPath } from '../utils/paths'
+
+// The form carries the text editor, the largest part of the app. Only people
+// who create or edit a definition download it.
+const ElementForm = lazy(() =>
+  import('../features/elements/ElementForm').then((module) => ({
+    default: module.ElementForm,
+  })),
+)
 
 function EditLoader({
   id,
@@ -63,14 +70,16 @@ export function ElementEditorPage({ mode }: { mode: 'create' | 'edit' }) {
         </h1>
         <div ref={setHeaderSlot} className="contents" />
       </div>
-      {mode === 'create' ? (
-        <ElementForm
-          key={`new:${params.get('language') ?? 'EN'}`}
-          headerSlot={headerSlot}
-        />
-      ) : (
-        <EditLoader key={id} id={id} headerSlot={headerSlot} />
-      )}
+      <Suspense fallback={<p role="status">{t.detailLoading}</p>}>
+        {mode === 'create' ? (
+          <ElementForm
+            key={`new:${params.get('language') ?? 'EN'}`}
+            headerSlot={headerSlot}
+          />
+        ) : (
+          <EditLoader key={id} id={id} headerSlot={headerSlot} />
+        )}
+      </Suspense>
     </div>
   )
 }

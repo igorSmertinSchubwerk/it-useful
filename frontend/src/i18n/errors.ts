@@ -10,6 +10,7 @@ const errorKeys: Record<string, MessageKey> = {
   invalid_image: 'errorImage',
   duplicate_slug: 'errorSlug',
   duplicate_image_order: 'errorOrder',
+  image_limit_reached: 'errorImageLimit',
   data_conflict: 'errorConflict',
   upload_too_large: 'errorUpload',
   storage_error: 'errorStorage',

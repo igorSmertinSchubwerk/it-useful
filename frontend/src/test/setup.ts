@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { cleanup } from '@testing-library/react'
+import { cleanup, configure } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll } from 'vitest'
 import { server } from './server'
 
@@ -16,6 +16,15 @@ if (typeof document !== 'undefined') {
   URL.revokeObjectURL = () => undefined
 }
 
+// One second is too short for the editor form on a busy machine or CI runner.
+configure({ asyncUtilTimeout: 5000 })
+
+// The form loads on demand. Loading it here keeps that first load out of the
+// time a test waits for a field to appear.
+beforeAll(async () => {
+  if (typeof document !== 'undefined')
+    await import('../features/elements/ElementForm')
+})
 beforeAll(() => server.listen({ onUnhandledFrame: 'error' }))
 afterEach(() => {
   cleanup()

@@ -10,6 +10,8 @@ release.
 - The definition form is split into cards with a language switch, a visual
   editor for explanation and examples that still saves Markdown, and a
   two-button dock for Cancel and Save.
+- The definition form and its text editor load only when a definition is
+  created or edited, which shrinks the first page load.
 - The slug field is gone. The slug comes from the English title, and a title
   that another definition already uses blocks the save with a warning.
 
@@ -19,6 +21,7 @@ release.
   file.
 - Up to five images can be chosen for a new definition. They upload after it is
   saved.
+- The API refuses a sixth image for a definition with `409 image_limit_reached`.
 
 ### Fixed
 
