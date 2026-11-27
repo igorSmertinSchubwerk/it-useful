@@ -15,7 +15,10 @@ RUN npm run build
 
 FROM nginxinc/nginx-unprivileged:1.31-alpine AS runtime
 USER root
-RUN apk upgrade --no-cache
+# A cached layer would keep yesterday's packages and their known
+# vulnerabilities. A new date makes the upgrade run again.
+ARG PACKAGES_AS_OF=unset
+RUN : "packages as of ${PACKAGES_AS_OF}" && apk upgrade --no-cache
 ARG NGINX_CONFIG=nginx.conf
 COPY ${NGINX_CONFIG} /etc/nginx/conf.d/default.conf
 COPY proxy-local.conf proxy-server.conf /etc/nginx/

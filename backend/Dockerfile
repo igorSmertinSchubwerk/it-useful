@@ -24,7 +24,10 @@ RUN --mount=type=cache,target=/root/.m2 \
     cp target/it-useful-backend-*.jar /workspace/app.jar
 
 FROM eclipse-temurin:21-jre-alpine AS runtime
-RUN apk upgrade --no-cache && \
+# A cached layer would keep yesterday's packages and their known
+# vulnerabilities. A new date makes the upgrade run again.
+ARG PACKAGES_AS_OF=unset
+RUN : "packages as of ${PACKAGES_AS_OF}" && apk upgrade --no-cache && \
     addgroup --system app && adduser --system --ingroup app app
 WORKDIR /app
 
