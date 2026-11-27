@@ -83,13 +83,13 @@ Run `./scripts/project.sh help` to see the current command list.
 | `./scripts/project.sh server-stop /absolute/path/server.env` | Stop the server variant without deleting data |
 | `./scripts/project.sh server-status /absolute/path/server.env` | Show server-variant status |
 | `./scripts/project.sh server-create-first-admin /absolute/path/server.env email` | Print the first admin's one-time invitation link while no account exists |
-| `sudo ./scripts/project.sh server-auto-deploy /absolute/path/server.env` | Deploy now, then deploy each new `main` commit once its CI passed |
+| `sudo ./scripts/project.sh server-auto-deploy /absolute/path/server.env` | Deploy now, then deploy each new `main` commit at once |
 | `./scripts/project.sh test` | Run backend and frontend checks |
 | `./scripts/project.sh test-full-stack` | Test the real local application workflow |
 | `./scripts/project.sh test-compose` | Test the production-style images |
 | `./scripts/project.sh test-acceptance` | Run clean-install, restart, persistence, and recovery acceptance |
 | `./scripts/project.sh test-backup` | Validate backup and restore with isolated Compose data |
-| `./scripts/project.sh test-auto-deploy` | Verify that automatic deployment waits for passed CI |
+| `./scripts/project.sh test-auto-deploy` | Verify that automatic deployment follows `main` |
 | `./scripts/project.sh test-server-security` | Test the assembled private-server authorization, browser defenses, exposure, limits, and restart behavior |
 | `./scripts/project.sh audit-release` | Check tracked files for credentials and generated output |
 | `./scripts/project.sh backup [directory]` | Back up PostgreSQL and uploaded images together |
@@ -211,7 +211,7 @@ Playwright browser once with `cd frontend && npx playwright install chromium`.
 | `./scripts/project.sh test-compose` | Clean image build and real workflow through the Compose stack |
 | `./scripts/project.sh test-acceptance` | Clean checkout, restart persistence, and failure recovery acceptance |
 | `./scripts/project.sh test-backup` | Backup and restore guards, safety copy, content, image bytes, and service state |
-| `./scripts/project.sh test-auto-deploy` | Deploys only commits whose checks passed, warns on failed checks, fails on an unreadable report |
+| `./scripts/project.sh test-auto-deploy` | Deploys each new commit once, retries a failed start, leaves a diverged checkout alone |
 | `./scripts/project.sh test-server-topology` | Server config, socket isolation, proxy routing, and anonymous auth boundary |
 | `./scripts/project.sh audit-release` | Tracked-file, credential-signature, size, and file-mode audit |
 

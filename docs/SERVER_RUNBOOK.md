@@ -254,23 +254,20 @@ database migration.
 ### Automatic deployment
 
 Install a systemd timer once. It deploys the checkout now, then checks `main`
-every two minutes. A new commit is deployed after every GitHub check on it has
-passed:
+every two minutes and deploys each new commit at once:
 
 ```bash
 sudo ./scripts/project.sh server-auto-deploy /etc/it-useful/server.env
 ```
 
-A commit with a failed check stays undeployed, and the journal records a
-warning with its hash. The next commit that passes is deployed. A failed start
-is retried on the next run. A checkout with local commits that `main` lacks
-stays as it is, with a warning. Follow the runs with
-`sudo journalctl -u it-useful-auto-deploy -f`. Without `sudo`, the deploying
-user sees no entries.
-
-The CI run on `main` takes 5 to 15 minutes, so a merge reaches the server
-within about 20 minutes. `cat /var/lib/it-useful/deployed-commit` shows the
-deployed commit without `sudo`.
+The timer does not wait for CI on `main`, so a merge is live after about two
+minutes plus the image build. Merge only a pull request whose checks passed,
+because nothing else stops a broken commit. A failed start is retried on the
+next run. A checkout with local commits that `main` lacks stays as it is, with
+a warning. Follow the runs with `sudo journalctl -u it-useful-auto-deploy -f`.
+Without `sudo`, the deploying user sees no entries.
+`cat /var/lib/it-useful/deployed-commit` shows the deployed commit without
+`sudo`.
 
 The timer runs the checkout's scripts as root. Anyone who can merge into `main`
 or write to the checkout therefore controls the host. Back up manually before

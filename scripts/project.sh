@@ -25,7 +25,7 @@ Application commands:
   server-create-first-admin <absolute-env-file> <email>
                     Print the first admin's invitation link while no account exists
   server-auto-deploy <absolute-env-file>
-                    Deploy now, then deploy each new main commit once its CI passed
+                    Deploy now, then deploy each new main commit at once
 
 Verification commands:
   test              Run backend and frontend checks
