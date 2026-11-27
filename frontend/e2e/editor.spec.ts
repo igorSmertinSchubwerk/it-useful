@@ -72,7 +72,6 @@ async function mockApi(page: Page) {
   return writes
 }
 async function fillAll(page: Page) {
-  await page.locator('#slug').fill('new-definition')
   for (const [code, label] of [
     ['EN', 'English'],
     ['DE', 'Deutsch'],
@@ -80,9 +79,8 @@ async function fillAll(page: Page) {
   ]) {
     await page.getByRole('tab', { name: new RegExp(label) }).click()
     await page.locator(`#${code}-title`).fill(`${code} title`)
-    await page
-      .locator(`#${code}-content`)
-      .fill(`## ${code} heading\n\n**Explanation**`)
+    await page.locator(`#${code}-content`).click()
+    await page.keyboard.type(`${code} explanation`)
   }
 }
 
@@ -92,13 +90,14 @@ test('required validation reveals language errors, focuses fields, and supports 
   const writes = await mockApi(page)
   await page.goto('/it-definitions/new')
   await page.getByRole('button', { name: 'Save definition' }).click()
-  await expect(page.locator('#slug')).toBeFocused()
+  await expect(page.locator('#EN-title')).toBeFocused()
   await expect(
     page.getByRole('tab', { name: 'Deutsch — has errors' }),
   ).toBeVisible()
-  await page.locator('#slug').fill('valid-slug')
+  await expect(page.getByLabel('Slug')).toHaveCount(0)
+  await page.locator('#EN-title').fill('Valid title')
   await page.getByRole('button', { name: 'Save definition' }).click()
-  await expect(page.locator('#EN-title')).toBeFocused()
+  await expect(page.locator('#EN-content')).toBeFocused()
   await page.getByRole('tab', { name: /English/ }).focus()
   await page.keyboard.press('ArrowRight')
   await expect(page.getByRole('tab', { name: /Deutsch/ })).toBeFocused()
@@ -106,16 +105,25 @@ test('required validation reveals language errors, focuses fields, and supports 
   expect(writes).toHaveLength(0)
 })
 
-test('creates exactly once, renders preview and saved detail, and refreshes list', async ({
+test('creates exactly once with typed formatting and a generated slug, then refreshes list', async ({
   page,
 }) => {
   const writes = await mockApi(page)
   await page.goto('/it-definitions/new')
   await fillAll(page)
-  await page.locator('#RU-examples').fill('~~~js\nconsole.log(1)\n~~~')
-  await expect(
-    page.getByRole('region', { name: 'Markdown preview' }).locator('pre'),
-  ).toContainText('console.log(1)')
+  const examples = page.locator('#panel-RU-examples')
+  await examples.locator('#RU-examples').click()
+  await examples.getByRole('button', { name: 'Code block' }).click()
+  await page.keyboard.type('console.log(1)')
+  await expect(examples.locator('pre')).toContainText('console.log(1)')
+  await page.locator('#RU-content').click()
+  await page.keyboard.press('End')
+  await page.keyboard.press('Enter')
+  await page
+    .locator('#panel-RU-content')
+    .getByRole('button', { name: 'Bold' })
+    .click()
+  await page.keyboard.type('important')
   await page
     .getByRole('button', { name: 'Save definition' })
     .evaluate((button: HTMLButtonElement) => {
@@ -124,11 +132,16 @@ test('creates exactly once, renders preview and saved detail, and refreshes list
     })
   await expect(page).toHaveURL(/\/it-definitions\/example-id\?language=RU$/)
   expect(writes).toHaveLength(1)
+  expect(writes[0].slug).toBe('en-title')
   expect(writes[0].translations.map((item) => item.languageCode)).toEqual([
     'EN',
     'DE',
     'RU',
   ])
+  expect(writes[0].translations[2].content).toBe(
+    'RU explanation\n\n**important**',
+  )
+  expect(writes[0].translations[2].examples).toBe('```\nconsole.log(1)\n```')
   await expect(page.getByRole('heading', { name: 'RU title' })).toBeVisible()
   await expect(page.locator('pre')).toContainText('console.log(1)')
   await page.getByRole('link', { name: 'Back to definitions' }).click()
@@ -143,6 +156,9 @@ test('edit loads all translations, preserves images and draft on UI change, and 
   const writes = await mockApi(page)
   await page.goto('/it-definitions/example-id/edit?language=DE')
   await expect(page.locator('#DE-title')).toHaveValue('HTTP auf Deutsch')
+  // Loading saved Markdown into the editors is not a change.
+  await expect(page.locator('#DE-content')).toContainText('Eine Anfrage')
+  await expect(page.getByText('Unsaved changes')).toHaveCount(0)
   await page.locator('#DE-title').fill('Geändert')
   await chooseInterfaceLanguage(page, 'ru')
   await expect(page.locator('#DE-title')).toHaveValue('Geändert')
@@ -155,12 +171,13 @@ test('edit loads all translations, preserves images and draft on UI change, and 
   await expect(page.getByRole('heading', { name: 'Geändert' })).toBeVisible()
 })
 
-test('server validation selects hidden tab and duplicate slug preserves entered values', async ({
+test('server validation selects hidden tab and a taken slug marks the English title', async ({
   page,
 }) => {
   await mockApi(page)
   let calls = 0
   await page.route('**/api/elements', (route) => {
+    if (route.request().method() === 'GET') return route.fallback()
     calls++
     return route.fulfill({
       status: calls === 1 ? 400 : 409,
@@ -189,8 +206,12 @@ test('server validation selects hidden tab and duplicate slug preserves entered 
   await expect(page.getByText('private server text')).toHaveCount(0)
   await page.locator('#DE-title').fill('Corrected')
   await page.getByRole('button', { name: 'Save definition' }).click()
-  await expect(page.locator('#slug')).toBeFocused()
-  await expect(page.locator('#slug')).toHaveValue('new-definition')
+  await expect(page.locator('#EN-title')).toBeFocused()
+  await expect(page.locator('#EN-title')).toHaveValue('EN title')
+  await expect(page.locator('#EN-title-error')).toHaveText(
+    'Another definition already uses this title.',
+  )
+  await page.getByRole('tab', { name: /Deutsch/ }).click()
   await expect(page.locator('#DE-title')).toHaveValue('Corrected')
   expect(calls).toBe(2)
 })
@@ -205,6 +226,7 @@ test('pending save disables editing and duplicate submissions, then recovers aft
     release = resolve
   })
   await page.route('**/api/elements', async (route) => {
+    if (route.request().method() === 'GET') return route.fallback()
     calls++
     await gate
     await route.fulfill({ status: 503, json: { code: 'internal_error' } })
@@ -217,7 +239,11 @@ test('pending save disables editing and duplicate submissions, then recovers aft
       button.click()
       button.click()
     })
-  await expect(page.locator('#slug')).toBeDisabled()
+  await expect(page.locator('#RU-title')).toBeDisabled()
+  await expect(page.locator('#RU-content')).toHaveAttribute(
+    'contenteditable',
+    'false',
+  )
   await expect(page.getByRole('button', { name: 'Saving…' })).toBeDisabled()
   await page.getByRole('link', { name: 'Cancel', exact: true }).click()
   await expect(page.getByRole('dialog')).toBeVisible()
@@ -229,7 +255,7 @@ test('pending save disables editing and duplicate submissions, then recovers aft
   await expect(page.getByRole('alert')).toContainText(
     'save result could not be confirmed',
   )
-  await expect(page.locator('#slug')).toBeEnabled()
+  await expect(page.locator('#RU-title')).toBeEnabled()
   await expect(page.locator('#RU-title')).toHaveValue('RU title')
   expect(calls).toBe(1)
 })
@@ -240,12 +266,12 @@ test('dirty navigation guards Cancel, header links, browser Back, and reload wit
   await mockApi(page)
   await page.goto('/it-definitions')
   await page.getByRole('link', { name: 'New definition' }).click()
-  await page.locator('#slug').fill('draft')
+  await page.locator('#EN-title').fill('draft')
   await page.getByRole('link', { name: 'Cancel', exact: true }).click()
   await expect(page.getByRole('button', { name: 'Keep editing' })).toBeFocused()
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
   await page.keyboard.press('Escape')
-  await expect(page.locator('#slug')).toHaveValue('draft')
+  await expect(page.locator('#EN-title')).toHaveValue('draft')
   await page
     .getByRole('navigation', { name: 'Main navigation' })
     .getByRole('link', { name: 'IT definitions', exact: true })
@@ -254,7 +280,7 @@ test('dirty navigation guards Cancel, header links, browser Back, and reload wit
   await page.goBack()
   await expect(page.getByRole('dialog')).toBeVisible()
   await page.getByRole('button', { name: 'Keep editing' }).click()
-  await expect(page.locator('#slug')).toHaveValue('draft')
+  await expect(page.locator('#EN-title')).toHaveValue('draft')
   const dialogPromise = page.waitForEvent('dialog')
   await page.evaluate(() => {
     setTimeout(() => window.location.reload(), 0)
@@ -262,7 +288,7 @@ test('dirty navigation guards Cancel, header links, browser Back, and reload wit
   const dialog = await dialogPromise
   expect(dialog.type()).toBe('beforeunload')
   await dialog.dismiss()
-  await expect(page.locator('#slug')).toHaveValue('draft')
+  await expect(page.locator('#EN-title')).toHaveValue('draft')
   await page.getByRole('link', { name: 'Cancel', exact: true }).click()
   await page.getByRole('button', { name: 'Discard and leave' }).click()
   await expect(page).toHaveURL(/\/it-definitions$/)
@@ -277,6 +303,7 @@ test('successful pending save closes a blocked navigation and opens the saved de
     release = resolve
   })
   await page.route('**/api/elements', async (route) => {
+    if (route.request().method() === 'GET') return route.fallback()
     await gate
     const body = route.request().postDataJSON() as ElementWriteRequest
     await route.fulfill({ status: 201, json: { ...elementFixture, ...body } })
@@ -284,7 +311,7 @@ test('successful pending save closes a blocked navigation and opens the saved de
   await page.goto('/it-definitions/new')
   await fillAll(page)
   await page.getByRole('button', { name: 'Save definition' }).click()
-  await expect(page.locator('#slug')).toBeDisabled()
+  await expect(page.locator('#RU-title')).toBeDisabled()
   await page.getByRole('link', { name: 'Cancel', exact: true }).click()
   await expect(page.getByRole('dialog')).toBeVisible()
   release()
@@ -316,26 +343,34 @@ test('clean cancel navigates without warning and edit missing/error states can r
   await expect(page.locator('#EN-title')).toHaveValue('HTTP')
 })
 
-test('Russian mobile form and preview are accessible and cannot execute Markdown HTML', async ({
+test('Russian mobile editor is accessible and cannot execute HTML from saved Markdown', async ({
   page,
 }) => {
   await mockApi(page)
+  const unsafe =
+    '# Заголовок\n\n<script>window.injected = true</script>\n\n<img src="x" onerror="window.injected = true">\n\n[Unsafe](javascript:alert%281%29)\n\n~~~\n' +
+    'long'.repeat(100) +
+    '\n~~~'
+  await page.route('**/api/elements/example-id', (route) =>
+    route.fulfill({
+      json: {
+        ...elementFixture,
+        translations: elementFixture.translations.map((item) => ({
+          ...item,
+          content: unsafe,
+        })),
+      },
+    }),
+  )
   await page.setViewportSize({ width: 375, height: 812 })
-  await page.goto('/it-definitions/new?language=RU')
+  await page.goto('/it-definitions/example-id/edit?language=RU')
   await chooseInterfaceLanguage(page, 'ru')
-  await page
-    .locator('#RU-content')
-    .fill(
-      '# Заголовок\n\n<script>window.injected = true</script>\n\n[Unsafe](javascript:alert%281%29)\n\n~~~\n' +
-        'long'.repeat(100) +
-        '\n~~~',
-    )
-  const preview = page.getByRole('region', { name: 'Предпросмотр Markdown' })
+  const editor = page.locator('#RU-content')
   await expect(
-    preview.getByRole('heading', { name: 'Заголовок' }),
+    editor.getByRole('heading', { name: 'Заголовок', level: 2 }),
   ).toBeVisible()
-  await expect(preview.locator('script')).toHaveCount(0)
-  await expect(preview.getByRole('link', { name: 'Unsafe' })).toHaveCount(0)
+  await expect(editor.locator('script, img')).toHaveCount(0)
+  await expect(editor.locator('a[href^="javascript"]')).toHaveCount(0)
   expect(await page.evaluate(() => Object.hasOwn(window, 'injected'))).toBe(
     false,
   )
@@ -347,6 +382,75 @@ test('Russian mobile form and preview are accessible and cannot execute Markdown
   ).toBe(true)
   await page.screenshot({
     path: 'test-results/editor-mobile.png',
+    fullPage: true,
+  })
+})
+
+test('an imported file fills the three languages and shows them formatted', async ({
+  page,
+}) => {
+  const writes = await mockApi(page)
+  await page.goto('/it-definitions/new')
+  await page.getByLabel('Import from file').setInputFiles({
+    name: 'cache.md',
+    mimeType: 'text/markdown',
+    buffer: Buffer.from(
+      '[en.title]\nCache\n[en.explanation]\nKeeps **copies**.\n[en.examples]\n- Redis\n[de.title]\nZwischenspeicher\n[de.explanation]\nHält Kopien.\n[ru.title]\nКэш\n[ru.explanation]\nХранит копии.\n',
+    ),
+  })
+  await expect(page.locator('#EN-title')).toHaveValue('Cache')
+  await expect(page.locator('#EN-content strong')).toHaveText('copies')
+  await expect(page.locator('#EN-examples li')).toHaveText('Redis')
+  await expect(page.getByRole('status')).toContainText('File imported')
+  await page.getByRole('button', { name: 'Save definition' }).click()
+  await expect(page).toHaveURL(/\/it-definitions\/example-id\?language=EN$/)
+  expect(writes[0]).toEqual({
+    slug: 'cache',
+    translations: [
+      {
+        languageCode: 'EN',
+        title: 'Cache',
+        content: 'Keeps **copies**.',
+        examples: '- Redis',
+      },
+      {
+        languageCode: 'DE',
+        title: 'Zwischenspeicher',
+        content: 'Hält Kopien.',
+        examples: '',
+      },
+      {
+        languageCode: 'RU',
+        title: 'Кэш',
+        content: 'Хранит копии.',
+        examples: '',
+      },
+    ],
+  })
+})
+
+test('the language switch and the button dock keep their shape', async ({
+  page,
+}) => {
+  await mockApi(page)
+  await page.goto('/it-definitions/new')
+  const dock = page.locator('[data-dock]')
+  const cancel = await dock.getByRole('link', { name: 'Cancel' }).boundingBox()
+  const save = await dock
+    .getByRole('button', { name: 'Save definition' })
+    .boundingBox()
+  expect(cancel!.y).toBe(save!.y)
+  const card = await page.locator('#panel-EN-examples').boundingBox()
+  expect((await dock.boundingBox())!.width).toBeLessThan(card!.width / 2)
+  await page.getByRole('tab', { name: 'Русский' }).click()
+  await expect(page.getByRole('tab', { name: 'Русский' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  )
+  await expect(page.locator('#RU-title')).toBeVisible()
+  await expect(page.locator('#EN-title')).toBeHidden()
+  await page.screenshot({
+    path: 'test-results/editor-desktop.png',
     fullPage: true,
   })
 })

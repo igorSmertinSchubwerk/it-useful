@@ -73,13 +73,55 @@ async function choose(page: Page) {
   ).toBeEnabled()
 }
 
-test('new definitions explain save-first workflow without an upload request', async ({
+test('a new definition shows chosen images as a gallery and uploads them in order after saving', async ({
   page,
 }) => {
-  await mockImages(page)
+  const writes = await mockImages(page)
+  await page.route('**/api/elements', (route) =>
+    route.request().method() === 'POST'
+      ? route.fulfill({ status: 201, json: elementFixture })
+      : route.fulfill({ json: [] }),
+  )
   await page.goto('/it-definitions/new')
-  await expect(page.getByText(/Save the definition first/)).toBeVisible()
-  await expect(page.locator('#image-file')).toHaveCount(0)
+  await page.getByLabel('Add images').setInputFiles(
+    ['a', 'b', 'c', 'd', 'e', 'f'].map((name) => ({
+      name: `${name}.png`,
+      mimeType: 'image/png',
+      buffer: png,
+    })),
+  )
+  const gallery = page.getByRole('region', { name: 'Images' })
+  await expect(gallery.getByRole('img')).toHaveCount(5)
+  await expect(gallery.getByRole('alert')).toHaveText(
+    'Only 5 images fit. The others were not added.',
+  )
+  await expect(gallery.getByRole('img', { name: 'a.png' })).toHaveJSProperty(
+    'naturalWidth',
+    1,
+  )
+  await gallery.getByRole('button', { name: 'Remove image: b.png' }).click()
+  await expect(gallery.getByRole('img')).toHaveCount(4)
+  expect(writes).toHaveLength(0)
+  for (const [code, label] of [
+    ['EN', 'English'],
+    ['DE', 'Deutsch'],
+    ['RU', 'Русский'],
+  ]) {
+    await page.getByRole('tab', { name: label }).click()
+    await page.locator(`#${code}-title`).fill(`${code} title`)
+    await page.locator(`#${code}-content`).click()
+    await page.keyboard.type('Explanation')
+  }
+  await page.getByRole('button', { name: 'Save definition' }).click()
+  await expect(page).toHaveURL(/\/it-definitions\/example-id\?language=RU$/)
+  expect(
+    writes.map((write) =>
+      /filename="(\w\.png)"[\s\S]*name="displayOrder"\r\n\r\n(\d)/
+        .exec(write.body!)!
+        .slice(1)
+        .join(':'),
+    ),
+  ).toEqual(['a.png:0', 'c.png:1', 'd.png:2', 'e.png:3'])
 })
 test('upload previews a file, sends multipart once, refreshes gallery and detail', async ({
   page,

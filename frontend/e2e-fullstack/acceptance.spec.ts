@@ -5,14 +5,14 @@ const slug = process.env.ACCEPTANCE_SLUG
 
 if (!phase || !slug) throw new Error('Use scripts/test-acceptance.sh')
 
+// The slug comes from the English title, so the run's slug is that title.
 const titles = {
-  EN: 'Acceptance definition',
+  EN: slug!,
   DE: 'Akzeptanzbegriff',
   RU: 'Приёмочное определение',
 } as const
 
 async function fillDefinition(page: import('@playwright/test').Page) {
-  await page.locator('#slug').fill(slug!)
   for (const [code, label] of [
     ['EN', 'English'],
     ['DE', 'Deutsch'],
@@ -20,12 +20,14 @@ async function fillDefinition(page: import('@playwright/test').Page) {
   ] as const) {
     await page.getByRole('tab', { name: new RegExp(`^${label}`) }).click()
     await page.locator(`#${code}-title`).fill(titles[code])
+    await page.locator(`#${code}-content`).click()
+    await page.keyboard.type(`Content stored in ${code}.`)
+    await page.locator(`#${code}-examples`).click()
     await page
-      .locator(`#${code}-content`)
-      .fill(`## ${titles[code]}\n\nContent stored in ${code}.`)
-    await page
-      .locator(`#${code}-examples`)
-      .fill(`\`\`\`text\n${code} acceptance example\n\`\`\``)
+      .locator(`#panel-${code}-examples`)
+      .getByRole('button', { name: 'Code block' })
+      .click()
+    await page.keyboard.type(`${code} acceptance example`)
   }
 }
 
@@ -42,7 +44,7 @@ test('seed the complete workflow and validate rejected input', async ({
 
   await page.goto('/it-definitions/new')
   await page.getByRole('button', { name: 'Save definition' }).click()
-  await expect(page.locator('#slug')).toBeFocused()
+  await expect(page.locator('#EN-title')).toBeFocused()
   await expect(page.getByRole('alert')).toContainText('Check the marked fields')
 
   await fillDefinition(page)
@@ -131,10 +133,10 @@ test('seed the complete workflow and validate rejected input', async ({
   await page
     .getByRole('button', { name: 'Save definition', exact: true })
     .click()
-  await expect(page.locator('#slug')).toBeFocused()
-  await expect(page.locator('#slug-error')).toContainText(
-    'This slug is already in use',
+  await expect(page.locator('#EN-title-error')).toContainText(
+    'Another definition already uses this title',
   )
+  await expect(page.locator('#EN-title')).toBeFocused()
 
   const saved = await (await request.get(`/api/elements/${id}`)).json()
   expect(saved.slug).toBe(slug)

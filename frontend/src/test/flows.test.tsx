@@ -82,9 +82,7 @@ test('edit submits three translations and renders the saved detail', async () =>
   )
   const router = mount('/it-definitions/example-id/edit')
   const user = userEvent.setup()
-  const title = await screen.findByRole('textbox', {
-    name: 'Title',
-  })
+  const title = await screen.findByRole('textbox', { name: 'Title' })
   await user.clear(title)
   await user.type(title, 'Updated HTTP')
   await user.click(screen.getByRole('button', { name: 'Save definition' }))
@@ -103,7 +101,7 @@ test('edit submits three translations and renders the saved detail', async () =>
   ).toBeVisible()
 })
 
-test('validation prevents writes and server field errors keep the draft', async () => {
+test('validation prevents writes and a taken slug keeps the draft', async () => {
   let calls = 0
   server.use(
     http.put('http://localhost/api/elements/example-id', () => {
@@ -113,17 +111,186 @@ test('validation prevents writes and server field errors keep the draft', async 
   )
   mount('/it-definitions/example-id/edit')
   const user = userEvent.setup()
-  const slug = await screen.findByLabelText('Slug')
-  await user.clear(slug)
+  const title = await screen.findByRole('textbox', { name: 'Title' })
+  expect(screen.queryByLabelText('Slug')).not.toBeInTheDocument()
+  await user.clear(title)
   await user.click(screen.getByRole('button', { name: 'Save definition' }))
-  await waitFor(() => expect(slug).toHaveAttribute('aria-invalid', 'true'))
+  await waitFor(() => expect(title).toHaveAttribute('aria-invalid', 'true'))
   expect(calls).toBe(0)
-  await user.type(slug, 'duplicate')
+  await user.type(title, 'Taken')
   await user.click(screen.getByRole('button', { name: 'Save definition' }))
   await waitFor(() => expect(calls).toBe(1))
-  await waitFor(() => expect(slug).toHaveAttribute('aria-invalid', 'true'))
-  expect(slug).toHaveValue('duplicate')
-  expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('HTTP')
+  await waitFor(() => expect(title).toHaveAttribute('aria-invalid', 'true'))
+  expect(title).toHaveAccessibleDescription(
+    'Another definition already uses this title.',
+  )
+  expect(title).toHaveValue('Taken')
+})
+
+test('a title another definition uses warns at once and blocks saving', async () => {
+  let calls = 0
+  server.use(
+    http.get('http://localhost/api/elements', () => HttpResponse.json(list)),
+    http.post('http://localhost/api/elements', () => {
+      calls++
+      return HttpResponse.json(elementFixture, { status: 201 })
+    }),
+  )
+  mount('/it-definitions/new')
+  const user = userEvent.setup()
+  for (const label of ['Русский', 'Deutsch', 'English']) {
+    await user.click(screen.getByRole('tab', { name: label }))
+    await user.type(screen.getByRole('textbox', { name: 'Title' }), label)
+    await user.click(screen.getByRole('textbox', { name: 'Explanation' }))
+    await user.paste('Content')
+  }
+  const title = screen.getByRole('textbox', { name: 'Title' })
+  await user.clear(title)
+  await user.type(title, ' http')
+  await waitFor(() =>
+    expect(title).toHaveAccessibleDescription(
+      'Another definition already uses this title.',
+    ),
+  )
+  expect(title).toHaveAttribute('aria-invalid', 'true')
+  expect(
+    screen.getByRole('tab', { name: 'English — has errors' }),
+  ).toBeVisible()
+  await user.click(screen.getByRole('button', { name: 'Save definition' }))
+  // Saving moves the focus back to the title that is taken.
+  await waitFor(() => expect(title).toHaveFocus())
+  expect(calls).toBe(0)
+  await user.type(title, ' 2')
+  await waitFor(() => expect(title).toHaveAttribute('aria-invalid', 'false'))
+})
+
+test('an imported file fills every language and saves with a slug from the English title', async () => {
+  let payload: ElementWriteRequest | undefined
+  server.use(
+    http.post('http://localhost/api/elements', async ({ request }) => {
+      payload = (await request.json()) as ElementWriteRequest
+      return HttpResponse.json(
+        { ...elementFixture, ...payload },
+        { status: 201 },
+      )
+    }),
+  )
+  const router = mount('/it-definitions/new')
+  const user = userEvent.setup()
+  const translations = {
+    en: {
+      title: 'Load Balancer',
+      explanation: 'Spreads **load**.',
+      examples: 'nginx',
+    },
+    de: { title: 'Lastverteiler', explanation: 'Verteilt Last.' },
+    ru: { title: 'Балансировщик', explanation: 'Распределяет нагрузку.' },
+  }
+  await user.upload(
+    screen.getByLabelText('Import from file'),
+    new File([JSON.stringify(translations)], 'lb.json', {
+      type: 'application/json',
+    }),
+  )
+  expect(await screen.findByRole('textbox', { name: 'Title' })).toHaveValue(
+    'Load Balancer',
+  )
+  expect(
+    screen
+      .getByRole('textbox', { name: 'Explanation' })
+      .querySelector('strong'),
+  ).toHaveTextContent('load')
+  await user.click(screen.getByRole('button', { name: 'Save definition' }))
+  await waitFor(() =>
+    expect(router.state.location.pathname).toBe('/it-definitions/example-id'),
+  )
+  expect(payload).toEqual({
+    slug: 'load-balancer',
+    translations: [
+      {
+        languageCode: 'EN',
+        title: 'Load Balancer',
+        content: 'Spreads **load**.',
+        examples: 'nginx',
+      },
+      {
+        languageCode: 'DE',
+        title: 'Lastverteiler',
+        content: 'Verteilt Last.',
+        examples: '',
+      },
+      {
+        languageCode: 'RU',
+        title: 'Балансировщик',
+        content: 'Распределяет нагрузку.',
+        examples: '',
+      },
+    ],
+  })
+})
+
+test('an unreadable import file reports an error and changes nothing', async () => {
+  mount('/it-definitions/new')
+  const user = userEvent.setup()
+  await user.upload(
+    screen.getByLabelText('Import from file'),
+    new File(['{"en": '], 'broken.json', { type: 'application/json' }),
+  )
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'This file could not be read.',
+  )
+  expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('')
+})
+
+test('a new definition keeps at most five images and uploads them after saving', async () => {
+  // jsdom cannot hand a multipart body to the mock server, so this counts the
+  // uploads. The browser tests check which files are sent and in which order.
+  let uploads = 0
+  server.use(
+    http.post('http://localhost/api/elements', async ({ request }) =>
+      HttpResponse.json(
+        { ...elementFixture, ...((await request.json()) as object) },
+        { status: 201 },
+      ),
+    ),
+    http.post('http://localhost/api/elements/example-id/images', () => {
+      uploads++
+      return HttpResponse.json(
+        {
+          id: `image-${uploads}`,
+          fileName: 'p.png',
+          contentType: 'image/png',
+          altText: null,
+          displayOrder: uploads - 1,
+          createdAt: elementFixture.createdAt,
+        },
+        { status: 201 },
+      )
+    }),
+  )
+  const router = mount('/it-definitions/new')
+  const user = userEvent.setup()
+  const picture = (index: number) =>
+    new File(['x'], `p${index}.png`, { type: 'image/png' })
+  await user.upload(
+    screen.getByLabelText('Add images'),
+    [1, 2, 3, 4, 5, 6].map(picture),
+  )
+  expect(await screen.findAllByRole('img')).toHaveLength(5)
+  expect(screen.getByRole('alert')).toHaveTextContent('Only 5 images fit.')
+  await user.click(screen.getByRole('button', { name: 'Remove image: p2.png' }))
+  expect(screen.getAllByRole('img')).toHaveLength(4)
+  for (const label of ['English', 'Deutsch', 'Русский']) {
+    await user.click(screen.getByRole('tab', { name: label }))
+    await user.type(screen.getByRole('textbox', { name: 'Title' }), label)
+    await user.click(screen.getByRole('textbox', { name: 'Explanation' }))
+    await user.paste('Content')
+  }
+  await user.click(screen.getByRole('button', { name: 'Save definition' }))
+  await waitFor(() =>
+    expect(router.state.location.pathname).toBe('/it-definitions/example-id'),
+  )
+  expect(uploads).toBe(4)
 })
 
 test('pending list reads expose loading before showing records', async () => {
@@ -218,16 +385,11 @@ test('create form prevents duplicate submission while the request is pending', a
   )
   const router = mount('/it-definitions/new')
   const user = userEvent.setup()
-  await user.type(screen.getByLabelText('Slug'), 'new-http')
   for (const label of ['English', 'Deutsch', 'Русский']) {
     await user.click(screen.getByRole('tab', { name: label }))
     await user.type(screen.getByRole('textbox', { name: 'Title' }), label)
-    await user.type(
-      screen.getByRole('textbox', {
-        name: 'Explanation (Markdown)',
-      }),
-      'Content',
-    )
+    await user.click(screen.getByRole('textbox', { name: 'Explanation' }))
+    await user.paste('Content')
   }
   const form = screen
     .getByRole('button', { name: 'Save definition' })
@@ -235,10 +397,37 @@ test('create form prevents duplicate submission while the request is pending', a
   fireEvent.submit(form)
   fireEvent.submit(form)
   await waitFor(() => expect(calls).toBe(1))
-  expect(screen.getByLabelText('Slug')).toBeDisabled()
+  expect(screen.getByRole('textbox', { name: 'Title' })).toBeDisabled()
   release()
   await waitFor(() =>
     expect(router.state.location.pathname).toBe('/it-definitions/example-id'),
   )
   expect(calls).toBe(1)
 })
+
+test.each([
+  [4, false],
+  [5, true],
+])(
+  'editing a definition with %i images has the image picker disabled: %s',
+  async (count, full) => {
+    const images = Array.from({ length: count }, (_, index) => ({
+      id: `image-${index}`,
+      fileName: `p${index}.png`,
+      contentType: 'image/png',
+      altText: null,
+      displayOrder: index,
+      createdAt: elementFixture.createdAt,
+    }))
+    server.use(
+      http.get('http://localhost/api/elements/example-id', () =>
+        HttpResponse.json({ ...elementFixture, images }),
+      ),
+    )
+    mount('/it-definitions/example-id/edit')
+    const picker = await screen.findByLabelText('Choose image')
+    expect(screen.getAllByRole('img')).toHaveLength(count)
+    if (full) expect(picker).toBeDisabled()
+    else expect(picker).toBeEnabled()
+  },
+)

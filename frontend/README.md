@@ -131,13 +131,68 @@ localized retry without reloading the whole definition.
 ## Creating and editing definitions
 
 The shared `ElementForm` uses React Hook Form and `schemas/elementSchema.ts`.
-It always sends exactly EN, DE, RU translations in that order. Slugs accept
-1–160 ASCII letters/numbers separated by single hyphens. The backend lowercases
-slugs on save. Each language requires a title (maximum 255 UTF-16 code units)
+It always sends exactly EN, DE, RU translations in that order. The form has no
+slug field: `slugFromTitle` builds the slug from the English title, and a saved
+definition keeps its slug until that title changes. A title another definition
+already uses in the same language shows a warning while typing and blocks the
+save. Each language requires a title (maximum 255 UTF-16 code units)
 and explanation (maximum 50,000). Examples are optional, at most 50,000 units.
 Java-compatible blank checks and length checks mirror the backend DTO rules,
-including supplementary characters such as emoji. Markdown whitespace is
-preserved; empty/null examples are represented by empty editor text.
+including supplementary characters such as emoji. Empty/null examples are
+represented by empty editor text.
+
+Explanation and examples use a visual editor (Tiptap) that reads and saves
+Markdown, so the API and the stored texts are unchanged. A text is rewritten
+only when you edit it. The toolbar offers what Markdown can store: bold, italic,
+strikethrough, inline code, heading, lists, quote, code block and link.
+
+### Importing a definition from a file
+
+**Import from file** fills the form from one `.txt`, `.md`, `.xml` or `.json`
+file of at most 1 MiB. One file can carry all three languages. Languages are
+`en`, `de`, `ru`. Fields are `title`, `explanation`, `examples`. Explanation and
+examples are Markdown. Keys the file leaves out keep what the form holds.
+
+```json
+{
+  "en": {
+    "title": "Cache",
+    "explanation": "Keeps **copies**.",
+    "examples": "- Redis"
+  },
+  "de": { "title": "Zwischenspeicher", "explanation": "Hält Kopien." },
+  "ru": { "title": "Кэш", "explanation": "Хранит копии." }
+}
+```
+
+```xml
+<definition>
+  <en><title>Cache</title><explanation>Keeps **copies**.</explanation><examples>- Redis</examples></en>
+  <de><title>Zwischenspeicher</title><explanation>Hält Kopien.</explanation></de>
+  <ru><title>Кэш</title><explanation>Хранит копии.</explanation></ru>
+</definition>
+```
+
+In `.txt` and `.md` files a line holding only `[language.field]` starts a value,
+which runs to the next such line:
+
+```text
+[en.title]
+Cache
+[en.explanation]
+Keeps **copies**.
+[en.examples]
+- Redis
+[de.title]
+Zwischenspeicher
+```
+
+### Images in the form
+
+A new definition queues up to five images, shows them as a gallery, and uploads
+them after the definition is saved. If an upload fails, the edit page opens with
+a notice. The edit page uploads at once and stops offering the picker at five
+images. The limit is a form rule. The API does not enforce it.
 
 Language tabs support arrow keys, Home/End, and preserve entered values. Tabs
 with errors are labelled; validation selects and focuses the first affected

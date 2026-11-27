@@ -3,6 +3,28 @@
 This file records user-visible changes and known limitations for each IT Useful
 release.
 
+## [Unreleased]
+
+### Changed
+
+- The definition form is split into cards with a language switch, a visual
+  editor for explanation and examples that still saves Markdown, and a
+  two-button dock for Cancel and Save.
+- The slug field is gone. The slug comes from the English title, and a title
+  that another definition already uses blocks the save with a warning.
+
+### Added
+
+- Import of a definition in all three languages from a txt, md, xml or json
+  file.
+- Up to five images can be chosen for a new definition. They upload after it is
+  saved.
+
+### Fixed
+
+- The header dock no longer shifts sideways between pages with and without a
+  scrollbar.
+
 ## [0.1.0] - 2026-09-08
 
 ### Added

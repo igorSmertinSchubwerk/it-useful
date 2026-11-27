@@ -1,12 +1,20 @@
+import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { ElementForm } from '../features/elements/ElementForm'
+import { cardClass } from '../features/elements/formStyles'
 import { elementsApi, elementKeys } from '../features/elements/queries'
 import { useI18n } from '../i18n/context'
 import { localizeApiError } from '../i18n/errors'
 import { definitionsPath } from '../utils/paths'
 
-function EditLoader({ id }: { id: string }) {
+function EditLoader({
+  id,
+  headerSlot,
+}: {
+  id: string
+  headerSlot: HTMLElement | null
+}) {
   const { t, language } = useI18n()
   // Separate edit snapshot: focus/reconnect refetches must not reset a draft.
   const query = useQuery({
@@ -21,7 +29,7 @@ function EditLoader({ id }: { id: string }) {
   if (query.isPending) return <p role="status">{t.detailLoading}</p>
   if (query.isError)
     return (
-      <div className="space-y-4">
+      <div className={`${cardClass} space-y-4`}>
         <p role="alert">{localizeApiError(query.error, language).message}</p>
         <button
           type="button"
@@ -35,23 +43,34 @@ function EditLoader({ id }: { id: string }) {
         </Link>
       </div>
     )
-  return <ElementForm key={id} element={query.data} />
+  return <ElementForm key={id} element={query.data} headerSlot={headerSlot} />
 }
 
 export function ElementEditorPage({ mode }: { mode: 'create' | 'edit' }) {
   const { id = '' } = useParams()
   const [params] = useSearchParams()
   const { t } = useI18n()
+  // The title stays mounted while the definition loads, so it keeps the focus
+  // the route change gave it. The form adds its controls to the slot beside it.
+  const [headerSlot, setHeaderSlot] = useState<HTMLElement | null>(null)
   return (
-    <article className="min-w-0 space-y-6 rounded-xl border border-line bg-surface p-6 sm:p-8">
-      <h1 className="text-3xl font-bold">
-        {mode === 'create' ? t.create : t.edit}
-      </h1>
+    <div className="min-w-0 space-y-5">
+      <div
+        className={`${cardClass} flex flex-wrap items-center gap-x-4 gap-y-3`}
+      >
+        <h1 className="mr-auto text-3xl font-bold">
+          {mode === 'create' ? t.create : t.edit}
+        </h1>
+        <div ref={setHeaderSlot} className="contents" />
+      </div>
       {mode === 'create' ? (
-        <ElementForm key={`new:${params.get('language') ?? 'EN'}`} />
+        <ElementForm
+          key={`new:${params.get('language') ?? 'EN'}`}
+          headerSlot={headerSlot}
+        />
       ) : (
-        <EditLoader key={id} id={id} />
+        <EditLoader key={id} id={id} headerSlot={headerSlot} />
       )}
-    </article>
+    </div>
   )
 }

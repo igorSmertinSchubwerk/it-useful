@@ -61,3 +61,21 @@ export function SunIcon() {
     </Icon>
   )
 }
+
+export function UploadIcon() {
+  return (
+    <Icon>
+      <path d="M12 16V4M7 9l5-5 5 5M4 20h16" />
+    </Icon>
+  )
+}
+
+export function ImageIcon() {
+  return (
+    <Icon>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="9" cy="10" r="2" />
+      <path d="m21 16-5-5-9 9" />
+    </Icon>
+  )
+}
