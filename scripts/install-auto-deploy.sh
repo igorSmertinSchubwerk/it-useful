@@ -14,7 +14,7 @@ project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 cat >/etc/systemd/system/it-useful-auto-deploy.service <<EOF
 [Unit]
-Description=Deploy IT Useful main once its CI passed
+Description=Deploy each new IT Useful main commit
 Wants=network-online.target
 After=network-online.target docker.service
 
