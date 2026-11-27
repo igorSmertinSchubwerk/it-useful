@@ -50,7 +50,7 @@ const en = {
   errorElementMissing: 'This definition was not found.',
   errorImageMissing: 'This image was not found.',
   errorImage: 'Choose a valid JPEG, PNG, or WebP image.',
-  errorSlug: 'This slug is already in use. Choose another.',
+  errorSlug: 'Another definition already uses this title.',
   errorOrder: 'This image position is already in use.',
   errorConflict:
     'The request conflicts with existing data. Refresh and try again.',
@@ -111,7 +111,7 @@ export const messages: Record<UiLanguage, Messages> = {
     errorElementMissing: 'Dieser Begriff wurde nicht gefunden.',
     errorImageMissing: 'Dieses Bild wurde nicht gefunden.',
     errorImage: 'Wähle ein gültiges JPEG-, PNG- oder WebP-Bild.',
-    errorSlug: 'Dieser Slug wird bereits verwendet. Wähle einen anderen.',
+    errorSlug: 'Eine andere Definition verwendet diesen Titel bereits.',
     errorOrder: 'Diese Bildposition wird bereits verwendet.',
     errorConflict:
       'Die Anfrage steht im Konflikt mit vorhandenen Daten. Aktualisiere die Seite und versuche es erneut.',
@@ -168,7 +168,7 @@ export const messages: Record<UiLanguage, Messages> = {
     errorElementMissing: 'Этот термин не найден.',
     errorImageMissing: 'Это изображение не найдено.',
     errorImage: 'Выбери корректное изображение JPEG, PNG или WebP.',
-    errorSlug: 'Этот slug уже используется. Выбери другой.',
+    errorSlug: 'Этот заголовок уже используется другим определением.',
     errorOrder: 'Эта позиция изображения уже занята.',
     errorConflict:
       'Запрос противоречит существующим данным. Обнови страницу и попробуй ещё раз.',

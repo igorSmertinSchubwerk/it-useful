@@ -161,7 +161,8 @@
  * dashboard tiles use their own ink, and the panels that open from the dock sit
  * on the plain surface again.
  */
-header :focus-visible {
+header :focus-visible,
+[data-dock] :focus-visible {
   outline-color: var(--color-dock-ink);
 }
 
@@ -179,6 +180,11 @@ header [role='region'] :focus-visible {
 }
 
 @layer base {
+  /* Keep the centred dock in place whether or not the page scrolls. */
+  html {
+    scrollbar-gutter: stable;
+  }
+
   body {
     margin: 0;
     min-width: 320px;

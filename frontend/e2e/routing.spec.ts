@@ -102,3 +102,42 @@ test('skip link works by keyboard on a narrow screen', async ({ page }) => {
     fullPage: true,
   })
 })
+
+test('the dock stays in place between a long page and a short one', async ({
+  playwright,
+  baseURL,
+}) => {
+  // Playwright hides scrollbars by default. The shift only shows with a real one.
+  const browser = await playwright.chromium.launch({
+    ignoreDefaultArgs: ['--hide-scrollbars'],
+  })
+  const page = await browser.newPage({
+    baseURL,
+    viewport: { width: 1280, height: 720 },
+  })
+  await page.route('**/api/elements', (route) =>
+    route.fulfill({
+      json: Array.from({ length: 40 }, (_, index) => ({
+        id: `id-${index}`,
+        slug: `term-${index}`,
+        titles: { EN: `Term ${index}` },
+        updatedAt: elementFixture.updatedAt,
+      })),
+    }),
+  )
+  await page.goto('/it-definitions')
+  await expect(
+    page.getByRole('link', { name: 'Term 39', exact: true }),
+  ).toBeVisible()
+  const dock = page.getByRole('banner').locator('div').first()
+  const onLongPage = await dock.boundingBox()
+  await page.getByRole('link', { name: 'Settings' }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Settings')
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollHeight <= innerHeight,
+    ),
+  ).toBe(true)
+  expect(await dock.boundingBox()).toEqual(onLongPage)
+  await browser.close()
+})

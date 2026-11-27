@@ -1,5 +1,11 @@
 import { expect, test } from 'vitest'
-import { elementSchema, initialValues, serverField } from './elementSchema'
+import {
+  elementSchema,
+  initialValues,
+  serverField,
+  slugFromTitle,
+  toWriteRequest,
+} from './elementSchema'
 import { elementFixture } from '../test/elementFixture'
 
 test('accepts complete translations and preserves Markdown whitespace', () => {
@@ -7,18 +13,48 @@ test('accepts complete translations and preserves Markdown whitespace', () => {
   values.translations[0].content = '  code\n\n'
   expect(elementSchema.parse(values)).toEqual(values)
 })
-test.each(['', 'a--b', '-a', 'a-', 'has space', 'слово', 'x'.repeat(161)])(
-  'rejects invalid slug %s',
-  (slug) => {
-    expect(
-      elementSchema.safeParse({ ...initialValues(elementFixture), slug })
-        .success,
-    ).toBe(false)
-  },
-)
-test('accepts uppercase and exact boundary lengths matching the backend', () => {
+test.each([
+  ['Load Balancer', 'load-balancer'],
+  ['  REST API  ', 'rest-api'],
+  ['Größe & Maß', 'groesse-mass'],
+  ['Café Über', 'cafe-ueber'],
+  ['C++ / C#', 'c-c'],
+  ['+++', ''],
+  [`${'a'.repeat(159)} b c`, 'a'.repeat(159)],
+])('slugFromTitle turns %j into %j', (title, slug) => {
+  expect(slugFromTitle(title)).toBe(slug)
+})
+test('toWriteRequest derives the slug of a new definition from the English title', () => {
   const values = initialValues(elementFixture)
-  values.slug = 'X'.repeat(160)
+  values.translations[0].title = 'Load Balancer'
+  expect(toWriteRequest(values)).toEqual({
+    slug: 'load-balancer',
+    translations: values.translations,
+  })
+})
+test('toWriteRequest keeps the saved slug while the English title is unchanged', () => {
+  const saved = { ...elementFixture, slug: 'hypertext' }
+  const values = initialValues(saved)
+  values.translations[1].title = 'Neu'
+  expect(toWriteRequest(values, saved).slug).toBe('hypertext')
+  values.translations[0].title = 'HTTP 2'
+  expect(toWriteRequest(values, saved).slug).toBe('http-2')
+})
+test('rejects an English title that yields no slug', () => {
+  const values = initialValues(elementFixture)
+  values.translations[0].title = '+++'
+  const result = elementSchema.safeParse(values)
+  expect(result.success).toBe(false)
+  if (!result.success) {
+    expect(result.error.issues[0].path).toEqual(['translations', 0, 'title'])
+    expect(result.error.issues[0].message).toBe('titleSlugRule')
+  }
+  values.translations[0].title = 'HTTP'
+  values.translations[2].title = '+++'
+  expect(elementSchema.safeParse(values).success).toBe(true)
+})
+test('accepts exact boundary lengths matching the backend', () => {
+  const values = initialValues(elementFixture)
   values.translations[0] = {
     languageCode: 'EN',
     title: 't'.repeat(255),
@@ -48,9 +84,9 @@ test.each(['', ' \t\n', '\u001c', '\u2003'])(
 )
 test('matches Java nonbreaking-space semantics and UTF-16 title length', () => {
   const values = initialValues(elementFixture)
-  values.translations[0].title = '\u00a0'
+  values.translations[1].title = '\u00a0'
   expect(elementSchema.safeParse(values).success).toBe(true)
-  values.translations[0].title = '😀'.repeat(128)
+  values.translations[1].title = '😀'.repeat(128)
   expect(elementSchema.safeParse(values).success).toBe(false)
 })
 test('requires exactly EN/DE/RU in canonical submission order', () => {
@@ -81,9 +117,10 @@ test('maps incomplete/reordered data by language, normalizes null examples, and 
   expect(values.translations[2].title).toBe('HTTP по-русски')
   expect(initialValues(elementFixture).translations[1].examples).toBe('')
   expect(values).not.toHaveProperty('images')
+  expect(values).not.toHaveProperty('slug')
 })
 test('only accepts known server field paths', () => {
-  expect(serverField('slug')).toBe('slug')
+  expect(serverField('slug')).toBe('translations.0.title')
   expect(serverField('translations[2].content')).toBe('translations.2.content')
   for (const field of [
     '__proto__',

@@ -2,8 +2,6 @@ const en = {
   imageManager: 'Manage images',
   imageImmediate:
     'Image changes are saved immediately and shared by all languages. Canceling the text form does not undo them.',
-  imageSaveFirst:
-    'Save the definition first, then choose Edit definition to add images.',
   imageChoose: 'Choose image',
   imageUpload: 'Upload image',
   imageUploading: 'Uploading image…',
@@ -11,7 +9,7 @@ const en = {
   imageAlt: 'Alternative text',
   imageOrder: 'Display position',
   imageHint:
-    'JPEG, PNG, or WebP, up to 10 MiB. Positions must be unique whole numbers; lower positions appear first.',
+    'Up to 5 images. JPEG, PNG, or WebP, up to 10 MiB each. Positions must be unique whole numbers; lower positions appear first.',
   imageFileType: 'Choose a JPEG, PNG, or WebP image.',
   imageFileSize: 'Choose a non-empty image no larger than 10 MiB.',
   imageAltLimit: 'Alternative text must be at most 500 characters.',
@@ -36,8 +34,6 @@ const de = {
   imageManager: 'Bilder verwalten',
   imageImmediate:
     'Bildänderungen werden sofort gespeichert und gelten für alle Sprachen. Das Abbrechen des Textformulars macht sie nicht rückgängig.',
-  imageSaveFirst:
-    'Speichere zuerst die Definition. Wähle danach „Definition bearbeiten“, um Bilder hinzuzufügen.',
   imageChoose: 'Bild auswählen',
   imageUpload: 'Bild hochladen',
   imageUploading: 'Bild wird hochgeladen…',
@@ -45,7 +41,7 @@ const de = {
   imageAlt: 'Alternativtext',
   imageOrder: 'Anzeigeposition',
   imageHint:
-    'JPEG, PNG oder WebP, bis 10 MiB. Positionen müssen eindeutige ganze Zahlen sein; kleinere Positionen erscheinen zuerst.',
+    'Bis zu 5 Bilder. JPEG, PNG oder WebP, je bis 10 MiB. Positionen müssen eindeutige ganze Zahlen sein; kleinere Positionen erscheinen zuerst.',
   imageFileType: 'Wähle ein JPEG-, PNG- oder WebP-Bild.',
   imageFileSize: 'Wähle ein nicht leeres Bild mit höchstens 10 MiB.',
   imageAltLimit: 'Der Alternativtext darf höchstens 500 Zeichen enthalten.',
@@ -71,8 +67,6 @@ const ru = {
   imageManager: 'Управление изображениями',
   imageImmediate:
     'Изменения изображений сохраняются сразу для всех языков. Отмена текстовой формы не отменяет их.',
-  imageSaveFirst:
-    'Сначала сохраните определение, затем выберите редактирование, чтобы добавить изображения.',
   imageChoose: 'Выбрать изображение',
   imageUpload: 'Загрузить изображение',
   imageUploading: 'Загрузка изображения…',
@@ -80,7 +74,7 @@ const ru = {
   imageAlt: 'Альтернативный текст',
   imageOrder: 'Позиция отображения',
   imageHint:
-    'JPEG, PNG или WebP, до 10 МиБ. Позиции должны быть уникальными целыми числами; меньшие позиции идут первыми.',
+    'До 5 изображений. JPEG, PNG или WebP, до 10 МиБ каждое. Позиции должны быть уникальными целыми числами; меньшие позиции идут первыми.',
   imageFileType: 'Выберите изображение JPEG, PNG или WebP.',
   imageFileSize: 'Выберите непустое изображение размером не более 10 МиБ.',
   imageAltLimit: 'Альтернативный текст должен содержать не более 500 символов.',

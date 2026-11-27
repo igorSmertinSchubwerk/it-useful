@@ -169,7 +169,7 @@ test('keyboard reaches table actions, traps dialog focus, edits and returns with
   await page.keyboard.press('Enter')
   await expect(page).toHaveURL(/\/edit$/)
   await expect(page.locator('h1')).toBeFocused()
-  await tabTo(page, '#slug')
+  await tabTo(page, '#EN-title')
   await page.keyboard.press('End')
   await page.keyboard.type('-draft')
   await tabTo(page, 'a[href="/it-definitions/example-id"]')
@@ -177,7 +177,7 @@ test('keyboard reaches table actions, traps dialog focus, edits and returns with
   await expect(page.getByRole('dialog')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Keep editing' })).toBeFocused()
   await page.keyboard.press('Escape')
-  await expect(page.locator('#slug')).toHaveValue('long-definition-draft')
+  await expect(page.locator('#EN-title')).toHaveValue(`${longWord}-draft`)
   await expect(
     page.locator('a[href="/it-definitions/example-id"]'),
   ).toBeFocused()
@@ -187,7 +187,7 @@ test('form boundaries have contrast and reduced-motion suppresses transitions', 
   page,
 }) => {
   await page.goto('/it-definitions/new')
-  const colors = await page.locator('#slug').evaluate((node) => {
+  const colors = await page.locator('#EN-title').evaluate((node) => {
     const style = getComputedStyle(node)
     return { border: style.borderTopColor, background: style.backgroundColor }
   })
@@ -212,12 +212,12 @@ test('form boundaries have contrast and reduced-motion suppresses transitions', 
   ).toBeGreaterThanOrEqual(3)
   await page.emulateMedia({ reducedMotion: 'reduce' })
   // Test-only probe ensures future transitions cannot ignore the preference.
-  await page.locator('#slug').evaluate((node) => {
+  await page.locator('#EN-title').evaluate((node) => {
     node.style.transition = 'color 2s'
   })
   expect(
     await page
-      .locator('#slug')
+      .locator('#EN-title')
       .evaluate((node) =>
         parseFloat(getComputedStyle(node).transitionDuration),
       ),

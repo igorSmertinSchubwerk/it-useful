@@ -12,6 +12,8 @@ import {
   nextImageOrder,
   validateImageFile,
 } from './imageValidation'
+import { maxImages } from './PendingImages'
+import { cardClass, cardLabelClass } from './formStyles'
 
 export interface ImageEditorState {
   dirty: boolean
@@ -293,13 +295,13 @@ export function ImageManager({
   return (
     <section
       aria-labelledby="image-manager-heading"
-      className="mt-8 min-w-0 space-y-5 border-t border-line pt-6"
+      className={`${cardClass} space-y-5`}
     >
       <h2
         ref={heading}
         id="image-manager-heading"
         tabIndex={-1}
-        className="text-2xl font-bold"
+        className={cardLabelClass}
       >
         {t.imageManager}
       </h2>
@@ -373,6 +375,7 @@ export function ImageManager({
             id="image-file"
             type="file"
             accept="image/jpeg,image/png,image/webp"
+            disabled={images.length >= maxImages}
             aria-describedby="image-hint"
             className="block w-full min-w-0 text-sm"
             onChange={(event) => {
@@ -443,67 +446,72 @@ export function ImageManager({
           </button>
         </div>
         {!images.length && <p>{t.imagesMissing}</p>}
-        {[...images]
-          .sort(
-            (a, b) =>
-              a.displayOrder - b.displayOrder || a.id.localeCompare(b.id),
-          )
-          .map((image) => {
-            const draft = drafts[image.id] ?? draftOf(image)
-            const change = (field: keyof Draft, value: string) =>
-              setDrafts({ ...drafts, [image.id]: { ...draft, [field]: value } })
-            return (
-              <div
-                key={image.id}
-                data-image-id={image.id}
-                className="min-w-0 space-y-4 rounded-lg border border-line p-4"
-              >
-                <DetailImage image={image} />
-                <label className="block" htmlFor={`alt-${image.id}`}>
-                  {t.imageAlt}
-                  <input
-                    id={`alt-${image.id}`}
-                    className={inputClass}
-                    value={draft.alt}
-                    onChange={(event) => change('alt', event.target.value)}
-                  />
-                </label>
-                <label className="block" htmlFor={`order-${image.id}`}>
-                  {t.imageOrder}
-                  <input
-                    id={`order-${image.id}`}
-                    type="number"
-                    min={0}
-                    max={2147483647}
-                    step={1}
-                    className={inputClass}
-                    value={draft.order}
-                    onChange={(event) => change('order', event.target.value)}
-                  />
-                </label>
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    onClick={() => saveImage(image)}
-                    className={buttonClass}
-                  >
-                    {t.imageSave}: {image.fileName}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setError(null)
-                      setValidation(null)
-                      setTarget(image)
-                    }}
-                    className={buttonClass}
-                  >
-                    {t.imageDelete}: {image.fileName}
-                  </button>
-                </div>
-              </div>
+        <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+          {[...images]
+            .sort(
+              (a, b) =>
+                a.displayOrder - b.displayOrder || a.id.localeCompare(b.id),
             )
-          })}
+            .map((image) => {
+              const draft = drafts[image.id] ?? draftOf(image)
+              const change = (field: keyof Draft, value: string) =>
+                setDrafts({
+                  ...drafts,
+                  [image.id]: { ...draft, [field]: value },
+                })
+              return (
+                <div
+                  key={image.id}
+                  data-image-id={image.id}
+                  className="min-w-0 space-y-4 rounded-lg border border-line p-4"
+                >
+                  <DetailImage image={image} />
+                  <label className="block" htmlFor={`alt-${image.id}`}>
+                    {t.imageAlt}
+                    <input
+                      id={`alt-${image.id}`}
+                      className={inputClass}
+                      value={draft.alt}
+                      onChange={(event) => change('alt', event.target.value)}
+                    />
+                  </label>
+                  <label className="block" htmlFor={`order-${image.id}`}>
+                    {t.imageOrder}
+                    <input
+                      id={`order-${image.id}`}
+                      type="number"
+                      min={0}
+                      max={2147483647}
+                      step={1}
+                      className={inputClass}
+                      value={draft.order}
+                      onChange={(event) => change('order', event.target.value)}
+                    />
+                  </label>
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={() => saveImage(image)}
+                      className={buttonClass}
+                    >
+                      {t.imageSave}: {image.fileName}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setError(null)
+                        setValidation(null)
+                        setTarget(image)
+                      }}
+                      className={buttonClass}
+                    >
+                      {t.imageDelete}: {image.fileName}
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
+        </div>
       </fieldset>
       {target && (
         <DeleteImageDialog
