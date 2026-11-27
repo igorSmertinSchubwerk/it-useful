@@ -114,6 +114,10 @@ test('creates exactly once with typed formatting and a generated slug, then refr
   const examples = page.locator('#panel-RU-examples')
   await examples.locator('#RU-examples').click()
   await examples.getByRole('button', { name: 'Code block' }).click()
+  // The click leaves the focus in the editor, so no typed key is lost.
+  expect(await page.evaluate(() => document.activeElement?.id)).toBe(
+    'RU-examples',
+  )
   await page.keyboard.type('console.log(1)')
   await expect(examples.locator('pre')).toContainText('console.log(1)')
   await page.locator('#RU-content').click()

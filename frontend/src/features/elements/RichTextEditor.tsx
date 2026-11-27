@@ -1,5 +1,5 @@
 import { useEffect, useImperativeHandle, useRef, useState } from 'react'
-import type { ReactNode, Ref } from 'react'
+import type { MouseEvent, ReactNode, Ref } from 'react'
 import { EditorContent, useEditor, useEditorState } from '@tiptap/react'
 import type { Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
@@ -85,6 +85,9 @@ const FlatHeading = Heading.extend({
     return ['h2', HTMLAttributes, 0]
   },
 }).configure({ levels: [1, 2, 3] })
+// A click must not move the focus to the button. Otherwise the editor gets it
+// back a frame later, and keys pressed in between are lost.
+const keepEditorFocus = (event: MouseEvent) => event.preventDefault()
 const toolClass =
   'grid h-9 min-w-9 place-items-center rounded-lg px-2 font-semibold hover:bg-brand/10 aria-pressed:bg-brand aria-pressed:text-on-brand'
 // Mirrors SafeMarkdown, so a text looks the same while editing and reading.
@@ -198,6 +201,7 @@ export function RichTextEditor({
                 aria-label={t[tool.label]}
                 aria-pressed={pressed[names.indexOf(tool.label)]}
                 className={toolClass}
+                onMouseDown={keepEditorFocus}
                 onClick={() => tool.run(editor)}
               >
                 <span aria-hidden="true">{tool.glyph}</span>
@@ -213,6 +217,7 @@ export function RichTextEditor({
           aria-pressed={pressed[names.length]}
           aria-expanded={link !== null}
           className={toolClass}
+          onMouseDown={keepEditorFocus}
           onClick={() =>
             setLink(
               link === null
