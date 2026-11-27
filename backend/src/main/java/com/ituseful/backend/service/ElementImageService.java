@@ -6,6 +6,7 @@ import com.ituseful.backend.dto.ElementImageResponse;
 import com.ituseful.backend.dto.ElementImageUpdateRequest;
 import com.ituseful.backend.exception.DuplicateImageOrderException;
 import com.ituseful.backend.exception.ElementNotFoundException;
+import com.ituseful.backend.exception.ImageLimitException;
 import com.ituseful.backend.exception.ImageNotFoundException;
 import com.ituseful.backend.mapper.ElementMapper;
 import com.ituseful.backend.repository.ElementImageRepository;
@@ -22,6 +23,8 @@ import java.util.UUID;
 
 @Service
 public class ElementImageService {
+
+	static final int MAX_IMAGES_PER_ELEMENT = 5;
 
 	private final ElementRepository elementRepository;
 	private final ElementImageRepository imageRepository;
@@ -44,6 +47,9 @@ public class ElementImageService {
 	public ElementImageResponse upload(UUID elementId, MultipartFile file, String altText, Integer requestedDisplayOrder) {
 		Element element = elementRepository.findDetailById(elementId)
 				.orElseThrow(() -> new ElementNotFoundException(elementId));
+		if (element.getImages().size() >= MAX_IMAGES_PER_ELEMENT) {
+			throw new ImageLimitException(MAX_IMAGES_PER_ELEMENT);
+		}
 		int displayOrder = requestedDisplayOrder == null ? nextDisplayOrder(element) : requestedDisplayOrder;
 		if (imageRepository.existsByElementIdAndDisplayOrder(elementId, displayOrder)) {
 			throw new DuplicateImageOrderException(displayOrder);

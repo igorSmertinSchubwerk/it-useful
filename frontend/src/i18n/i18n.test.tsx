@@ -105,6 +105,7 @@ test.each(['en', 'de', 'ru'] as const)(
       'invalid_image',
       'duplicate_slug',
       'duplicate_image_order',
+      'image_limit_reached',
       'data_conflict',
       'upload_too_large',
       'storage_error',

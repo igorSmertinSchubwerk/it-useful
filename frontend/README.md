@@ -192,7 +192,8 @@ Zwischenspeicher
 A new definition queues up to five images, shows them as a gallery, and uploads
 them after the definition is saved. If an upload fails, the edit page opens with
 a notice. The edit page uploads at once and stops offering the picker at five
-images. The limit is a form rule. The API does not enforce it.
+images. The API enforces the same limit and answers a sixth upload with
+`409 image_limit_reached`.
 
 Language tabs support arrow keys, Home/End, and preserve entered values. Tabs
 with errors are labelled; validation selects and focuses the first affected

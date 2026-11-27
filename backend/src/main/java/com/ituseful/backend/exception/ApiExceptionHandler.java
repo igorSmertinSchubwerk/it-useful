@@ -159,6 +159,11 @@ public class ApiExceptionHandler {
 		return response(HttpStatus.CONFLICT, exception.getMessage(), "duplicate_image_order", request);
 	}
 
+	@ExceptionHandler(ImageLimitException.class)
+	ResponseEntity<ProblemDetail> handleImageLimit(ImageLimitException exception, HttpServletRequest request) {
+		return response(HttpStatus.CONFLICT, exception.getMessage(), "image_limit_reached", request);
+	}
+
 	@ExceptionHandler(DataIntegrityViolationException.class)
 	ResponseEntity<ProblemDetail> handleConflict(DataIntegrityViolationException exception, HttpServletRequest request) {
 		return response(HttpStatus.CONFLICT, "The request conflicts with existing data", "data_conflict", request);
